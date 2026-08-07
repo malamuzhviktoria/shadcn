@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 // Blocking script: runs before React hydrates to apply the correct theme class
 // and prevent a flash of the wrong theme.
 const themeInitScript = `
-(function(){try{var t=localStorage.getItem('sc-theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()
+(function(){try{if(localStorage.getItem('sc-theme')==='dark'){document.documentElement.classList.add('dark')}}catch(e){}})()
 `
 
 export default function RootLayout({
