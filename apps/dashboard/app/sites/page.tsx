@@ -15,6 +15,7 @@ import { PageShell } from "@/components/page-shell"
 import { FilterDropdown } from "@/components/filter-dropdown"
 import { useBreadcrumbExtra } from "@/lib/breadcrumb-context"
 import { EmployeeStatusBadge } from "@/components/employee-status-badge"
+import { Badge } from "@/components/ui/badge"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -288,6 +289,126 @@ const INITIAL_SITES: Site[] = [
     area: "South Area", areaManagerEmail: "rachel.moore@spectrumclean.co.uk",
     areaManagerName: "Rachel Moore", geofenceRadius: 50,
     dailyBudgets: { mon: 9, tue: 9, wed: 9, thu: 9, fri: 9, sat: 0, sun: 0 },
+  },
+  {
+    id: "s26", siteNumber: "S-026", siteName: "Bridgewater House",
+    city: "Leeds", address: "60 Whitehall Road", postcode: "LS12 1BE",
+    customerCode: "GRH", customerName: "Greenhart Holdings",
+    area: "North Area", areaManagerEmail: "alex.thompson@spectrumclean.co.uk",
+    areaManagerName: "Alex Thompson", geofenceRadius: 75,
+    dailyBudgets: { mon: 8, tue: 8, wed: 8, thu: 8, fri: 8, sat: 0, sun: 0 },
+  },
+  {
+    id: "s27", siteNumber: "S-027", siteName: "Velocity Tower",
+    city: "Sheffield", address: "St Mary's Gate", postcode: "S1 4LT",
+    customerCode: "MTC", customerName: "Metroplex Trading Co.",
+    area: "North Area", areaManagerEmail: "alex.thompson@spectrumclean.co.uk",
+    areaManagerName: "Alex Thompson", geofenceRadius: 50,
+    dailyBudgets: { mon: 7, tue: 7, wed: 7, thu: 7, fri: 7, sat: 4, sun: 0 },
+  },
+  {
+    id: "s28", siteNumber: "S-028", siteName: "Forster Square Retail Park",
+    city: "Bradford", address: "Cheapside", postcode: "BD1 4HR",
+    customerCode: "SCL", customerName: "Sparkle Clean Ltd",
+    area: "North Area", areaManagerEmail: "alex.thompson@spectrumclean.co.uk",
+    areaManagerName: "Alex Thompson", geofenceRadius: 100,
+    dailyBudgets: { mon: 6, tue: 6, wed: 6, thu: 6, fri: 6, sat: 6, sun: 0 },
+  },
+  {
+    id: "s29", siteNumber: "S-029", siteName: "Kingsgate Shopping Centre",
+    city: "Huddersfield", address: "King Street", postcode: "HD1 2QB",
+    customerCode: "HPT", customerName: "Highpoint Estates",
+    area: "North Area", areaManagerEmail: "alex.thompson@spectrumclean.co.uk",
+    areaManagerName: "Alex Thompson", geofenceRadius: 75,
+    dailyBudgets: { mon: 8, tue: 8, wed: 8, thu: 8, fri: 8, sat: 4, sun: 4 },
+  },
+  {
+    id: "s30", siteNumber: "S-030", siteName: "Northgate House",
+    city: "Halifax", address: "Northgate", postcode: "HX1 1XA",
+    customerCode: "WRF", customerName: "Warfield Commercial",
+    area: "Yorkshire Area", areaManagerEmail: "sandra.bates@spectrumclean.co.uk",
+    areaManagerName: "Sandra Bates", geofenceRadius: 50,
+    dailyBudgets: { mon: 5, tue: 5, wed: 5, thu: 5, fri: 5, sat: 0, sun: 0 },
+  },
+  {
+    id: "s31", siteNumber: "S-031", siteName: "Cabot Circus",
+    city: "Bristol", address: "Cabot Circus Shopping Centre", postcode: "BS1 3BD",
+    customerCode: "CRP", customerName: "Crestview Properties",
+    area: "South West Area", areaManagerEmail: "james.harley@spectrumclean.co.uk",
+    areaManagerName: "James Harley", geofenceRadius: 100,
+    dailyBudgets: { mon: 10, tue: 10, wed: 10, thu: 10, fri: 10, sat: 6, sun: 6 },
+  },
+  {
+    id: "s32", siteNumber: "S-032", siteName: "Central Square",
+    city: "Cardiff", address: "Central Square", postcode: "CF10 1EP",
+    customerCode: "BLU", customerName: "Bluewater Urban Ltd",
+    area: "South West Area", areaManagerEmail: "james.harley@spectrumclean.co.uk",
+    areaManagerName: "James Harley", geofenceRadius: 75,
+    dailyBudgets: { mon: 8, tue: 8, wed: 8, thu: 8, fri: 8, sat: 0, sun: 0 },
+  },
+  {
+    id: "s33", siteNumber: "S-033", siteName: "West Quay",
+    city: "Southampton", address: "Western Esplanade", postcode: "SO15 1QA",
+    customerCode: "STV", customerName: "Staveley Facilities",
+    area: "South Area", areaManagerEmail: "rachel.moore@spectrumclean.co.uk",
+    areaManagerName: "Rachel Moore", geofenceRadius: 75,
+    dailyBudgets: { mon: 9, tue: 9, wed: 9, thu: 9, fri: 9, sat: 4, sun: 0 },
+  },
+  {
+    id: "s34", siteNumber: "S-034", siteName: "Friargate Tower",
+    city: "Coventry", address: "1 Friargate", postcode: "CV1 2GU",
+    customerCode: "AXL", customerName: "Axler Group",
+    area: "East Midlands Area", areaManagerEmail: "claire.baxter@spectrumclean.co.uk",
+    areaManagerName: "Claire Baxter", geofenceRadius: 50,
+    dailyBudgets: { mon: 7, tue: 7, wed: 7, thu: 7, fri: 7, sat: 0, sun: 0 },
+  },
+  {
+    id: "s35", siteNumber: "S-035", siteName: "Mander Centre",
+    city: "Wolverhampton", address: "Dudley Street", postcode: "WV1 3HX",
+    customerCode: "GRH", customerName: "Greenhart Holdings",
+    area: "East Midlands Area", areaManagerEmail: "claire.baxter@spectrumclean.co.uk",
+    areaManagerName: "Claire Baxter", geofenceRadius: 75,
+    dailyBudgets: { mon: 6, tue: 6, wed: 6, thu: 6, fri: 6, sat: 4, sun: 0 },
+  },
+  {
+    id: "s36", siteNumber: "S-036", siteName: "Broadmarsh Centre",
+    city: "Nottingham", address: "Lister Gate", postcode: "NG1 7LP",
+    customerCode: "MTE", customerName: "Metro Estates Ltd",
+    area: "East Midlands Area", areaManagerEmail: "claire.baxter@spectrumclean.co.uk",
+    areaManagerName: "Claire Baxter", geofenceRadius: 100,
+    dailyBudgets: { mon: 8, tue: 8, wed: 8, thu: 8, fri: 8, sat: 4, sun: 4 },
+  },
+  {
+    id: "s37", siteNumber: "S-037", siteName: "Highcross Leicester",
+    city: "Leicester", address: "Shires Lane", postcode: "LE1 4FQ",
+    customerCode: "CRP", customerName: "Crestview Properties",
+    area: "East Midlands Area", areaManagerEmail: "claire.baxter@spectrumclean.co.uk",
+    areaManagerName: "Claire Baxter", geofenceRadius: 75,
+    dailyBudgets: { mon: 9, tue: 9, wed: 9, thu: 9, fri: 9, sat: 4, sun: 0 },
+  },
+  {
+    id: "s38", siteNumber: "S-038", siteName: "Liverpool One",
+    city: "Liverpool", address: "5 Wall Street", postcode: "L1 8JQ",
+    customerCode: "WRF", customerName: "Warfield Commercial",
+    area: "North West Area", areaManagerEmail: "nisha.patel@spectrumclean.co.uk",
+    areaManagerName: "Nisha Patel", geofenceRadius: 75,
+    dailyBudgets: { mon: 10, tue: 10, wed: 10, thu: 10, fri: 10, sat: 6, sun: 6 },
+  },
+  {
+    id: "s39", siteNumber: "S-039", siteName: "Grosvenor Shopping Centre",
+    city: "Chester", address: "Eastgate Street", postcode: "CH1 1LE",
+    customerCode: "HPT", customerName: "Highpoint Estates",
+    area: "North West Area", areaManagerEmail: "nisha.patel@spectrumclean.co.uk",
+    areaManagerName: "Nisha Patel", geofenceRadius: 50,
+    dailyBudgets: { mon: 7, tue: 7, wed: 7, thu: 7, fri: 7, sat: 4, sun: 0 },
+  },
+  {
+    id: "s40", siteNumber: "S-040", siteName: "St David's Dewi Sant",
+    city: "Cardiff", address: "St David's Way", postcode: "CF10 2EH",
+    customerCode: "BFM", customerName: "BrightSpace FM",
+    area: "South West Area", areaManagerEmail: "james.harley@spectrumclean.co.uk",
+    areaManagerName: "James Harley", geofenceRadius: 75,
+    dailyBudgets: { mon: 8, tue: 8, wed: 8, thu: 8, fri: 8, sat: 4, sun: 4 },
   },
 ]
 
@@ -1547,9 +1668,7 @@ function SiteDetails({
           </button>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl font-semibold">{site.siteName}</h1>
-            <span className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600 dark:bg-neutral-500/10 dark:text-neutral-400">
-              {site.siteNumber}
-            </span>
+            <Badge variant="neutral">{site.siteNumber}</Badge>
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -1630,13 +1749,11 @@ function ArchivedSiteDetails({
           </button>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl font-semibold">{site.siteName}</h1>
-            <span className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600 dark:bg-neutral-500/10 dark:text-neutral-400">
-              {site.siteNumber}
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-              <Archive className="size-3" />
+            <Badge variant="neutral">{site.siteNumber}</Badge>
+            <Badge variant="neutral">
+              <Archive className="size-3.5 shrink-0" />
               Archived
-            </span>
+            </Badge>
           </div>
         </div>
         <button onClick={onReactivate} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
@@ -1814,7 +1931,7 @@ function SitesList({
                 >
                   <td className="px-4 py-3.5">
                     <div className="flex min-w-0 items-center gap-2">
-                      <p className="truncate text-sm font-semibold">{site.siteName}</p>
+                      <p className="truncate text-sm font-semibold hover:underline">{site.siteName}</p>
                       <span className="inline-flex shrink-0 items-center rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{site.siteNumber}</span>
                     </div>
                   </td>
@@ -1970,7 +2087,7 @@ function ArchivedSitesList({
                 >
                   <td className="px-4 py-3.5">
                     <div className="flex min-w-0 items-center gap-2">
-                      <p className="truncate text-sm font-semibold">{site.siteName}</p>
+                      <p className="truncate text-sm font-semibold hover:underline">{site.siteName}</p>
                       <span className="inline-flex shrink-0 items-center rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{site.siteNumber}</span>
                     </div>
                   </td>
@@ -2208,7 +2325,7 @@ export default function SitesPage() {
         </div>
       ) : (
         <PageShell
-          title="Sites"
+          title={view.name === "archived" ? `Sites (${archivedSites.length})` : `Sites (${scopedSites.length})`}
           description="Manage sites, daily hour budgets, and area assignments."
           action={pageActions}
         >

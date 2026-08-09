@@ -27,7 +27,6 @@ const LEGAL_COMPANIES: LegalCompany[] = [
   "Spectrum Facilities Maintenance",
 ]
 
-const PAGE_SIZE = 5
 
 function getPageWindow(current: number, total: number): number[] {
   if (total <= 3) return Array.from({ length: total }, (_, i) => i + 1)
@@ -46,7 +45,29 @@ const INITIAL_CUSTOMERS: Customer[] = [
   { id: "c5", code: "AXL", name: "Axler Group",                legalCompany: "Spectrum Clean" },
   { id: "c6", code: "HPT", name: "Highpoint Estates",          legalCompany: "Spectrum Clean" },
   { id: "c7", code: "WRF", name: "Warfield Commercial",        legalCompany: "Spectrum Facilities Maintenance" },
-  { id: "c8", code: "STV", name: "Staveley Facilities",        legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c8",  code: "STV", name: "Staveley Facilities",         legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c9",  code: "MTE", name: "Metro Estates Ltd",           legalCompany: "Spectrum Clean" },
+  { id: "c10", code: "SCL", name: "Sparkle Clean Ltd",           legalCompany: "Spectrum Clean" },
+  { id: "c11", code: "BFM", name: "BrightSpace FM",              legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c12", code: "PKR", name: "Parkfield Retail Group",      legalCompany: "Spectrum Clean" },
+  { id: "c13", code: "NVG", name: "Navigant Commercial",         legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c14", code: "LWD", name: "Lockwood Developments",       legalCompany: "Spectrum Clean" },
+  { id: "c15", code: "TRC", name: "Terrace Holdings",            legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c16", code: "ESQ", name: "Esquire Property Group",      legalCompany: "Spectrum Clean" },
+  { id: "c17", code: "FRN", name: "Fernwood Estates",            legalCompany: "Spectrum Clean" },
+  { id: "c18", code: "CLV", name: "Clive Street Commercial",     legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c19", code: "APX", name: "Apex Office Solutions",       legalCompany: "Spectrum Clean" },
+  { id: "c20", code: "GVN", name: "Gaven Property Services",     legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c21", code: "HBK", name: "Holbrook Property Partners",  legalCompany: "Spectrum Clean" },
+  { id: "c22", code: "OXF", name: "Oxford Street Ventures",      legalCompany: "Spectrum Clean" },
+  { id: "c23", code: "WTN", name: "Waterton Capital",            legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c24", code: "SLD", name: "Shieldfield Estates",         legalCompany: "Spectrum Clean" },
+  { id: "c25", code: "RVN", name: "Ravenswood Asset Management", legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c26", code: "GNT", name: "Granite Properties",          legalCompany: "Spectrum Clean" },
+  { id: "c27", code: "PDG", name: "Paddington Commercial",       legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c28", code: "LFT", name: "Loftus Holdings",             legalCompany: "Spectrum Clean" },
+  { id: "c29", code: "ARC", name: "Archway Property Group",      legalCompany: "Spectrum Facilities Maintenance" },
+  { id: "c30", code: "VNT", name: "Vantage Real Estate",         legalCompany: "Spectrum Clean" },
 ]
 
 // Active site counts per customer id — determines archive eligibility
@@ -58,7 +79,29 @@ const INITIAL_SITE_COUNTS: Record<string, number> = {
   c5: 0,  // zero sites — eligible for archive
   c6: 1,  // has active sites — blocked
   c7: 0,  // zero sites — eligible for archive
-  c8: 3,  // has active sites — blocked
+  c8:  3,  // has active sites — blocked
+  c9:  4,
+  c10: 2,
+  c11: 3,
+  c12: 1,
+  c13: 0,
+  c14: 2,
+  c15: 1,
+  c16: 0,
+  c17: 3,
+  c18: 2,
+  c19: 0,
+  c20: 1,
+  c21: 2,
+  c22: 4,
+  c23: 0,
+  c24: 1,
+  c25: 3,
+  c26: 0,
+  c27: 2,
+  c28: 1,
+  c29: 0,
+  c30: 2,
 }
 
 // ── Toast ──────────────────────────────────────────────────────────────────────
@@ -463,6 +506,7 @@ export default function CustomersPage() {
   const [error, setError] = useState(false)
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
   const [createOpen, setCreateOpen] = useState(false)
   const [editCustomer, setEditCustomer] = useState<Customer | null>(null)
   const [archiveCustomer, setArchiveCustomer] = useState<Customer | null>(null)
@@ -488,7 +532,7 @@ export default function CustomersPage() {
     setTimeout(() => setLoading(false), 700)
   }
 
-  useEffect(() => { setPage(1) }, [search])
+  useEffect(() => { setPage(1) }, [search, perPage])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -498,11 +542,9 @@ export default function CustomersPage() {
     )
   }, [customers, search])
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
   const currentPage = Math.min(page, totalPages)
-  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-  const start = filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1
-  const end = Math.min(currentPage * PAGE_SIZE, filtered.length)
+  const paged = filtered.slice((currentPage - 1) * perPage, currentPage * perPage)
 
   function handleCreate(code: string, name: string, legalCompany: LegalCompany) {
     const id = `c-${Date.now()}`
@@ -569,8 +611,8 @@ export default function CustomersPage() {
           <table className="w-full table-fixed text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="w-48 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
-                <th className="w-40 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
+                <th className="w-36 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
+                <th className="w-56 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
                 <th className="w-52 pl-20 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Sites</th>
                 <th className="w-16 px-4 py-3" />
               </tr>
@@ -627,7 +669,7 @@ export default function CustomersPage() {
         {/* Page header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Customers</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Customers ({customers.length})</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Manage customer accounts and their associated Sites.
             </p>
@@ -641,20 +683,17 @@ export default function CustomersPage() {
         </div>
 
         {/* Search */}
-        <div className="relative w-full max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground" />
+        <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+          <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
-            className="h-9 w-full rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 pl-9 pr-8 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             placeholder="Search by customer name or code…"
             value={search}
             onChange={e => setSearch(e.target.value)}
+            className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-2.5 top-2 rounded p-0.5 text-muted-foreground hover:text-foreground"
-            >
-              <X className="size-4" />
+            <button type="button" onClick={() => setSearch("")} className="shrink-0 text-muted-foreground hover:text-foreground">
+              <X className="size-3.5" />
             </button>
           )}
         </div>
@@ -683,10 +722,10 @@ export default function CustomersPage() {
             <table className="w-full table-fixed text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
-                  <th className="w-48 px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">
+                  <th className="w-36 px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">
                     Customer Code
                   </th>
-                  <th className="w-40 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                  <th className="w-56 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Customer Name
                   </th>
                   <th className="w-52 pl-20 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
@@ -750,54 +789,57 @@ export default function CustomersPage() {
 
             {/* Pagination footer */}
             {filtered.length > 0 && (
-              <div className="flex items-center justify-between border-t border-border px-4 py-3">
-                <p className="text-xs text-muted-foreground">
-                  Showing {start}–{end} of {filtered.length}{" "}
-                  {filtered.length === 1 ? "customer" : "customers"}
-                </p>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setPage(1)}
-                    disabled={currentPage <= 1}
-                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <ChevronsLeft className="size-4" />
-                  </button>
-                  <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage <= 1}
-                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <ChevronLeft className="size-4" />
-                  </button>
-                  <span className="px-1 text-xs text-muted-foreground">Page {currentPage} of {totalPages}</span>
-                  {getPageWindow(currentPage, totalPages).map(p => (
-                    <button
-                      key={p}
-                      onClick={() => setPage(p)}
-                      className={`flex size-7 items-center justify-center rounded-md border text-xs font-medium transition-colors ${
-                        p === currentPage
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-input bg-background text-muted-foreground hover:bg-accent"
-                      }`}
-                    >
-                      {p}
+              <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className="relative flex items-center">
+                    <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setPage(1) }}
+                      className="flex h-8 appearance-none rounded-md border border-input bg-muted/50 pl-2.5 pr-7 text-xs font-medium transition-colors hover:border-input-hover focus:outline-none focus:ring-2 focus:ring-ring">
+                      {[10, 20, 30, 40, 50].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-1.5 size-3 text-muted-foreground" />
+                  </div>
+                  <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
+                </div>
+                <div className="flex-1" />
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="whitespace-nowrap text-xs text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
+                      aria-label="First page"
+                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                      <ChevronsLeft className="size-3.5" />
                     </button>
-                  ))}
-                  <button
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage >= totalPages}
-                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <ChevronRight className="size-4" />
-                  </button>
-                  <button
-                    onClick={() => setPage(totalPages)}
-                    disabled={currentPage >= totalPages}
-                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <ChevronsRight className="size-4" />
-                  </button>
+                    <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                      aria-label="Previous page"
+                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                      <ChevronLeft className="size-3.5" />
+                    </button>
+                    {getPageWindow(currentPage, totalPages).map(n => (
+                      <button key={n} type="button" onClick={() => setPage(n)}
+                        aria-label={`Page ${n}`}
+                        aria-current={n === currentPage ? "page" : undefined}
+                        className={cn(
+                          "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                          n === currentPage
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                        )}>
+                        {n}
+                      </button>
+                    ))}
+                    <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+                      aria-label="Next page"
+                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                      <ChevronRight className="size-3.5" />
+                    </button>
+                    <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
+                      aria-label="Last page"
+                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                      <ChevronsRight className="size-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

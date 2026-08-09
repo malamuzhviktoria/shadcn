@@ -26,6 +26,7 @@ import { useRole } from "@/lib/role-context"
 import { PageShell } from "@/components/page-shell"
 import { MultiFilterDropdown } from "@/components/filter-dropdown"
 import { AlertBox } from "@/components/modal-alert"
+import { Badge } from "@/components/ui/badge"
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -111,7 +112,253 @@ const RAW_ENTRIES: Entry[] = [
   { id:"t40", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"5",  employeeName:"Ryan O'Brien",     taid:"TAA-0005", siteId:"s11", siteCode:"011", siteName:"Northgate House",   siteArchived:false, area:"North", shiftJobRole:"Team Leader",    defaultJobRole:"Team Leader",    clockIn:"07:30", clockOut:"15:30", totalHours:8,   payRate:12.00, isAdjusted:false, isAutoClockOut:false },
   { id:"t41", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"5",  employeeName:"Ryan O'Brien",     taid:"TAA-0005", siteId:"s11", siteCode:"011", siteName:"Northgate House",   siteArchived:false, area:"North", shiftJobRole:"Team Leader",    defaultJobRole:"Team Leader",    clockIn:"07:30", clockOut:"15:30", totalHours:8,   payRate:12.00, isAdjusted:false, isAutoClockOut:false },
   { id:"t42", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"7",  employeeName:"Yusuf Idris",      taid:"TAA-0007", siteId:"s11", siteCode:"011", siteName:"Northgate House",   siteArchived:false, area:"North", shiftJobRole:"Cleaner",        defaultJobRole:"Cleaner",        clockIn:"07:30", clockOut:"23:59", totalHours:8,   payRate:11.00, isAdjusted:false, isAutoClockOut:true  },
-  { id:"t43", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"7",  employeeName:"Yusuf Idris",      taid:"TAA-0007", siteId:"s11", siteCode:"011", siteName:"Northgate House",   siteArchived:false, area:"North", shiftJobRole:"Cleaner",        defaultJobRole:"Cleaner",        clockIn:"07:30", clockOut:"15:30", totalHours:8,   payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t43",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"7",  employeeName:"Yusuf Idris",      taid:"TAA-0007", siteId:"s11", siteCode:"011", siteName:"Northgate House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:30", clockOut:"15:30", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 012 Queensgate House (North)
+  { id:"t44",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"17", employeeName:"Kieran Walsh",      taid:"TAA-0017", siteId:"s12", siteCode:"012", siteName:"Queensgate House",     siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t45",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"17", employeeName:"Kieran Walsh",      taid:"TAA-0017", siteId:"s12", siteCode:"012", siteName:"Queensgate House",     siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t46",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"18", employeeName:"Natasha Patel",     taid:"TAA-0018", siteId:"s12", siteCode:"012", siteName:"Queensgate House",     siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t47",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"18", employeeName:"Natasha Patel",     taid:"TAA-0018", siteId:"s12", siteCode:"012", siteName:"Queensgate House",     siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t48",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"37", employeeName:"Marcus Day",        taid:"TAA-0037", siteId:"s12", siteCode:"012", siteName:"Queensgate House",     siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t49",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"37", employeeName:"Marcus Day",        taid:"TAA-0037", siteId:"s12", siteCode:"012", siteName:"Queensgate House",     siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 013 Elmwood Centre (North)
+  { id:"t50",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"19", employeeName:"George Thornton",   taid:"TAA-0019", siteId:"s13", siteCode:"013", siteName:"Elmwood Centre",       siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t51",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"19", employeeName:"George Thornton",   taid:"TAA-0019", siteId:"s13", siteCode:"013", siteName:"Elmwood Centre",       siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t52",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"20", employeeName:"Chloe Drummond",    taid:"TAA-0020", siteId:"s13", siteCode:"013", siteName:"Elmwood Centre",       siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t53",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"20", employeeName:"Chloe Drummond",    taid:"TAA-0020", siteId:"s13", siteCode:"013", siteName:"Elmwood Centre",       siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t54",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"38", employeeName:"Imogen Reid",       taid:"TAA-0038", siteId:"s13", siteCode:"013", siteName:"Elmwood Centre",       siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t55",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"38", employeeName:"Imogen Reid",       taid:"TAA-0038", siteId:"s13", siteCode:"013", siteName:"Elmwood Centre",       siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 014 Harrow Court (North)
+  { id:"t56",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"21", employeeName:"Mohammed Hassan",   taid:"TAA-0021", siteId:"s14", siteCode:"014", siteName:"Harrow Court",         siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t57",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"21", employeeName:"Mohammed Hassan",   taid:"TAA-0021", siteId:"s14", siteCode:"014", siteName:"Harrow Court",         siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t58",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"22", employeeName:"Rebecca Atkins",    taid:"TAA-0022", siteId:"s14", siteCode:"014", siteName:"Harrow Court",         siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t59",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"22", employeeName:"Rebecca Atkins",    taid:"TAA-0022", siteId:"s14", siteCode:"014", siteName:"Harrow Court",         siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t60",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"39", employeeName:"Ben Holton",        taid:"TAA-0039", siteId:"s14", siteCode:"014", siteName:"Harrow Court",         siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t61",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"39", employeeName:"Ben Holton",        taid:"TAA-0039", siteId:"s14", siteCode:"014", siteName:"Harrow Court",         siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 015 Pennine Place (North)
+  { id:"t62",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"23", employeeName:"Brandon Ellis",     taid:"TAA-0023", siteId:"s15", siteCode:"015", siteName:"Pennine Place",        siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t63",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"23", employeeName:"Brandon Ellis",     taid:"TAA-0023", siteId:"s15", siteCode:"015", siteName:"Pennine Place",        siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t64",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"24", employeeName:"Siobhan Murphy",    taid:"TAA-0024", siteId:"s15", siteCode:"015", siteName:"Pennine Place",        siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t65",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"24", employeeName:"Siobhan Murphy",    taid:"TAA-0024", siteId:"s15", siteCode:"015", siteName:"Pennine Place",        siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t66",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"40", employeeName:"Caitlin Norris",    taid:"TAA-0040", siteId:"s15", siteCode:"015", siteName:"Pennine Place",        siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t67",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"40", employeeName:"Caitlin Norris",    taid:"TAA-0040", siteId:"s15", siteCode:"015", siteName:"Pennine Place",        siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 016 Broadmoor House (North)
+  { id:"t68",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"25", employeeName:"David Griffiths",   taid:"TAA-0025", siteId:"s16", siteCode:"016", siteName:"Broadmoor House",      siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t69",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"25", employeeName:"David Griffiths",   taid:"TAA-0025", siteId:"s16", siteCode:"016", siteName:"Broadmoor House",      siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t70",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"26", employeeName:"Zara Hussain",      taid:"TAA-0026", siteId:"s16", siteCode:"016", siteName:"Broadmoor House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t71",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"26", employeeName:"Zara Hussain",      taid:"TAA-0026", siteId:"s16", siteCode:"016", siteName:"Broadmoor House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t72",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"41", employeeName:"Joel Patterson",    taid:"TAA-0041", siteId:"s16", siteCode:"016", siteName:"Broadmoor House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t73",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"41", employeeName:"Joel Patterson",    taid:"TAA-0041", siteId:"s16", siteCode:"016", siteName:"Broadmoor House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 017 Redwood Park (North)
+  { id:"t74",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"27", employeeName:"Tyler Barnes",      taid:"TAA-0027", siteId:"s17", siteCode:"017", siteName:"Redwood Park",         siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t75",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"27", employeeName:"Tyler Barnes",      taid:"TAA-0027", siteId:"s17", siteCode:"017", siteName:"Redwood Park",         siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t76",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"28", employeeName:"Aimee Lawson",      taid:"TAA-0028", siteId:"s17", siteCode:"017", siteName:"Redwood Park",         siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t77",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"28", employeeName:"Aimee Lawson",      taid:"TAA-0028", siteId:"s17", siteCode:"017", siteName:"Redwood Park",         siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t78",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"42", employeeName:"Sasha Morgan",      taid:"TAA-0042", siteId:"s17", siteCode:"017", siteName:"Redwood Park",         siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t79",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"42", employeeName:"Sasha Morgan",      taid:"TAA-0042", siteId:"s17", siteCode:"017", siteName:"Redwood Park",         siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 018 Chapel Gate (North)
+  { id:"t80",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"29", employeeName:"Connor Hughes",     taid:"TAA-0029", siteId:"s18", siteCode:"018", siteName:"Chapel Gate",          siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t81",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"29", employeeName:"Connor Hughes",     taid:"TAA-0029", siteId:"s18", siteCode:"018", siteName:"Chapel Gate",          siteArchived:false, area:"North", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t82",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"30", employeeName:"Jade Kaur",         taid:"TAA-0030", siteId:"s18", siteCode:"018", siteName:"Chapel Gate",          siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t83",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"30", employeeName:"Jade Kaur",         taid:"TAA-0030", siteId:"s18", siteCode:"018", siteName:"Chapel Gate",          siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t84",  date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"43", employeeName:"Ibrahim Yilmaz",    taid:"TAA-0043", siteId:"s18", siteCode:"018", siteName:"Chapel Gate",          siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t85",  date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"43", employeeName:"Ibrahim Yilmaz",    taid:"TAA-0043", siteId:"s18", siteCode:"018", siteName:"Chapel Gate",          siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 019 Southern Cross House (South)
+  { id:"t86",  date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"31", employeeName:"Ryan Preston",      taid:"TAA-0031", siteId:"s19", siteCode:"019", siteName:"Southern Cross House", siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t87",  date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"31", employeeName:"Ryan Preston",      taid:"TAA-0031", siteId:"s19", siteCode:"019", siteName:"Southern Cross House", siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t88",  date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"32", employeeName:"Lucy Whitfield",    taid:"TAA-0032", siteId:"s19", siteCode:"019", siteName:"Southern Cross House", siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t89",  date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"32", employeeName:"Lucy Whitfield",    taid:"TAA-0032", siteId:"s19", siteCode:"019", siteName:"Southern Cross House", siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t90",  date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"44", employeeName:"Eleanor Parks",     taid:"TAA-0044", siteId:"s19", siteCode:"019", siteName:"Southern Cross House", siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t91",  date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"44", employeeName:"Eleanor Parks",     taid:"TAA-0044", siteId:"s19", siteCode:"019", siteName:"Southern Cross House", siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 020 Whitehall Park (South)
+  { id:"t92",  date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"33", employeeName:"Aaron Chambers",    taid:"TAA-0033", siteId:"s20", siteCode:"020", siteName:"Whitehall Park",       siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t93",  date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"33", employeeName:"Aaron Chambers",    taid:"TAA-0033", siteId:"s20", siteCode:"020", siteName:"Whitehall Park",       siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t94",  date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"34", employeeName:"Hannah Cole",       taid:"TAA-0034", siteId:"s20", siteCode:"020", siteName:"Whitehall Park",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t95",  date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"34", employeeName:"Hannah Cole",       taid:"TAA-0034", siteId:"s20", siteCode:"020", siteName:"Whitehall Park",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t96",  date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"45", employeeName:"Liam Doherty",      taid:"TAA-0045", siteId:"s20", siteCode:"020", siteName:"Whitehall Park",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t97",  date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"45", employeeName:"Liam Doherty",      taid:"TAA-0045", siteId:"s20", siteCode:"020", siteName:"Whitehall Park",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 021 Crown Court (South)
+  { id:"t98",  date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"35", employeeName:"Ollie Byrne",       taid:"TAA-0035", siteId:"s21", siteCode:"021", siteName:"Crown Court",          siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t99",  date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"35", employeeName:"Ollie Byrne",       taid:"TAA-0035", siteId:"s21", siteCode:"021", siteName:"Crown Court",          siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t100", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"36", employeeName:"Faye Sanderson",    taid:"TAA-0036", siteId:"s21", siteCode:"021", siteName:"Crown Court",          siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t101", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"36", employeeName:"Faye Sanderson",    taid:"TAA-0036", siteId:"s21", siteCode:"021", siteName:"Crown Court",          siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t102", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"46", employeeName:"Tamara Firth",      taid:"TAA-0046", siteId:"s21", siteCode:"021", siteName:"Crown Court",          siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t103", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"46", employeeName:"Tamara Firth",      taid:"TAA-0046", siteId:"s21", siteCode:"021", siteName:"Crown Court",          siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 022 Imperial House (South)
+  { id:"t104", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"47", employeeName:"Sebastian Cross",   taid:"TAA-0047", siteId:"s22", siteCode:"022", siteName:"Imperial House",       siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t105", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"47", employeeName:"Sebastian Cross",   taid:"TAA-0047", siteId:"s22", siteCode:"022", siteName:"Imperial House",       siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t106", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"48", employeeName:"Amara Obi",         taid:"TAA-0048", siteId:"s22", siteCode:"022", siteName:"Imperial House",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t107", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"48", employeeName:"Amara Obi",         taid:"TAA-0048", siteId:"s22", siteCode:"022", siteName:"Imperial House",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t108", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"49", employeeName:"Jake Hennessy",     taid:"TAA-0049", siteId:"s22", siteCode:"022", siteName:"Imperial House",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t109", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"49", employeeName:"Jake Hennessy",     taid:"TAA-0049", siteId:"s22", siteCode:"022", siteName:"Imperial House",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 023 Granary Square (South)
+  { id:"t110", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"50", employeeName:"Priscilla Vance",   taid:"TAA-0050", siteId:"s23", siteCode:"023", siteName:"Granary Square",       siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t111", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"50", employeeName:"Priscilla Vance",   taid:"TAA-0050", siteId:"s23", siteCode:"023", siteName:"Granary Square",       siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t112", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"51", employeeName:"Declan Hurley",     taid:"TAA-0051", siteId:"s23", siteCode:"023", siteName:"Granary Square",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t113", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"51", employeeName:"Declan Hurley",     taid:"TAA-0051", siteId:"s23", siteCode:"023", siteName:"Granary Square",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t114", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"52", employeeName:"Mei Lin",           taid:"TAA-0052", siteId:"s23", siteCode:"023", siteName:"Granary Square",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t115", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"52", employeeName:"Mei Lin",           taid:"TAA-0052", siteId:"s23", siteCode:"023", siteName:"Granary Square",       siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 024 Wellington House (South)
+  { id:"t116", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"53", employeeName:"Nathan Gibbs",      taid:"TAA-0053", siteId:"s24", siteCode:"024", siteName:"Wellington House",     siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t117", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"53", employeeName:"Nathan Gibbs",      taid:"TAA-0053", siteId:"s24", siteCode:"024", siteName:"Wellington House",     siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t118", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"54", employeeName:"Sophia Tran",       taid:"TAA-0054", siteId:"s24", siteCode:"024", siteName:"Wellington House",     siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t119", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"54", employeeName:"Sophia Tran",       taid:"TAA-0054", siteId:"s24", siteCode:"024", siteName:"Wellington House",     siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t120", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"55", employeeName:"Karl Bjorn",        taid:"TAA-0055", siteId:"s24", siteCode:"024", siteName:"Wellington House",     siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t121", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"55", employeeName:"Karl Bjorn",        taid:"TAA-0055", siteId:"s24", siteCode:"024", siteName:"Wellington House",     siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 025 Harbour Point (South)
+  { id:"t122", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"56", employeeName:"Leila Farooq",      taid:"TAA-0056", siteId:"s25", siteCode:"025", siteName:"Harbour Point",        siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t123", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"56", employeeName:"Leila Farooq",      taid:"TAA-0056", siteId:"s25", siteCode:"025", siteName:"Harbour Point",        siteArchived:false, area:"South", shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t124", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"57", employeeName:"Toby Carlisle",     taid:"TAA-0057", siteId:"s25", siteCode:"025", siteName:"Harbour Point",        siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t125", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"57", employeeName:"Toby Carlisle",     taid:"TAA-0057", siteId:"s25", siteCode:"025", siteName:"Harbour Point",        siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t126", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"58", employeeName:"Destiny Okonkwo",   taid:"TAA-0058", siteId:"s25", siteCode:"025", siteName:"Harbour Point",        siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t127", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"58", employeeName:"Destiny Okonkwo",   taid:"TAA-0058", siteId:"s25", siteCode:"025", siteName:"Harbour Point",        siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 026 Gateway House (East)
+  { id:"t128", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"59", employeeName:"Warren Steele",     taid:"TAA-0059", siteId:"s26", siteCode:"026", siteName:"Gateway House",        siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t129", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"59", employeeName:"Warren Steele",     taid:"TAA-0059", siteId:"s26", siteCode:"026", siteName:"Gateway House",        siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t130", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"60", employeeName:"Isla Mackenzie",    taid:"TAA-0060", siteId:"s26", siteCode:"026", siteName:"Gateway House",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t131", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"60", employeeName:"Isla Mackenzie",    taid:"TAA-0060", siteId:"s26", siteCode:"026", siteName:"Gateway House",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t132", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"61", employeeName:"Felipe Morales",    taid:"TAA-0061", siteId:"s26", siteCode:"026", siteName:"Gateway House",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t133", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"61", employeeName:"Felipe Morales",    taid:"TAA-0061", siteId:"s26", siteCode:"026", siteName:"Gateway House",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 027 Thornton Gate (East)
+  { id:"t134", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"62", employeeName:"Harriet Dunne",     taid:"TAA-0062", siteId:"s27", siteCode:"027", siteName:"Thornton Gate",        siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t135", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"62", employeeName:"Harriet Dunne",     taid:"TAA-0062", siteId:"s27", siteCode:"027", siteName:"Thornton Gate",        siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t136", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"63", employeeName:"Adnan Sheikh",      taid:"TAA-0063", siteId:"s27", siteCode:"027", siteName:"Thornton Gate",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t137", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"63", employeeName:"Adnan Sheikh",      taid:"TAA-0063", siteId:"s27", siteCode:"027", siteName:"Thornton Gate",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t138", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"64", employeeName:"Niamh Brady",       taid:"TAA-0064", siteId:"s27", siteCode:"027", siteName:"Thornton Gate",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t139", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"64", employeeName:"Niamh Brady",       taid:"TAA-0064", siteId:"s27", siteCode:"027", siteName:"Thornton Gate",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 028 Ashwood Centre (East)
+  { id:"t140", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"65", employeeName:"Craig Dalton",      taid:"TAA-0065", siteId:"s28", siteCode:"028", siteName:"Ashwood Centre",       siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t141", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"65", employeeName:"Craig Dalton",      taid:"TAA-0065", siteId:"s28", siteCode:"028", siteName:"Ashwood Centre",       siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t142", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"66", employeeName:"Priya Sharma",      taid:"TAA-0066", siteId:"s28", siteCode:"028", siteName:"Ashwood Centre",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t143", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"66", employeeName:"Priya Sharma",      taid:"TAA-0066", siteId:"s28", siteCode:"028", siteName:"Ashwood Centre",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t144", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"67", employeeName:"Ross Buchanan",     taid:"TAA-0067", siteId:"s28", siteCode:"028", siteName:"Ashwood Centre",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t145", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"67", employeeName:"Ross Buchanan",     taid:"TAA-0067", siteId:"s28", siteCode:"028", siteName:"Ashwood Centre",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 029 Clifton Tower (East)
+  { id:"t146", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"68", employeeName:"Valeria Costa",     taid:"TAA-0068", siteId:"s29", siteCode:"029", siteName:"Clifton Tower",        siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t147", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"68", employeeName:"Valeria Costa",     taid:"TAA-0068", siteId:"s29", siteCode:"029", siteName:"Clifton Tower",        siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t148", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"69", employeeName:"Owen Gallagher",    taid:"TAA-0069", siteId:"s29", siteCode:"029", siteName:"Clifton Tower",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t149", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"69", employeeName:"Owen Gallagher",    taid:"TAA-0069", siteId:"s29", siteCode:"029", siteName:"Clifton Tower",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t150", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"70", employeeName:"Aaliyah Cooper",    taid:"TAA-0070", siteId:"s29", siteCode:"029", siteName:"Clifton Tower",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t151", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"70", employeeName:"Aaliyah Cooper",    taid:"TAA-0070", siteId:"s29", siteCode:"029", siteName:"Clifton Tower",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 030 Maple Court (East)
+  { id:"t152", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"71", employeeName:"Stefan Braun",      taid:"TAA-0071", siteId:"s30", siteCode:"030", siteName:"Maple Court",          siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t153", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"71", employeeName:"Stefan Braun",      taid:"TAA-0071", siteId:"s30", siteCode:"030", siteName:"Maple Court",          siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t154", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"72", employeeName:"Cora Fitzgerald",   taid:"TAA-0072", siteId:"s30", siteCode:"030", siteName:"Maple Court",          siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t155", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"72", employeeName:"Cora Fitzgerald",   taid:"TAA-0072", siteId:"s30", siteCode:"030", siteName:"Maple Court",          siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t156", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"73", employeeName:"Monty Hall",        taid:"TAA-0073", siteId:"s30", siteCode:"030", siteName:"Maple Court",          siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t157", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"73", employeeName:"Monty Hall",        taid:"TAA-0073", siteId:"s30", siteCode:"030", siteName:"Maple Court",          siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 031 Broadland House (East)
+  { id:"t158", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"74", employeeName:"Sunita Rao",        taid:"TAA-0074", siteId:"s31", siteCode:"031", siteName:"Broadland House",      siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t159", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"74", employeeName:"Sunita Rao",        taid:"TAA-0074", siteId:"s31", siteCode:"031", siteName:"Broadland House",      siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t160", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"75", employeeName:"Carl Beaumont",     taid:"TAA-0075", siteId:"s31", siteCode:"031", siteName:"Broadland House",      siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t161", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"75", employeeName:"Carl Beaumont",     taid:"TAA-0075", siteId:"s31", siteCode:"031", siteName:"Broadland House",      siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t162", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"76", employeeName:"Amelia Thorne",     taid:"TAA-0076", siteId:"s31", siteCode:"031", siteName:"Broadland House",      siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t163", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"76", employeeName:"Amelia Thorne",     taid:"TAA-0076", siteId:"s31", siteCode:"031", siteName:"Broadland House",      siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 032 Holbrook Park (East)
+  { id:"t164", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"77", employeeName:"Barry Knight",      taid:"TAA-0077", siteId:"s32", siteCode:"032", siteName:"Holbrook Park",        siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t165", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"77", employeeName:"Barry Knight",      taid:"TAA-0077", siteId:"s32", siteCode:"032", siteName:"Holbrook Park",        siteArchived:false, area:"East",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t166", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"78", employeeName:"Jess Whitmore",     taid:"TAA-0078", siteId:"s32", siteCode:"032", siteName:"Holbrook Park",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t167", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"78", employeeName:"Jess Whitmore",     taid:"TAA-0078", siteId:"s32", siteCode:"032", siteName:"Holbrook Park",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t168", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"79", employeeName:"Dmitri Volkov",     taid:"TAA-0079", siteId:"s32", siteCode:"032", siteName:"Holbrook Park",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t169", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"79", employeeName:"Dmitri Volkov",     taid:"TAA-0079", siteId:"s32", siteCode:"032", siteName:"Holbrook Park",        siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 033 Westbrook House (West)
+  { id:"t170", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"80", employeeName:"Evelyn Nash",       taid:"TAA-0080", siteId:"s33", siteCode:"033", siteName:"Westbrook House",      siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t171", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"80", employeeName:"Evelyn Nash",       taid:"TAA-0080", siteId:"s33", siteCode:"033", siteName:"Westbrook House",      siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t172", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"81", employeeName:"Kevin Flood",       taid:"TAA-0081", siteId:"s33", siteCode:"033", siteName:"Westbrook House",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t173", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"81", employeeName:"Kevin Flood",       taid:"TAA-0081", siteId:"s33", siteCode:"033", siteName:"Westbrook House",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t174", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"82", employeeName:"Rosie Quinn",       taid:"TAA-0082", siteId:"s33", siteCode:"033", siteName:"Westbrook House",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t175", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"82", employeeName:"Rosie Quinn",       taid:"TAA-0082", siteId:"s33", siteCode:"033", siteName:"Westbrook House",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 034 Caldwell Centre (West)
+  { id:"t176", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"83", employeeName:"Elliot Harker",     taid:"TAA-0083", siteId:"s34", siteCode:"034", siteName:"Caldwell Centre",      siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t177", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"83", employeeName:"Elliot Harker",     taid:"TAA-0083", siteId:"s34", siteCode:"034", siteName:"Caldwell Centre",      siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t178", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"84", employeeName:"Blessing Adeyemi",  taid:"TAA-0084", siteId:"s34", siteCode:"034", siteName:"Caldwell Centre",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t179", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"84", employeeName:"Blessing Adeyemi",  taid:"TAA-0084", siteId:"s34", siteCode:"034", siteName:"Caldwell Centre",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t180", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"85", employeeName:"Sam Norris",        taid:"TAA-0085", siteId:"s34", siteCode:"034", siteName:"Caldwell Centre",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t181", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"85", employeeName:"Sam Norris",        taid:"TAA-0085", siteId:"s34", siteCode:"034", siteName:"Caldwell Centre",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 035 Briarfield Tower (West)
+  { id:"t182", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"86", employeeName:"Tanya Frost",       taid:"TAA-0086", siteId:"s35", siteCode:"035", siteName:"Briarfield Tower",     siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t183", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"86", employeeName:"Tanya Frost",       taid:"TAA-0086", siteId:"s35", siteCode:"035", siteName:"Briarfield Tower",     siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t184", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"87", employeeName:"Vijay Kumar",       taid:"TAA-0087", siteId:"s35", siteCode:"035", siteName:"Briarfield Tower",     siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t185", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"87", employeeName:"Vijay Kumar",       taid:"TAA-0087", siteId:"s35", siteCode:"035", siteName:"Briarfield Tower",     siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t186", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"88", employeeName:"Saoirse O'Neill",   taid:"TAA-0088", siteId:"s35", siteCode:"035", siteName:"Briarfield Tower",     siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t187", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"88", employeeName:"Saoirse O'Neill",   taid:"TAA-0088", siteId:"s35", siteCode:"035", siteName:"Briarfield Tower",     siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 036 Ironbridge Court (West)
+  { id:"t188", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"89", employeeName:"Patrick Boyle",     taid:"TAA-0089", siteId:"s36", siteCode:"036", siteName:"Ironbridge Court",     siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t189", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"89", employeeName:"Patrick Boyle",     taid:"TAA-0089", siteId:"s36", siteCode:"036", siteName:"Ironbridge Court",     siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t190", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"90", employeeName:"Wendy Holt",        taid:"TAA-0090", siteId:"s36", siteCode:"036", siteName:"Ironbridge Court",     siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t191", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"90", employeeName:"Wendy Holt",        taid:"TAA-0090", siteId:"s36", siteCode:"036", siteName:"Ironbridge Court",     siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t192", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"91", employeeName:"Alec Stirling",     taid:"TAA-0091", siteId:"s36", siteCode:"036", siteName:"Ironbridge Court",     siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t193", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"91", employeeName:"Alec Stirling",     taid:"TAA-0091", siteId:"s36", siteCode:"036", siteName:"Ironbridge Court",     siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 037 Ferndale Place (West)
+  { id:"t194", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"92", employeeName:"Fatou Diallo",      taid:"TAA-0092", siteId:"s37", siteCode:"037", siteName:"Ferndale Place",       siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t195", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"92", employeeName:"Fatou Diallo",      taid:"TAA-0092", siteId:"s37", siteCode:"037", siteName:"Ferndale Place",       siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t196", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"93", employeeName:"Jamie Greer",       taid:"TAA-0093", siteId:"s37", siteCode:"037", siteName:"Ferndale Place",       siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t197", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"93", employeeName:"Jamie Greer",       taid:"TAA-0093", siteId:"s37", siteCode:"037", siteName:"Ferndale Place",       siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t198", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"94", employeeName:"Helen Shaw",        taid:"TAA-0094", siteId:"s37", siteCode:"037", siteName:"Ferndale Place",       siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t199", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"94", employeeName:"Helen Shaw",        taid:"TAA-0094", siteId:"s37", siteCode:"037", siteName:"Ferndale Place",       siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 038 Severn Gate (West)
+  { id:"t200", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"95", employeeName:"Reza Ahmadi",       taid:"TAA-0095", siteId:"s38", siteCode:"038", siteName:"Severn Gate",          siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t201", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"95", employeeName:"Reza Ahmadi",       taid:"TAA-0095", siteId:"s38", siteCode:"038", siteName:"Severn Gate",          siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t202", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"96", employeeName:"Penny Lawton",      taid:"TAA-0096", siteId:"s38", siteCode:"038", siteName:"Severn Gate",          siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t203", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"96", employeeName:"Penny Lawton",      taid:"TAA-0096", siteId:"s38", siteCode:"038", siteName:"Severn Gate",          siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t204", date:"2025-08-06", dateLabel:"Wed 6 Aug",  month:"2025-08", employeeId:"97", employeeName:"Niall Brennan",     taid:"TAA-0097", siteId:"s38", siteCode:"038", siteName:"Severn Gate",          siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t205", date:"2025-08-07", dateLabel:"Thu 7 Aug",  month:"2025-08", employeeId:"97", employeeName:"Niall Brennan",     taid:"TAA-0097", siteId:"s38", siteCode:"038", siteName:"Severn Gate",          siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 039 Malvern House (West)
+  { id:"t206", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"98",  employeeName:"Olivia Marsh",      taid:"TAA-0098", siteId:"s39", siteCode:"039", siteName:"Malvern House",        siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t207", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"98",  employeeName:"Olivia Marsh",      taid:"TAA-0098", siteId:"s39", siteCode:"039", siteName:"Malvern House",        siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t208", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"99",  employeeName:"Gareth Probert",    taid:"TAA-0099", siteId:"s39", siteCode:"039", siteName:"Malvern House",        siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t209", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"99",  employeeName:"Gareth Probert",    taid:"TAA-0099", siteId:"s39", siteCode:"039", siteName:"Malvern House",        siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t210", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"100", employeeName:"Lena Fischer",      taid:"TAA-0100", siteId:"s39", siteCode:"039", siteName:"Malvern House",        siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t211", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"100", employeeName:"Lena Fischer",      taid:"TAA-0100", siteId:"s39", siteCode:"039", siteName:"Malvern House",        siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — 040 Ravenswood Park (West)
+  { id:"t212", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"101", employeeName:"Howard Webb",       taid:"TAA-0101", siteId:"s40", siteCode:"040", siteName:"Ravenswood Park",      siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t213", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"101", employeeName:"Howard Webb",       taid:"TAA-0101", siteId:"s40", siteCode:"040", siteName:"Ravenswood Park",      siteArchived:false, area:"West",  shiftJobRole:"Team Leader",  defaultJobRole:"Team Leader",  clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:12.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t214", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"102", employeeName:"Nneka Okafor",      taid:"TAA-0102", siteId:"s40", siteCode:"040", siteName:"Ravenswood Park",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t215", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"102", employeeName:"Nneka Okafor",      taid:"TAA-0102", siteId:"s40", siteCode:"040", siteName:"Ravenswood Park",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t216", date:"2025-08-04", dateLabel:"Mon 4 Aug",  month:"2025-08", employeeId:"103", employeeName:"Will Cartwright",   taid:"TAA-0103", siteId:"s40", siteCode:"040", siteName:"Ravenswood Park",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t217", date:"2025-08-05", dateLabel:"Tue 5 Aug",  month:"2025-08", employeeId:"103", employeeName:"Will Cartwright",   taid:"TAA-0103", siteId:"s40", siteCode:"040", siteName:"Ravenswood Park",      siteArchived:false, area:"West",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  // Aug 2025 — employees 104–124 at existing sites
+  { id:"t218", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"104", employeeName:"Beatrice Knowles",  taid:"TAA-0104", siteId:"s1",  siteCode:"001", siteName:"Citygate House",       siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t219", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"104", employeeName:"Beatrice Knowles",  taid:"TAA-0104", siteId:"s1",  siteCode:"001", siteName:"Citygate House",       siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t220", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"105", employeeName:"Karl Finlay",       taid:"TAA-0105", siteId:"s1",  siteCode:"001", siteName:"Citygate House",       siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t221", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"105", employeeName:"Karl Finlay",       taid:"TAA-0105", siteId:"s1",  siteCode:"001", siteName:"Citygate House",       siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t222", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"106", employeeName:"Alisha Chowdhury",  taid:"TAA-0106", siteId:"s2",  siteCode:"002", siteName:"Parkside Office",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t223", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"106", employeeName:"Alisha Chowdhury",  taid:"TAA-0106", siteId:"s2",  siteCode:"002", siteName:"Parkside Office",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t224", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"107", employeeName:"Peter Stokes",      taid:"TAA-0107", siteId:"s2",  siteCode:"002", siteName:"Parkside Office",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t225", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"107", employeeName:"Peter Stokes",      taid:"TAA-0107", siteId:"s2",  siteCode:"002", siteName:"Parkside Office",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t226", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"108", employeeName:"Davina Osei",       taid:"TAA-0108", siteId:"s3",  siteCode:"003", siteName:"Riverside Plaza",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t227", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"108", employeeName:"Davina Osei",       taid:"TAA-0108", siteId:"s3",  siteCode:"003", siteName:"Riverside Plaza",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t228", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"109", employeeName:"Luke Sheridan",     taid:"TAA-0109", siteId:"s3",  siteCode:"003", siteName:"Riverside Plaza",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t229", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"109", employeeName:"Luke Sheridan",     taid:"TAA-0109", siteId:"s3",  siteCode:"003", siteName:"Riverside Plaza",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t230", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"110", employeeName:"Nadia Petit",       taid:"TAA-0110", siteId:"s4",  siteCode:"004", siteName:"Highfield Tower",      siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t231", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"110", employeeName:"Nadia Petit",       taid:"TAA-0110", siteId:"s4",  siteCode:"004", siteName:"Highfield Tower",      siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t232", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"111", employeeName:"Shane Dunleavy",    taid:"TAA-0111", siteId:"s4",  siteCode:"004", siteName:"Highfield Tower",      siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t233", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"111", employeeName:"Shane Dunleavy",    taid:"TAA-0111", siteId:"s4",  siteCode:"004", siteName:"Highfield Tower",      siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t234", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"112", employeeName:"Vivienne Hartley",  taid:"TAA-0112", siteId:"s6",  siteCode:"006", siteName:"Central Court",        siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t235", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"112", employeeName:"Vivienne Hartley",  taid:"TAA-0112", siteId:"s6",  siteCode:"006", siteName:"Central Court",        siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"06:00", clockOut:"14:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t236", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"113", employeeName:"Dean Alderton",     taid:"TAA-0113", siteId:"s6",  siteCode:"006", siteName:"Central Court",        siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t237", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"113", employeeName:"Dean Alderton",     taid:"TAA-0113", siteId:"s6",  siteCode:"006", siteName:"Central Court",        siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t238", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"114", employeeName:"Abby Cheng",        taid:"TAA-0114", siteId:"s7",  siteCode:"007", siteName:"Bridge Street Hub",    siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t239", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"114", employeeName:"Abby Cheng",        taid:"TAA-0114", siteId:"s7",  siteCode:"007", siteName:"Bridge Street Hub",    siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t240", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"115", employeeName:"Frank Corrigan",    taid:"TAA-0115", siteId:"s7",  siteCode:"007", siteName:"Bridge Street Hub",    siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t241", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"115", employeeName:"Frank Corrigan",    taid:"TAA-0115", siteId:"s7",  siteCode:"007", siteName:"Bridge Street Hub",    siteArchived:false, area:"South", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t242", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"116", employeeName:"Iris Browne",       taid:"TAA-0116", siteId:"s8",  siteCode:"008", siteName:"Millbank Tower",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t243", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"116", employeeName:"Iris Browne",       taid:"TAA-0116", siteId:"s8",  siteCode:"008", siteName:"Millbank Tower",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:00", clockOut:"15:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t244", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"117", employeeName:"Theo Blackwood",    taid:"TAA-0117", siteId:"s8",  siteCode:"008", siteName:"Millbank Tower",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t245", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"117", employeeName:"Theo Blackwood",    taid:"TAA-0117", siteId:"s8",  siteCode:"008", siteName:"Millbank Tower",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"08:00", clockOut:"16:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t246", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"118", employeeName:"Salma Hadi",        taid:"TAA-0118", siteId:"s9",  siteCode:"009", siteName:"Eastgate Centre",      siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t247", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"118", employeeName:"Salma Hadi",        taid:"TAA-0118", siteId:"s9",  siteCode:"009", siteName:"Eastgate Centre",      siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t248", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"119", employeeName:"Clive Sutton",      taid:"TAA-0119", siteId:"s9",  siteCode:"009", siteName:"Eastgate Centre",      siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t249", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"119", employeeName:"Clive Sutton",      taid:"TAA-0119", siteId:"s9",  siteCode:"009", siteName:"Eastgate Centre",      siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"09:00", clockOut:"17:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t250", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"120", employeeName:"Josephine Mensah",  taid:"TAA-0120", siteId:"s10", siteCode:"010", siteName:"Victoria House",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"10:00", clockOut:"18:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t251", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"120", employeeName:"Josephine Mensah",  taid:"TAA-0120", siteId:"s10", siteCode:"010", siteName:"Victoria House",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"10:00", clockOut:"18:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t252", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"121", employeeName:"Raymond Tucker",    taid:"TAA-0121", siteId:"s10", siteCode:"010", siteName:"Victoria House",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"10:00", clockOut:"18:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t253", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"121", employeeName:"Raymond Tucker",    taid:"TAA-0121", siteId:"s10", siteCode:"010", siteName:"Victoria House",       siteArchived:false, area:"East",  shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"10:00", clockOut:"18:00", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t254", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"122", employeeName:"Esme Clifford",     taid:"TAA-0122", siteId:"s11", siteCode:"011", siteName:"Northgate House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:30", clockOut:"15:30", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t255", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"122", employeeName:"Esme Clifford",     taid:"TAA-0122", siteId:"s11", siteCode:"011", siteName:"Northgate House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:30", clockOut:"15:30", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t256", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"123", employeeName:"Andy Pearce",       taid:"TAA-0123", siteId:"s11", siteCode:"011", siteName:"Northgate House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:30", clockOut:"15:30", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t257", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"123", employeeName:"Andy Pearce",       taid:"TAA-0123", siteId:"s11", siteCode:"011", siteName:"Northgate House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:30", clockOut:"15:30", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t258", date:"2025-08-11", dateLabel:"Mon 11 Aug", month:"2025-08", employeeId:"124", employeeName:"Miriam Adler",      taid:"TAA-0124", siteId:"s11", siteCode:"011", siteName:"Northgate House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:30", clockOut:"15:30", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
+  { id:"t259", date:"2025-08-12", dateLabel:"Tue 12 Aug", month:"2025-08", employeeId:"124", employeeName:"Miriam Adler",      taid:"TAA-0124", siteId:"s11", siteCode:"011", siteName:"Northgate House",      siteArchived:false, area:"North", shiftJobRole:"Cleaner",      defaultJobRole:"Cleaner",      clockIn:"07:30", clockOut:"15:30", totalHours:8, payRate:11.00, isAdjusted:false, isAutoClockOut:false },
   // Jul 2025 — locked for HoA / AM after 10th Aug
   { id:"t18", date:"2025-07-31", dateLabel:"Thu 31 Jul", month:"2025-07", employeeId:"2",  employeeName:"Sarah Okonkwo",    taid:"TAA-0002", siteId:"s1",  siteCode:"001", siteName:"Citygate House",    siteArchived:false, area:"North", shiftJobRole:"Cleaner",        defaultJobRole:"Cleaner",        clockIn:"07:00", clockOut:"15:00", totalHours:8,   payRate:11.00, isAdjusted:false, isAutoClockOut:false },
   { id:"t19", date:"2025-07-30", dateLabel:"Wed 30 Jul", month:"2025-07", employeeId:"1",  employeeName:"James Mitchell",   taid:"TAA-0001", siteId:"s1",  siteCode:"001", siteName:"Citygate House",    siteArchived:false, area:"North", shiftJobRole:"Supervisor",     defaultJobRole:"Supervisor",     clockIn:"07:00", clockOut:"15:00", totalHours:8,   payRate:12.50, isAdjusted:false, isAutoClockOut:false },
@@ -128,7 +375,36 @@ const SITES_LIST = [
   { id:"s8",  code:"008", name:"Millbank Tower",    area:"East"  },
   { id:"s9",  code:"009", name:"Eastgate Centre",   area:"East"  },
   { id:"s10", code:"010", name:"Victoria House",    area:"East"  },
-  { id:"s11", code:"011", name:"Northgate House",   area:"North" },
+  { id:"s11", code:"011", name:"Northgate House",      area:"North" },
+  { id:"s12", code:"012", name:"Queensgate House",     area:"North" },
+  { id:"s13", code:"013", name:"Elmwood Centre",        area:"North" },
+  { id:"s14", code:"014", name:"Harrow Court",          area:"North" },
+  { id:"s15", code:"015", name:"Pennine Place",         area:"North" },
+  { id:"s16", code:"016", name:"Broadmoor House",       area:"North" },
+  { id:"s17", code:"017", name:"Redwood Park",          area:"North" },
+  { id:"s18", code:"018", name:"Chapel Gate",           area:"North" },
+  { id:"s19", code:"019", name:"Southern Cross House",  area:"South" },
+  { id:"s20", code:"020", name:"Whitehall Park",        area:"South" },
+  { id:"s21", code:"021", name:"Crown Court",           area:"South" },
+  { id:"s22", code:"022", name:"Imperial House",        area:"South" },
+  { id:"s23", code:"023", name:"Granary Square",        area:"South" },
+  { id:"s24", code:"024", name:"Wellington House",      area:"South" },
+  { id:"s25", code:"025", name:"Harbour Point",         area:"South" },
+  { id:"s26", code:"026", name:"Gateway House",         area:"East"  },
+  { id:"s27", code:"027", name:"Thornton Gate",         area:"East"  },
+  { id:"s28", code:"028", name:"Ashwood Centre",        area:"East"  },
+  { id:"s29", code:"029", name:"Clifton Tower",         area:"East"  },
+  { id:"s30", code:"030", name:"Maple Court",           area:"East"  },
+  { id:"s31", code:"031", name:"Broadland House",       area:"East"  },
+  { id:"s32", code:"032", name:"Holbrook Park",         area:"East"  },
+  { id:"s33", code:"033", name:"Westbrook House",       area:"West"  },
+  { id:"s34", code:"034", name:"Caldwell Centre",       area:"West"  },
+  { id:"s35", code:"035", name:"Briarfield Tower",      area:"West"  },
+  { id:"s36", code:"036", name:"Ironbridge Court",      area:"West"  },
+  { id:"s37", code:"037", name:"Ferndale Place",        area:"West"  },
+  { id:"s38", code:"038", name:"Severn Gate",           area:"West"  },
+  { id:"s39", code:"039", name:"Malvern House",         area:"West"  },
+  { id:"s40", code:"040", name:"Ravenswood Park",       area:"West"  },
 ]
 
 const EMPLOYEES_LIST = [
@@ -147,12 +423,120 @@ const EMPLOYEES_LIST = [
   { id:"13", name:"Callum Robertson", taid:"TAA-0013" },
   { id:"14", name:"Clare Whitfield",  taid:"TAA-0014" },
   { id:"15", name:"Thomas Nguyen",    taid:"TAA-0015" },
-  { id:"16", name:"Nina Petrov",      taid:"TAA-0016" },
+  { id:"16",  name:"Nina Petrov",        taid:"TAA-0016" },
+  { id:"17",  name:"Kieran Walsh",       taid:"TAA-0017" },
+  { id:"18",  name:"Natasha Patel",      taid:"TAA-0018" },
+  { id:"19",  name:"George Thornton",    taid:"TAA-0019" },
+  { id:"20",  name:"Chloe Drummond",     taid:"TAA-0020" },
+  { id:"21",  name:"Mohammed Hassan",    taid:"TAA-0021" },
+  { id:"22",  name:"Rebecca Atkins",     taid:"TAA-0022" },
+  { id:"23",  name:"Brandon Ellis",      taid:"TAA-0023" },
+  { id:"24",  name:"Siobhan Murphy",     taid:"TAA-0024" },
+  { id:"25",  name:"David Griffiths",    taid:"TAA-0025" },
+  { id:"26",  name:"Zara Hussain",       taid:"TAA-0026" },
+  { id:"27",  name:"Tyler Barnes",       taid:"TAA-0027" },
+  { id:"28",  name:"Aimee Lawson",       taid:"TAA-0028" },
+  { id:"29",  name:"Connor Hughes",      taid:"TAA-0029" },
+  { id:"30",  name:"Jade Kaur",          taid:"TAA-0030" },
+  { id:"31",  name:"Ryan Preston",       taid:"TAA-0031" },
+  { id:"32",  name:"Lucy Whitfield",     taid:"TAA-0032" },
+  { id:"33",  name:"Aaron Chambers",     taid:"TAA-0033" },
+  { id:"34",  name:"Hannah Cole",        taid:"TAA-0034" },
+  { id:"35",  name:"Ollie Byrne",        taid:"TAA-0035" },
+  { id:"36",  name:"Faye Sanderson",     taid:"TAA-0036" },
+  { id:"37",  name:"Marcus Day",         taid:"TAA-0037" },
+  { id:"38",  name:"Imogen Reid",        taid:"TAA-0038" },
+  { id:"39",  name:"Ben Holton",         taid:"TAA-0039" },
+  { id:"40",  name:"Caitlin Norris",     taid:"TAA-0040" },
+  { id:"41",  name:"Joel Patterson",     taid:"TAA-0041" },
+  { id:"42",  name:"Sasha Morgan",       taid:"TAA-0042" },
+  { id:"43",  name:"Ibrahim Yilmaz",     taid:"TAA-0043" },
+  { id:"44",  name:"Eleanor Parks",      taid:"TAA-0044" },
+  { id:"45",  name:"Liam Doherty",       taid:"TAA-0045" },
+  { id:"46",  name:"Tamara Firth",       taid:"TAA-0046" },
+  { id:"47",  name:"Sebastian Cross",    taid:"TAA-0047" },
+  { id:"48",  name:"Amara Obi",          taid:"TAA-0048" },
+  { id:"49",  name:"Jake Hennessy",      taid:"TAA-0049" },
+  { id:"50",  name:"Priscilla Vance",    taid:"TAA-0050" },
+  { id:"51",  name:"Declan Hurley",      taid:"TAA-0051" },
+  { id:"52",  name:"Mei Lin",            taid:"TAA-0052" },
+  { id:"53",  name:"Nathan Gibbs",       taid:"TAA-0053" },
+  { id:"54",  name:"Sophia Tran",        taid:"TAA-0054" },
+  { id:"55",  name:"Karl Bjorn",         taid:"TAA-0055" },
+  { id:"56",  name:"Leila Farooq",       taid:"TAA-0056" },
+  { id:"57",  name:"Toby Carlisle",      taid:"TAA-0057" },
+  { id:"58",  name:"Destiny Okonkwo",    taid:"TAA-0058" },
+  { id:"59",  name:"Warren Steele",      taid:"TAA-0059" },
+  { id:"60",  name:"Isla Mackenzie",     taid:"TAA-0060" },
+  { id:"61",  name:"Felipe Morales",     taid:"TAA-0061" },
+  { id:"62",  name:"Harriet Dunne",      taid:"TAA-0062" },
+  { id:"63",  name:"Adnan Sheikh",       taid:"TAA-0063" },
+  { id:"64",  name:"Niamh Brady",        taid:"TAA-0064" },
+  { id:"65",  name:"Craig Dalton",       taid:"TAA-0065" },
+  { id:"66",  name:"Priya Sharma",       taid:"TAA-0066" },
+  { id:"67",  name:"Ross Buchanan",      taid:"TAA-0067" },
+  { id:"68",  name:"Valeria Costa",      taid:"TAA-0068" },
+  { id:"69",  name:"Owen Gallagher",     taid:"TAA-0069" },
+  { id:"70",  name:"Aaliyah Cooper",     taid:"TAA-0070" },
+  { id:"71",  name:"Stefan Braun",       taid:"TAA-0071" },
+  { id:"72",  name:"Cora Fitzgerald",    taid:"TAA-0072" },
+  { id:"73",  name:"Monty Hall",         taid:"TAA-0073" },
+  { id:"74",  name:"Sunita Rao",         taid:"TAA-0074" },
+  { id:"75",  name:"Carl Beaumont",      taid:"TAA-0075" },
+  { id:"76",  name:"Amelia Thorne",      taid:"TAA-0076" },
+  { id:"77",  name:"Barry Knight",       taid:"TAA-0077" },
+  { id:"78",  name:"Jess Whitmore",      taid:"TAA-0078" },
+  { id:"79",  name:"Dmitri Volkov",      taid:"TAA-0079" },
+  { id:"80",  name:"Evelyn Nash",        taid:"TAA-0080" },
+  { id:"81",  name:"Kevin Flood",        taid:"TAA-0081" },
+  { id:"82",  name:"Rosie Quinn",        taid:"TAA-0082" },
+  { id:"83",  name:"Elliot Harker",      taid:"TAA-0083" },
+  { id:"84",  name:"Blessing Adeyemi",   taid:"TAA-0084" },
+  { id:"85",  name:"Sam Norris",         taid:"TAA-0085" },
+  { id:"86",  name:"Tanya Frost",        taid:"TAA-0086" },
+  { id:"87",  name:"Vijay Kumar",        taid:"TAA-0087" },
+  { id:"88",  name:"Saoirse O'Neill",    taid:"TAA-0088" },
+  { id:"89",  name:"Patrick Boyle",      taid:"TAA-0089" },
+  { id:"90",  name:"Wendy Holt",         taid:"TAA-0090" },
+  { id:"91",  name:"Alec Stirling",      taid:"TAA-0091" },
+  { id:"92",  name:"Fatou Diallo",       taid:"TAA-0092" },
+  { id:"93",  name:"Jamie Greer",        taid:"TAA-0093" },
+  { id:"94",  name:"Helen Shaw",         taid:"TAA-0094" },
+  { id:"95",  name:"Reza Ahmadi",        taid:"TAA-0095" },
+  { id:"96",  name:"Penny Lawton",       taid:"TAA-0096" },
+  { id:"97",  name:"Niall Brennan",      taid:"TAA-0097" },
+  { id:"98",  name:"Olivia Marsh",       taid:"TAA-0098" },
+  { id:"99",  name:"Gareth Probert",     taid:"TAA-0099" },
+  { id:"100", name:"Lena Fischer",       taid:"TAA-0100" },
+  { id:"101", name:"Howard Webb",        taid:"TAA-0101" },
+  { id:"102", name:"Nneka Okafor",       taid:"TAA-0102" },
+  { id:"103", name:"Will Cartwright",    taid:"TAA-0103" },
+  { id:"104", name:"Beatrice Knowles",   taid:"TAA-0104" },
+  { id:"105", name:"Karl Finlay",        taid:"TAA-0105" },
+  { id:"106", name:"Alisha Chowdhury",   taid:"TAA-0106" },
+  { id:"107", name:"Peter Stokes",       taid:"TAA-0107" },
+  { id:"108", name:"Davina Osei",        taid:"TAA-0108" },
+  { id:"109", name:"Luke Sheridan",      taid:"TAA-0109" },
+  { id:"110", name:"Nadia Petit",        taid:"TAA-0110" },
+  { id:"111", name:"Shane Dunleavy",     taid:"TAA-0111" },
+  { id:"112", name:"Vivienne Hartley",   taid:"TAA-0112" },
+  { id:"113", name:"Dean Alderton",      taid:"TAA-0113" },
+  { id:"114", name:"Abby Cheng",         taid:"TAA-0114" },
+  { id:"115", name:"Frank Corrigan",     taid:"TAA-0115" },
+  { id:"116", name:"Iris Browne",        taid:"TAA-0116" },
+  { id:"117", name:"Theo Blackwood",     taid:"TAA-0117" },
+  { id:"118", name:"Salma Hadi",         taid:"TAA-0118" },
+  { id:"119", name:"Clive Sutton",       taid:"TAA-0119" },
+  { id:"120", name:"Josephine Mensah",   taid:"TAA-0120" },
+  { id:"121", name:"Raymond Tucker",     taid:"TAA-0121" },
+  { id:"122", name:"Esme Clifford",      taid:"TAA-0122" },
+  { id:"123", name:"Andy Pearce",        taid:"TAA-0123" },
+  { id:"124", name:"Miriam Adler",       taid:"TAA-0124" },
 ]
 
 const ROLE_SITES: Record<string, string[]> = {
-  "super-admin":  ["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11"],
-  "head-office":  ["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11"],
+  "super-admin":  ["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12","s13","s14","s15","s16","s17","s18","s19","s20","s21","s22","s23","s24","s25","s26","s27","s28","s29","s30","s31","s32","s33","s34","s35","s36","s37","s38","s39","s40"],
+  "head-office":  ["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12","s13","s14","s15","s16","s17","s18","s19","s20","s21","s22","s23","s24","s25","s26","s27","s28","s29","s30","s31","s32","s33","s34","s35","s36","s37","s38","s39","s40"],
   "head-of-area": ["s1","s2","s3","s11"],
   "area-manager": ["s1","s2"],
 }
@@ -502,14 +886,10 @@ function AdjustDialog({ open, onClose, entry, onSave }: {
             {(entry.isAdjusted || entry.isAutoClockOut) && (
               <div className="flex shrink-0 gap-1">
                 {entry.isAdjusted && (
-                  <span className="inline-flex items-center whitespace-nowrap rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-500/15 dark:text-blue-300">
-                    Adjusted
-                  </span>
+                  <Badge variant="info">Adjusted</Badge>
                 )}
                 {entry.isAutoClockOut && (
-                  <span className="inline-flex items-center whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-400">
-                    Auto Clock-Out
-                  </span>
+                  <Badge variant="warning">Auto Clock-Out</Badge>
                 )}
               </div>
             )}
@@ -809,14 +1189,10 @@ function TRow({ entry, nameCol, role, accessibleSites, onAdjust }: {
       <td className="py-2.5 pl-6 pr-4">
         <div className="flex gap-1">
           {entry.isAdjusted && (
-            <span className="inline-flex items-center whitespace-nowrap rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-500/15 dark:text-blue-300">
-              Adjusted
-            </span>
+            <Badge variant="info">Adjusted</Badge>
           )}
           {entry.isAutoClockOut && (
-            <span className="inline-flex items-center whitespace-nowrap rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-400">
-              Auto Clock-Out
-            </span>
+            <Badge variant="warning">Auto Clock-Out</Badge>
           )}
         </div>
       </td>
@@ -878,8 +1254,8 @@ function GroupSection({ label, sublabel, entries, nameCol, role, accessibleSites
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] table-fixed text-sm">
             <colgroup>
-              <col style={{ width: "11%" }} />
-              <col style={{ width: "24%" }} />
+              <col style={{ width: "15%" }} />
+              <col style={{ width: "20%" }} />
               <col style={{ width: "11%" }} />
               <col style={{ width: "11%" }} />
               <col style={{ width: "8%" }} />
@@ -912,6 +1288,19 @@ function GroupSection({ label, sublabel, entries, nameCol, role, accessibleSites
 
 // ─── Main page ───────────────────────────────────────────────────────────────────
 
+function isoWeekBounds(iso: string): [string, string] {
+  const d = new Date(`${iso}T00:00:00`)
+  const dow = d.getDay() === 0 ? 7 : d.getDay()
+  const mon = new Date(d); mon.setDate(d.getDate() - (dow - 1))
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6)
+  const fmt = (x: Date) => x.toISOString().slice(0, 10)
+  return [fmt(mon), fmt(sun)]
+}
+
+function fmtH(h: number): string {
+  return h % 1 === 0 ? `${h}h` : `${h.toFixed(1)}h`
+}
+
 export default function TimesheetsPage() {
   const { role } = useRole()
 
@@ -932,6 +1321,9 @@ export default function TimesheetsPage() {
   const canExport      = role === "super-admin" || role === "head-office"
   const showAreaFilter = role === "super-admin" || role === "head-office"
   const accessibleSites = ROLE_SITES[role] ?? []
+  const titleGroupCount = viewMode === "by-site"
+    ? new Set(entries.filter(e => accessibleSites.includes(e.siteId)).map(e => e.siteId)).size
+    : new Set(entries.filter(e => accessibleSites.includes(e.siteId)).map(e => e.employeeId)).size
 
   useEffect(() => {
     setSiteFilter([])
@@ -970,8 +1362,8 @@ export default function TimesheetsPage() {
       })
   }, [entries, accessibleSites, dateFrom, dateTo, search, siteFilter, areaFilter, empFilter, flagFilter])
 
-  const SITE_ORDER = ["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11"]
-  const EMP_ORDER  = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"]
+  const SITE_ORDER = ["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","s12","s13","s14","s15","s16","s17","s18","s19","s20","s21","s22","s23","s24","s25","s26","s27","s28","s29","s30","s31","s32","s33","s34","s35","s36","s37","s38","s39","s40"]
+  const EMP_ORDER  = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124"]
 
   const groups = useMemo(() => {
     if (viewMode === "by-site") {
@@ -1032,6 +1424,22 @@ export default function TimesheetsPage() {
   const areaOptions = accessibleAreas.map(a => ({ value: a, label: `${a} Area` }))
   const empOptions  = EMPLOYEES_LIST.map(em => ({ value: em.id, label: em.name, sublabel: em.taid }))
 
+  const refDate = useMemo(() => {
+    if (dateFrom) return dateFrom
+    if (filtered.length === 0) return ""
+    return filtered.reduce((m, e) => e.date > m ? e.date : m, filtered[0].date)
+  }, [dateFrom, filtered])
+
+  const { weeklyTotal, monthlyTotal } = useMemo(() => {
+    if (!refDate) return { weeklyTotal: 0, monthlyTotal: 0 }
+    const [weekStart, weekEnd] = isoWeekBounds(refDate)
+    const refMonth = refDate.slice(0, 7)
+    return {
+      weeklyTotal:  filtered.filter(e => e.date >= weekStart && e.date <= weekEnd).reduce((s, e) => s + e.totalHours, 0),
+      monthlyTotal: filtered.filter(e => e.month === refMonth).reduce((s, e) => s + e.totalHours, 0),
+    }
+  }, [filtered, refDate])
+
   function clearFilters() {
     setSearch("")
     setDateFrom("")
@@ -1044,7 +1452,7 @@ export default function TimesheetsPage() {
 
   return (
     <PageShell
-      title="Timesheets"
+      title={`Timesheets (${titleGroupCount})`}
       description="Review and manage worked hours across all sites."
       action={
         canExport ? (
@@ -1118,6 +1526,18 @@ export default function TimesheetsPage() {
         )}
       </div>
 
+      {/* Summary cards */}
+      <div className="flex flex-wrap gap-3">
+        <div className="flex min-w-[160px] max-w-[240px] flex-1 flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-5 py-5">
+          <p className="text-xs text-muted-foreground">Weekly total</p>
+          <p className="text-2xl font-semibold tabular-nums">{fmtH(weeklyTotal)}</p>
+        </div>
+        <div className="flex min-w-[160px] max-w-[240px] flex-1 flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-5 py-5">
+          <p className="text-xs text-muted-foreground">Monthly total</p>
+          <p className="text-2xl font-semibold tabular-nums">{fmtH(monthlyTotal)}</p>
+        </div>
+      </div>
+
       {/* Content */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-8 py-16 text-center">
@@ -1148,7 +1568,7 @@ export default function TimesheetsPage() {
           ))}
 
           {/* Pagination */}
-          <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+          <div className="flex items-center gap-4 py-3">
             <div className="flex shrink-0 items-center gap-2">
               <div className="relative flex items-center">
                 <select

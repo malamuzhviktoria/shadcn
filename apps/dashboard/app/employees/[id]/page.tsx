@@ -26,6 +26,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useRole } from "@/lib/role-context"
 import { type EmployeeStatus, EmployeeStatusBadge } from "@/components/employee-status-badge"
+import { Badge } from "@/components/ui/badge"
 import { EditEmployeeDialog } from "@/components/edit-employee-dialog"
 import { TabSwitcher } from "@/components/tab-switcher"
 
@@ -565,27 +566,22 @@ function DateButton({ value, onChange, placeholder }: {
 
 type ShiftFlagVariant = "adjusted" | "auto-clock-out" | "active"
 
-const FLAG_CONFIG: Record<"adjusted" | "auto-clock-out", { label: string; dotCls: string }> = {
-  adjusted:         { label: "Adjusted",      dotCls: "bg-blue-500"  },
-  "auto-clock-out": { label: "Auto clock-out", dotCls: "bg-amber-500" },
+const FLAG_CONFIG: Record<"adjusted" | "auto-clock-out", { label: string; variant: "info" | "warning" }> = {
+  adjusted:         { label: "Adjusted",      variant: "info"    },
+  "auto-clock-out": { label: "Auto clock-out", variant: "warning" },
 }
 
 function ShiftFlagBadge({ variant }: { variant: ShiftFlagVariant }) {
   if (variant === "active") {
     return (
-      <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300">
+      <Badge variant="success">
         <CircleCheck className="size-3.5 shrink-0" />
         Active shift
-      </span>
+      </Badge>
     )
   }
-  const { label, dotCls } = FLAG_CONFIG[variant]
-  return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-background px-2.5 py-0.5 text-xs font-medium text-foreground">
-      <span className={cn("size-1.5 shrink-0 rounded-full", dotCls)} />
-      {label}
-    </span>
-  )
+  const { label, variant: badgeVariant } = FLAG_CONFIG[variant]
+  return <Badge variant={badgeVariant}>{label}</Badge>
 }
 
 function ActiveShiftRow({ shift, employee }: { shift: ShiftEntry; employee: Employee }) {
@@ -673,6 +669,16 @@ function WorkHistoryTab({ employee }: { employee: Employee }) {
   function changePage(n: number) { setPage(n) }
 
   const hasRows = showActiveRow || paged.length > 0
+
+  if (employee.status === "invited") {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-8 py-16 text-center">
+        <Search className="mb-3 size-8 text-muted-foreground/40" />
+        <p className="font-medium">No work history yet</p>
+        <p className="mt-1 text-sm text-muted-foreground">This employee hasn&apos;t started yet. Shifts will appear here once they clock in for the first time.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -996,6 +1002,16 @@ function PayRatesTab({ employee, canEdit }: { employee: Employee; canEdit: boole
     setAddSite(null)
   }
 
+  if (employee.status === "invited") {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-8 py-16 text-center">
+        <Search className="mb-3 size-8 text-muted-foreground/40" />
+        <p className="font-medium">No pay rates yet</p>
+        <p className="mt-1 text-sm text-muted-foreground">This employee hasn&apos;t started yet. Pay rates will appear once they clock in for the first time.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1160,9 +1176,7 @@ function SiteGroupCard({
           <div className="flex flex-wrap items-center gap-2">
             <span className={cn("text-base font-semibold", !group.isActive && "text-muted-foreground")}>{group.site}</span>
             {!group.isActive && (
-              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-border">
-                Inactive
-              </span>
+              <Badge variant="neutral">Inactive</Badge>
             )}
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
@@ -1494,7 +1508,7 @@ function HolidayRowActionMenu({ onEdit, onDelete }: { onEdit: () => void; onDele
   )
 }
 
-function HolidayHoursTab({ canEdit }: { canEdit: boolean }) {
+function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Employee }) {
   const [entries, setEntries]           = useState<HolidayEntry[]>(MOCK_HOLIDAY_ENTRIES)
   const [showAdd, setShowAdd]           = useState(false)
   const [editingEntry, setEditingEntry] = useState<HolidayEntry | null>(null)
@@ -1505,6 +1519,16 @@ function HolidayHoursTab({ canEdit }: { canEdit: boolean }) {
   const totalAccrued = OPENING_BALANCE + ACCRUED_THIS_YEAR
   const totalTaken   = entries.reduce((s, e) => s + e.hours, 0)
   const remaining    = totalAccrued - totalTaken
+
+  if (employee.status === "invited") {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-8 py-16 text-center">
+        <Calendar className="mb-3 size-8 text-muted-foreground/40" />
+        <p className="font-medium">No holiday data yet</p>
+        <p className="mt-1 text-sm text-muted-foreground">This employee hasn&apos;t started yet. Holiday hours will begin accruing once they start.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -1543,8 +1567,8 @@ function HolidayHoursTab({ canEdit }: { canEdit: boolean }) {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[420px] table-fixed text-sm">
             <colgroup>
-              <col style={{ width: "50%" }} />
-              <col style={{ width: "15%" }} />
+              <col style={{ width: "46%" }} />
+              <col style={{ width: "19%" }} />
               <col style={{ width: "25%" }} />
               <col style={{ width: "10%" }} />
             </colgroup>
@@ -1759,11 +1783,13 @@ export default function EmployeeProfilePage() {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <button type="button" onClick={() => setShowEdit(true)}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent">
-            <Edit2 className="size-4" />Edit
-          </button>
-          {canArchive && employee.status !== "archived" && (
+          {employee.status !== "archived" && (
+            <button type="button" onClick={() => setShowEdit(true)}
+              className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent">
+              <Edit2 className="size-4" />Edit
+            </button>
+          )}
+          {canArchive && employee.status === "active" && (
             <button type="button" onClick={handleArchiveClick}
               className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent">
               Archive
@@ -1785,7 +1811,7 @@ export default function EmployeeProfilePage() {
       {activeTab === "overview"      && <OverviewTab employee={employee} activeShift={activeShift} />}
       {activeTab === "work-history"  && <WorkHistoryTab employee={employee} />}
       {activeTab === "pay-rates"     && <PayRatesTab employee={employee} canEdit />}
-      {activeTab === "holiday-hours" && <HolidayHoursTab canEdit />}
+      {activeTab === "holiday-hours" && <HolidayHoursTab canEdit employee={employee} />}
 
       {/* Overlays */}
       <EditEmployeeDialog open={showEdit} onClose={() => setShowEdit(false)} employee={employee}

@@ -1501,8 +1501,8 @@ export default function EmployeesPage() {
             <table className="w-full table-fixed text-sm">
               <colgroup>
                 <col style={{ width: "32%" }} />
-                <col style={{ width: "15%" }} />
-                <col style={{ width: "26%" }} />
+                <col style={{ width: "17%" }} />
+                <col style={{ width: "24%" }} />
                 <col style={{ width: "19%" }} />
                 <col style={{ width: "8%" }} />
               </colgroup>
@@ -1523,7 +1523,7 @@ export default function EmployeesPage() {
                       <div className="flex min-w-0 items-center gap-2.5">
                         <Avatar firstName={emp.firstName} lastName={emp.lastName} />
                         <div className="min-w-0">
-                          <p className="truncate font-medium transition-colors group-hover:text-primary">{emp.firstName} {emp.lastName}</p>
+                          <p className="truncate font-medium hover:underline">{emp.firstName} {emp.lastName}</p>
                           <p className="truncate text-xs text-muted-foreground">{emp.email}</p>
                         </div>
                       </div>

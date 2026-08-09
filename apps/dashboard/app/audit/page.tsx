@@ -9,6 +9,7 @@ import { useRole } from "@/lib/role-context"
 import { useRouter } from "next/navigation"
 import { PageShell } from "@/components/page-shell"
 import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -41,7 +42,6 @@ interface AuditRecord {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE = 8
 
 function getPageWindow(current: number, total: number): number[] {
   if (total <= 3) return Array.from({ length: total }, (_, i) => i + 1)
@@ -51,35 +51,14 @@ function getPageWindow(current: number, total: number): number[] {
 }
 const HOA_AREA_ID = "a1"
 
-const CHANGE_TYPE_CONFIG: Record<ChangeType, { label: string; cls: string }> = {
-  "hour-adjustment": {
-    label: "Hour adjustment",
-    cls: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  },
-  "pay-rate-added": {
-    label: "Pay rate added",
-    cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  },
-  "pay-rate-updated": {
-    label: "Pay rate updated",
-    cls: "bg-muted text-muted-foreground",
-  },
-  "pay-rate-deleted": {
-    label: "Pay rate deleted",
-    cls: "bg-muted text-muted-foreground",
-  },
-  "holiday-hours-updated": {
-    label: "Holiday hours updated",
-    cls: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
-  },
-  "holiday-hours-deleted": {
-    label: "Holiday hours deleted",
-    cls: "bg-muted text-muted-foreground",
-  },
-  "minimum-wage-updated": {
-    label: "Minimum wage updated",
-    cls: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-  },
+const CHANGE_TYPE_CONFIG: Record<ChangeType, { label: string; variant: "info" | "success" | "warning" | "neutral" }> = {
+  "hour-adjustment":       { label: "Hour adjustment",       variant: "info"    },
+  "pay-rate-added":        { label: "Pay rate added",        variant: "success" },
+  "pay-rate-updated":      { label: "Pay rate updated",      variant: "info"    },
+  "pay-rate-deleted":      { label: "Pay rate deleted",      variant: "neutral" },
+  "holiday-hours-updated": { label: "Holiday hours updated", variant: "warning" },
+  "holiday-hours-deleted": { label: "Holiday hours deleted", variant: "neutral" },
+  "minimum-wage-updated":  { label: "Minimum wage updated",  variant: "warning" },
 }
 
 // ── Sample Data ───────────────────────────────────────────────────────────────
@@ -348,12 +327,8 @@ function truncate(text: string, max = 32): string {
 // ── ChangeTypeBadge ───────────────────────────────────────────────────────────
 
 function ChangeTypeBadge({ type }: { type: ChangeType }) {
-  const cfg = CHANGE_TYPE_CONFIG[type]
-  return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${cfg.cls}`}>
-      {cfg.label}
-    </span>
-  )
+  const { label, variant } = CHANGE_TYPE_CONFIG[type]
+  return <Badge variant={variant}>{label}</Badge>
 }
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
@@ -489,6 +464,7 @@ export default function AuditTrailPage() {
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
   const [detail, setDetail] = useState<AuditRecord | null>(null)
   const [demoState, setDemoState] = useState<DemoState>("populated")
 
@@ -496,7 +472,7 @@ export default function AuditTrailPage() {
     if (role === "area-manager") router.push("/employees")
   }, [role, router])
 
-  useEffect(() => { setPage(1) }, [search, changeType, employeeId, siteId, dateFrom, dateTo])
+  useEffect(() => { setPage(1) }, [search, changeType, employeeId, siteId, dateFrom, dateTo, perPage])
 
   const scopedRecords = useMemo(() => {
     if (role === "head-of-area") {
@@ -546,11 +522,9 @@ export default function AuditTrailPage() {
     return list
   }, [scopedRecords, changeType, employeeId, siteId, dateFrom, dateTo, search, demoState])
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
   const currentPage = Math.min(page, totalPages)
-  const pageRecords = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-  const start = filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1
-  const end = Math.min(currentPage * PAGE_SIZE, filtered.length)
+  const pageRecords = filtered.slice((currentPage - 1) * perPage, currentPage * perPage)
 
   const hasActiveFilters =
     !!search || changeType !== "all" || employeeId !== "all" ||
@@ -571,21 +545,17 @@ export default function AuditTrailPage() {
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-end gap-2">
         {/* Search */}
-        <div className="relative flex h-9 min-w-52 flex-1 items-center">
-          <Search className="pointer-events-none absolute left-3 size-3.5 shrink-0 text-muted-foreground" />
+        <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+          <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by manager, employee, or site…"
-            className="h-9 w-full rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 pl-8 pr-8 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-2.5 text-muted-foreground hover:text-foreground"
-              aria-label="Clear search"
-            >
+            <button type="button" onClick={() => setSearch("")} aria-label="Clear search" className="shrink-0 text-muted-foreground hover:text-foreground">
               <X className="size-3.5" />
             </button>
           )}
@@ -831,58 +801,57 @@ export default function AuditTrailPage() {
 
         {/* Pagination footer */}
         {demoState === "populated" && filtered.length > 0 && (
-          <div className="flex items-center justify-between border-t border-border px-4 py-3">
-            <p className="text-xs text-muted-foreground">
-              Showing {start}–{end} of {filtered.length}{" "}
-              {filtered.length === 1 ? "record" : "records"}
-            </p>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setPage(1)}
-                disabled={currentPage === 1}
-                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                aria-label="First page"
-              >
-                <ChevronsLeft className="size-4" />
-              </button>
-              <button
-                onClick={() => setPage(p => p - 1)}
-                disabled={currentPage === 1}
-                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="size-4" />
-              </button>
-              <span className="px-1 text-xs text-muted-foreground">Page {currentPage} of {totalPages}</span>
-              {getPageWindow(currentPage, totalPages).map(p => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`flex size-7 items-center justify-center rounded-md border text-xs font-medium transition-colors ${
-                    p === currentPage
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-input bg-background text-muted-foreground hover:bg-accent"
-                  }`}
-                >
-                  {p}
+          <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+            <div className="flex shrink-0 items-center gap-2">
+              <div className="relative flex items-center">
+                <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setPage(1) }}
+                  className="flex h-8 appearance-none rounded-md border border-input bg-muted/50 pl-2.5 pr-7 text-xs font-medium transition-colors hover:border-input-hover focus:outline-none focus:ring-2 focus:ring-ring">
+                  {[10, 20, 30, 40, 50].map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-1.5 size-3 text-muted-foreground" />
+              </div>
+              <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
+            </div>
+            <div className="flex-1" />
+            <div className="flex shrink-0 items-center gap-3">
+              <span className="whitespace-nowrap text-xs text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <div className="flex shrink-0 items-center gap-1">
+                <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
+                  aria-label="First page"
+                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                  <ChevronsLeft className="size-3.5" />
                 </button>
-              ))}
-              <button
-                onClick={() => setPage(p => p + 1)}
-                disabled={currentPage === totalPages}
-                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                aria-label="Next page"
-              >
-                <ChevronRight className="size-4" />
-              </button>
-              <button
-                onClick={() => setPage(totalPages)}
-                disabled={currentPage === totalPages}
-                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                aria-label="Last page"
-              >
-                <ChevronsRight className="size-4" />
-              </button>
+                <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                  aria-label="Previous page"
+                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                  <ChevronLeft className="size-3.5" />
+                </button>
+                {getPageWindow(currentPage, totalPages).map(n => (
+                  <button key={n} type="button" onClick={() => setPage(n)}
+                    aria-label={`Page ${n}`}
+                    aria-current={n === currentPage ? "page" : undefined}
+                    className={cn(
+                      "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                      n === currentPage
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                    )}>
+                    {n}
+                  </button>
+                ))}
+                <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+                  aria-label="Next page"
+                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                  <ChevronRight className="size-3.5" />
+                </button>
+                <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
+                  aria-label="Last page"
+                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                  <ChevronsRight className="size-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         )}

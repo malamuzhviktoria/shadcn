@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { useRole } from "@/lib/role-context"
 import { useRouter } from "next/navigation"
 import { PageShell } from "@/components/page-shell"
+import { Badge } from "@/components/ui/badge"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -63,7 +64,23 @@ const INITIAL_USERS: AdminUser[] = [
   { id: "u6", firstName: "Patricia",  lastName: "Nolan",     name: "Patricia Nolan",     email: "patricia.nolan@spectrumclean.co.uk",    role: "head-of-area", status: "pending",     assignedAreaId: null, assignedAreaName: null,          assignedSiteCount: 0 },
   { id: "u7", firstName: "Alex",      lastName: "Thompson",  name: "Alex Thompson",      email: "alex.thompson@spectrumclean.co.uk",     role: "area-manager", status: "active",      assignedAreaId: null, assignedAreaName: null,          assignedSiteCount: 4 },
   { id: "u8", firstName: "Rachel",    lastName: "Moore",     name: "Rachel Moore",       email: "rachel.moore@spectrumclean.co.uk",      role: "area-manager", status: "active",      assignedAreaId: null, assignedAreaName: null,          assignedSiteCount: 0 },
-  { id: "u9", firstName: "Daniel",    lastName: "Forsyth",   name: "Daniel Forsyth",     email: "daniel.forsyth@spectrumclean.co.uk",   role: "area-manager", status: "deactivated", assignedAreaId: null, assignedAreaName: null,          assignedSiteCount: 0 },
+  { id: "u9",  firstName: "Daniel",    lastName: "Forsyth",   name: "Daniel Forsyth",     email: "daniel.forsyth@spectrumclean.co.uk",    role: "area-manager", status: "deactivated", assignedAreaId: null,  assignedAreaName: null,                   assignedSiteCount: 0 },
+  { id: "u10", firstName: "Joanna",   lastName: "Clarke",    name: "Joanna Clarke",      email: "joanna.clarke@spectrumclean.co.uk",     role: "head-of-area", status: "active",      assignedAreaId: "a3",  assignedAreaName: "East Midlands Area",   assignedSiteCount: 0 },
+  { id: "u11", firstName: "Patricia", lastName: "Nolan",     name: "Patricia Nolan",     email: "patricia.nolan2@spectrumclean.co.uk",   role: "head-of-area", status: "active",      assignedAreaId: "a4",  assignedAreaName: "Yorkshire Area",       assignedSiteCount: 0 },
+  { id: "u12", firstName: "Daniel",   lastName: "Forsyth",   name: "Daniel Forsyth",     email: "daniel.forsyth2@spectrumclean.co.uk",   role: "head-of-area", status: "active",      assignedAreaId: "a5",  assignedAreaName: "East Anglia Area",     assignedSiteCount: 0 },
+  { id: "u13", firstName: "Caroline", lastName: "Bates",     name: "Caroline Bates",     email: "caroline.bates@spectrumclean.co.uk",    role: "head-of-area", status: "active",      assignedAreaId: "a7",  assignedAreaName: "South East Area",      assignedSiteCount: 0 },
+  { id: "u14", firstName: "David",    lastName: "Lennox",    name: "David Lennox",        email: "david.lennox@spectrumclean.co.uk",      role: "head-of-area", status: "active",      assignedAreaId: "a8",  assignedAreaName: "South West Area",      assignedSiteCount: 0 },
+  { id: "u15", firstName: "Emily",    lastName: "Cross",     name: "Emily Cross",         email: "emily.cross@spectrumclean.co.uk",       role: "head-of-area", status: "pending",     assignedAreaId: null,  assignedAreaName: null,                   assignedSiteCount: 0 },
+  { id: "u16", firstName: "Callum",   lastName: "Fraser",    name: "Callum Fraser",       email: "callum.fraser@spectrumclean.co.uk",     role: "head-of-area", status: "active",      assignedAreaId: "a10", assignedAreaName: "Scotland Area",        assignedSiteCount: 0 },
+  { id: "u17", firstName: "Owen",     lastName: "Roberts",   name: "Owen Roberts",        email: "owen.roberts@spectrumclean.co.uk",      role: "head-of-area", status: "active",      assignedAreaId: "a11", assignedAreaName: "Wales Area",           assignedSiteCount: 0 },
+  { id: "u18", firstName: "Nisha",    lastName: "Patel",     name: "Nisha Patel",         email: "nisha.patel@spectrumclean.co.uk",       role: "head-of-area", status: "active",      assignedAreaId: "a12", assignedAreaName: "Greater Manchester Area", assignedSiteCount: 0 },
+  { id: "u19", firstName: "Tom",      lastName: "Whitfield", name: "Tom Whitfield",       email: "tom.whitfield@spectrumclean.co.uk",     role: "head-of-area", status: "active",      assignedAreaId: "a13", assignedAreaName: "Greater London Area",  assignedSiteCount: 0 },
+  { id: "u20", firstName: "Grace",    lastName: "Henderson", name: "Grace Henderson",     email: "grace.henderson@spectrumclean.co.uk",   role: "head-of-area", status: "pending",     assignedAreaId: null,  assignedAreaName: null,                   assignedSiteCount: 0 },
+  { id: "u21", firstName: "Claire",   lastName: "Baxter",    name: "Claire Baxter",       email: "claire.baxter@spectrumclean.co.uk",     role: "area-manager", status: "active",      assignedAreaId: null,  assignedAreaName: null,                   assignedSiteCount: 4 },
+  { id: "u22", firstName: "Sandra",   lastName: "Bates",     name: "Sandra Bates",        email: "sandra.bates@spectrumclean.co.uk",      role: "area-manager", status: "active",      assignedAreaId: null,  assignedAreaName: null,                   assignedSiteCount: 2 },
+  { id: "u23", firstName: "James",    lastName: "Harley",    name: "James Harley",        email: "james.harley@spectrumclean.co.uk",      role: "area-manager", status: "active",      assignedAreaId: null,  assignedAreaName: null,                   assignedSiteCount: 3 },
+  { id: "u24", firstName: "Nisha",    lastName: "Kapoor",    name: "Nisha Kapoor",        email: "nisha.kapoor@spectrumclean.co.uk",      role: "area-manager", status: "active",      assignedAreaId: null,  assignedAreaName: null,                   assignedSiteCount: 2 },
+  { id: "u25", firstName: "Sean",     lastName: "Donnelly",  name: "Sean Donnelly",       email: "sean.donnelly@spectrumclean.co.uk",     role: "area-manager", status: "deactivated", assignedAreaId: null,  assignedAreaName: null,                   assignedSiteCount: 0 },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -101,13 +118,19 @@ const USER_STATUS_CONFIG: Record<UserStatus, { label: string; icon: typeof Circl
   deactivated: { label: "Deactivated",          icon: Archive,     iconCls: "text-muted-foreground"                   },
 }
 
+const USER_STATUS_VARIANT: Record<UserStatus, "success" | "info" | "neutral"> = {
+  active:      "success",
+  pending:     "info",
+  deactivated: "neutral",
+}
+
 function StatusBadge({ status }: { status: UserStatus }) {
-  const { label, icon: Icon, iconCls } = USER_STATUS_CONFIG[status]
+  const { label, icon: Icon } = USER_STATUS_CONFIG[status]
   return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-background px-2.5 py-0.5 text-xs font-medium text-foreground">
-      <Icon className={cn("size-3.5 shrink-0", iconCls)} />
+    <Badge variant={USER_STATUS_VARIANT[status]}>
+      <Icon className="size-3.5 shrink-0" />
       {label}
-    </span>
+    </Badge>
   )
 }
 
@@ -115,9 +138,9 @@ function StatusBadge({ status }: { status: UserStatus }) {
 
 function RoleBadge({ role }: { role: AdminRole }) {
   return (
-    <span className="inline-flex items-center whitespace-nowrap rounded-full border border-border bg-background px-2.5 py-0.5 text-xs font-medium text-foreground">
+    <Badge variant="outline">
       {ADMIN_ROLE_LABELS[role]}
-    </span>
+    </Badge>
   )
 }
 
@@ -638,7 +661,7 @@ export default function AdminUsersPage() {
 
   return (
     <PageShell
-      title="Admin users"
+      title={`Admin users (${users.length})`}
       description="Manage admin accounts and role assignments."
       action={
         <button type="button" onClick={() => setDialog({ type: "create" })} className={btnPrimary}>

@@ -40,8 +40,6 @@ const HOA_USERS = [
   { email: "christine.lawson@spectrumclean.co.uk", name: "Christine Lawson" },
 ]
 
-const PAGE_SIZE = 5
-
 // The HoA role preview in this prototype is assigned to North Area
 const HOA_ASSIGNED_AREA_ID = "a1"
 
@@ -54,7 +52,16 @@ const INITIAL_AREAS: Area[] = [
   { id: "a4", areaName: "Yorkshire Area",     hoaEmail: "patricia.nolan@spectrumclean.co.uk",  hoaName: "Patricia Nolan" },
   { id: "a5", areaName: "East Anglia Area",   hoaEmail: "daniel.forsyth@spectrumclean.co.uk",  hoaName: "Daniel Forsyth" },
   // West Area has no HoA — demonstrates the unassigned-indicator / contradiction
-  { id: "a6", areaName: "West Area",          hoaEmail: null, hoaName: null },
+  { id: "a6",  areaName: "West Area",             hoaEmail: null,                                          hoaName: null },
+  { id: "a7",  areaName: "South East Area",        hoaEmail: "caroline.bates@spectrumclean.co.uk",         hoaName: "Caroline Bates" },
+  { id: "a8",  areaName: "South West Area",        hoaEmail: "david.lennox@spectrumclean.co.uk",           hoaName: "David Lennox" },
+  { id: "a9",  areaName: "Midlands Area",          hoaEmail: "emily.cross@spectrumclean.co.uk",            hoaName: "Emily Cross" },
+  { id: "a10", areaName: "Scotland Area",          hoaEmail: "callum.fraser@spectrumclean.co.uk",          hoaName: "Callum Fraser" },
+  { id: "a11", areaName: "Wales Area",             hoaEmail: "owen.roberts@spectrumclean.co.uk",           hoaName: "Owen Roberts" },
+  { id: "a12", areaName: "Greater Manchester Area",hoaEmail: "nisha.patel@spectrumclean.co.uk",            hoaName: "Nisha Patel" },
+  { id: "a13", areaName: "Greater London Area",    hoaEmail: "tom.whitfield@spectrumclean.co.uk",          hoaName: "Tom Whitfield" },
+  { id: "a14", areaName: "Northern Ireland Area",  hoaEmail: null,                                          hoaName: null },
+  { id: "a15", areaName: "Eastern Area",           hoaEmail: "grace.henderson@spectrumclean.co.uk",        hoaName: "Grace Henderson" },
 ]
 
 // Sites per area — mirrors Sites page data (s1–s7 IDs)
@@ -73,9 +80,54 @@ const AREA_SITES: Record<string, AreaSite[]> = {
   a3: [
     { id: "s-em1", siteNumber: "S-EM-001", siteName: "Waterfront Business Centre", areaManagerName: "Claire Baxter" },
   ],
-  a4: [], // Yorkshire — no sites (demonstrates empty sites state)
-  a5: [], // East Anglia — no sites
+  a4: [
+    { id: "s30", siteNumber: "S-030", siteName: "Northgate House",   areaManagerName: "Sandra Bates" },
+    { id: "s31", siteNumber: "S-031", siteName: "Elmwood Park",       areaManagerName: "Sandra Bates" },
+  ],
+  a5: [
+    { id: "s-ea1", siteNumber: "S-EA-001", siteName: "Ipswich Business Centre", areaManagerName: "Mark Osborne" },
+  ],
   a6: [], // West — no sites, no HoA
+  a7: [
+    { id: "s-se1", siteNumber: "S-SE-001", siteName: "Canary Wharf Office",    areaManagerName: "Louise Grant" },
+    { id: "s-se2", siteNumber: "S-SE-002", siteName: "Dartford Exchange",       areaManagerName: "Louise Grant" },
+    { id: "s-se3", siteNumber: "S-SE-003", siteName: "Brighton Seafront Hub",   areaManagerName: "Pete Rowan" },
+  ],
+  a8: [
+    { id: "s31",   siteNumber: "S-031",    siteName: "Cabot Circus",            areaManagerName: "James Harley" },
+    { id: "s32",   siteNumber: "S-032",    siteName: "Central Square Cardiff",  areaManagerName: "James Harley" },
+    { id: "s40",   siteNumber: "S-040",    siteName: "St David's Dewi Sant",    areaManagerName: "James Harley" },
+  ],
+  a9: [
+    { id: "s34",   siteNumber: "S-034",    siteName: "Friargate Tower",         areaManagerName: "Claire Baxter" },
+    { id: "s35",   siteNumber: "S-035",    siteName: "Mander Centre",           areaManagerName: "Claire Baxter" },
+    { id: "s36",   siteNumber: "S-036",    siteName: "Broadmarsh Centre",       areaManagerName: "Claire Baxter" },
+    { id: "s37",   siteNumber: "S-037",    siteName: "Highcross Leicester",     areaManagerName: "Claire Baxter" },
+  ],
+  a10: [
+    { id: "s-sc1", siteNumber: "S-SC-001", siteName: "St Vincent Street",      areaManagerName: "Angus Drummond" },
+    { id: "s-sc2", siteNumber: "S-SC-002", siteName: "Edinburgh Gate",         areaManagerName: "Angus Drummond" },
+  ],
+  a11: [
+    { id: "s32",   siteNumber: "S-032",    siteName: "Central Square",         areaManagerName: "Owen Roberts" },
+    { id: "s-wl1", siteNumber: "S-WL-001", siteName: "Swansea Marina Hub",    areaManagerName: "Owen Roberts" },
+  ],
+  a12: [
+    { id: "s38",   siteNumber: "S-038",    siteName: "Liverpool One",          areaManagerName: "Nisha Patel" },
+    { id: "s-nm1", siteNumber: "S-NM-001", siteName: "Spinningfields Tower",  areaManagerName: "Nisha Patel" },
+    { id: "s-nm2", siteNumber: "S-NM-002", siteName: "MediaCity UK",          areaManagerName: "Nisha Patel" },
+  ],
+  a13: [
+    { id: "s-gl1", siteNumber: "S-GL-001", siteName: "Bishopsgate House",     areaManagerName: "Tom Whitfield" },
+    { id: "s-gl2", siteNumber: "S-GL-002", siteName: "King's Cross Central",  areaManagerName: "Tom Whitfield" },
+    { id: "s-gl3", siteNumber: "S-GL-003", siteName: "Canary Wharf South",    areaManagerName: "Priya Kapoor" },
+    { id: "s-gl4", siteNumber: "S-GL-004", siteName: "Southbank Tower",       areaManagerName: "Priya Kapoor" },
+  ],
+  a14: [], // Northern Ireland — no sites, no HoA
+  a15: [
+    { id: "s-es1", siteNumber: "S-ES-001", siteName: "Norwich Business Park", areaManagerName: "Grace Henderson" },
+    { id: "s-es2", siteNumber: "S-ES-002", siteName: "Cambridge Science Park", areaManagerName: "Grace Henderson" },
+  ],
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -127,11 +179,14 @@ function InfoNote({ children }: { children: React.ReactNode }) {
   )
 }
 
-function WarningNote({ children }: { children: React.ReactNode }) {
+function WarningNote({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 dark:border-amber-800/40 dark:bg-amber-900/20 dark:text-amber-400">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-      <span>{children}</span>
+    <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+      <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />
+      <div>
+        {title && <p className="text-sm font-medium text-destructive">{title}</p>}
+        <p className="text-sm text-destructive/80">{children}</p>
+      </div>
     </div>
   )
 }
@@ -287,9 +342,9 @@ function AreaListView({
 }) {
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
 
-  // Reset page on search change
-  useEffect(() => { setPage(1) }, [search])
+  useEffect(() => { setPage(1) }, [search, perPage])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -297,18 +352,16 @@ function AreaListView({
     return areas.filter(a => a.areaName.toLowerCase().includes(q))
   }, [areas, search])
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
   const currentPage = Math.min(page, totalPages)
-  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-  const start = filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1
-  const end = Math.min(currentPage * PAGE_SIZE, filtered.length)
+  const paged = filtered.slice((currentPage - 1) * perPage, currentPage * perPage)
 
   return (
     <div className="flex flex-col gap-4">
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Areas</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Areas ({areas.length})</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage cleaning operation areas and their Heads of Area.
           </p>
@@ -325,20 +378,17 @@ function AreaListView({
       </div>
 
       {/* Search */}
-      <div className="relative h-9 max-w-sm">
-        <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
+      <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+        <Search className="size-3.5 shrink-0 text-muted-foreground" />
         <input
           type="text"
           placeholder="Search by area name…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="h-9 w-full rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 pl-8 pr-8 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
         {search && (
-          <button
-            onClick={() => setSearch("")}
-            className="absolute right-2.5 top-2.5 rounded-sm text-muted-foreground hover:text-foreground"
-          >
+          <button type="button" onClick={() => setSearch("")} className="shrink-0 text-muted-foreground hover:text-foreground">
             <X className="size-3.5" />
           </button>
         )}
@@ -374,10 +424,10 @@ function AreaListView({
           <>
             <table className="w-full text-sm">
               <colgroup>
-                <col className="w-[30%]" />
-                <col className="w-[32%]" />
-                <col className="w-[12%]" />
-                <col className="w-[12%]" />
+                <col className="w-[24%]" />
+                <col className="w-[27%]" />
+                <col className="w-[16%]" />
+                <col className="w-[15%]" />
                 {canManage && <col className="w-[7%]" />}
               </colgroup>
               <thead>
@@ -419,7 +469,7 @@ function AreaListView({
                         className="cursor-pointer border-b border-border last:border-0 transition-colors hover:bg-muted/30"
                       >
                         <td className="px-4 py-3.5">
-                          <span className="text-sm font-semibold text-foreground">{area.areaName}</span>
+                          <span className="text-sm font-semibold text-foreground hover:underline">{area.areaName}</span>
                         </td>
                         <td className="px-4 py-3.5 text-sm text-muted-foreground">
                           {area.hoaName ? area.hoaName : <UnassignedBadge />}
@@ -445,53 +495,57 @@ function AreaListView({
 
             {/* Pagination footer */}
             {filtered.length > 0 && (
-              <div className="flex items-center justify-between border-t border-border px-4 py-3">
-                <p className="text-xs text-muted-foreground">
-                  Showing {start}–{end} of {filtered.length} {filtered.length === 1 ? "area" : "areas"}
-                </p>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setPage(1)}
-                    disabled={currentPage === 1}
-                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <ChevronsLeft className="size-4" />
-                  </button>
-                  <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <ChevronLeft className="size-4" />
-                  </button>
-                  <span className="px-1 text-xs text-muted-foreground">Page {currentPage} of {totalPages}</span>
-                  {getPageWindow(currentPage, totalPages).map(p => (
-                    <button
-                      key={p}
-                      onClick={() => setPage(p)}
-                      className={`flex size-7 items-center justify-center rounded-md border text-xs font-medium transition-colors ${
-                        p === currentPage
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-input bg-background text-muted-foreground hover:bg-accent"
-                      }`}
-                    >
-                      {p}
+              <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className="relative flex items-center">
+                    <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setPage(1) }}
+                      className="flex h-8 appearance-none rounded-md border border-input bg-muted/50 pl-2.5 pr-7 text-xs font-medium transition-colors hover:border-input-hover focus:outline-none focus:ring-2 focus:ring-ring">
+                      {[10, 20, 30, 40, 50].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-1.5 size-3 text-muted-foreground" />
+                  </div>
+                  <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
+                </div>
+                <div className="flex-1" />
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="whitespace-nowrap text-xs text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
+                      aria-label="First page"
+                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                      <ChevronsLeft className="size-3.5" />
                     </button>
-                  ))}
-                  <button
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <ChevronRight className="size-4" />
-                  </button>
-                  <button
-                    onClick={() => setPage(totalPages)}
-                    disabled={currentPage === totalPages}
-                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <ChevronsRight className="size-4" />
-                  </button>
+                    <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                      aria-label="Previous page"
+                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                      <ChevronLeft className="size-3.5" />
+                    </button>
+                    {getPageWindow(currentPage, totalPages).map(n => (
+                      <button key={n} type="button" onClick={() => setPage(n)}
+                        aria-label={`Page ${n}`}
+                        aria-current={n === currentPage ? "page" : undefined}
+                        className={cn(
+                          "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                          n === currentPage
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                        )}>
+                        {n}
+                      </button>
+                    ))}
+                    <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+                      aria-label="Next page"
+                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                      <ChevronRight className="size-3.5" />
+                    </button>
+                    <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
+                      aria-label="Last page"
+                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                      <ChevronsRight className="size-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -595,30 +649,26 @@ function AreaDetailView({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Site</th>
+                  <th className="w-1/2 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Site</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Area Manager</th>
-                  <th className="w-8 px-4 py-3" />
                 </tr>
               </thead>
               <tbody>
                 {sites.map(site => (
                   <tr
                     key={site.id}
-                    onClick={() => onOpenSite(site.id)}
-                    className="cursor-pointer border-b border-border last:border-0 transition-colors hover:bg-muted/30"
+                    className="border-b border-border last:border-0 transition-colors hover:bg-muted/30"
                   >
-                    <td className="px-4 py-3.5">
+                    <td
+                      className="cursor-pointer px-4 py-3.5"
+                      onClick={() => onOpenSite(site.id)}
+                    >
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold">{site.siteName}</span>
+                        <span className="text-sm font-semibold hover:underline">{site.siteName}</span>
                         <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{site.siteNumber}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3.5 text-sm text-muted-foreground">{site.areaManagerName}</td>
-                    <td className="px-4 py-3.5">
-                      <div className="flex justify-end">
-                        <ExternalLink className="size-3.5 text-muted-foreground" />
-                      </div>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -758,7 +808,7 @@ function AreaForm({
       {/* HoA reassignment warning */}
       {hoaChanged && hoaEmail && (
         conflictingArea ? (
-          <WarningNote>
+          <WarningNote title="Head of Area reassignment">
             {HOA_USERS.find(u => u.email === hoaEmail)?.name} is currently the Head of Area for{" "}
             <strong>{conflictingArea.areaName}</strong>. Saving will reassign them here and leave{" "}
             {conflictingArea.areaName} without a Head of Area. Review that Area afterwards.
@@ -860,8 +910,7 @@ function ArchiveAreaModal({
         /* Confirm — safe to archive */
         <div className="flex flex-col gap-4 p-5">
           <p className="text-sm text-muted-foreground">
-            Archiving <strong>{area.areaName}</strong> will make it inactive. It will no longer appear in the Areas
-            list. Historical data is preserved.
+            Archiving <strong>{area.areaName}</strong> will make it inactive. It will no longer appear in the Areas list.
           </p>
           {!area.hoaName && (
             <InfoNote>This Area has no Head of Area assigned.</InfoNote>
