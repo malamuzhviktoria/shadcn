@@ -571,7 +571,7 @@ export default function CustomersPage() {
               <tr className="border-b border-border bg-muted/50">
                 <th className="w-48 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
                 <th className="w-40 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
-                <th className="w-52 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Sites</th>
+                <th className="w-52 pl-10 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Sites</th>
                 <th className="w-16 px-4 py-3" />
               </tr>
             </thead>
@@ -689,7 +689,7 @@ export default function CustomersPage() {
                   <th className="w-40 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Customer Name
                   </th>
-                  <th className="w-52 px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                  <th className="w-52 pl-10 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Sites
                   </th>
                   {canManage && <th className="w-16 px-4 py-3" />}
@@ -729,7 +729,7 @@ export default function CustomersPage() {
                         </span>
                       </td>
                       <td className="pl-4 pr-4 py-3 font-medium truncate">{customer.name}</td>
-                      <td className="px-4 py-3 tabular-nums text-muted-foreground">
+                      <td className="pl-10 pr-4 py-3 tabular-nums text-muted-foreground">
                         {siteCounts[customer.id] ?? 0}
                       </td>
                       {canManage && (
