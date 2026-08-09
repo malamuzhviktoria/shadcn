@@ -566,12 +566,12 @@ export default function CustomersPage() {
         </div>
         <div className="h-9 w-64 animate-pulse rounded-md bg-muted" />
         <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <table className="w-full text-sm">
+          <table className="w-full table-fixed text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 <th className="w-48 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
-                <th className="pl-20 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
-                <th className="w-32 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Sites</th>
+                <th className="w-40 pl-10 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
+                <th className="w-52 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Sites</th>
                 <th className="w-16 px-4 py-3" />
               </tr>
             </thead>
@@ -579,7 +579,7 @@ export default function CustomersPage() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="border-b border-border last:border-0">
                   <td className="px-4 py-3"><div className="h-3.5 w-10 animate-pulse rounded bg-muted" /></td>
-                  <td className="pl-20 pr-4 py-3"><div className="h-3.5 w-48 animate-pulse rounded bg-muted" /></td>
+                  <td className="pl-10 pr-4 py-3"><div className="h-3.5 w-48 animate-pulse rounded bg-muted" /></td>
                   <td className="px-4 py-3"><div className="h-3.5 w-6 animate-pulse rounded bg-muted" /></td>
                   <td className="px-4 py-3"><div className="ml-auto h-7 w-7 animate-pulse rounded bg-muted" /></td>
                 </tr>
@@ -680,16 +680,16 @@ export default function CustomersPage() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <table className="w-full text-sm">
+            <table className="w-full table-fixed text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
                   <th className="w-48 px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">
                     Customer Code
                   </th>
-                  <th className="pl-20 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                  <th className="w-40 pl-10 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Customer Name
                   </th>
-                  <th className="w-32 px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                  <th className="w-52 px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Sites
                   </th>
                   {canManage && <th className="w-16 px-4 py-3" />}
@@ -728,7 +728,7 @@ export default function CustomersPage() {
                           {customer.code}
                         </span>
                       </td>
-                      <td className="pl-20 pr-4 py-3 font-medium">{customer.name}</td>
+                      <td className="pl-10 pr-4 py-3 font-medium truncate">{customer.name}</td>
                       <td className="px-4 py-3 tabular-nums text-muted-foreground">
                         {siteCounts[customer.id] ?? 0}
                       </td>
