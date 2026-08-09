@@ -1,0 +1,10 @@
+[build]
+  command = "turbo run build --filter v4"
+  publish = "apps/v4/.next"
+
+[build.environment]
+  # Cap Node.js heap so V8 GC triggers before the Netlify cgroup OOM-killer
+  # fires (exit 137). Without this limit the V8 heap can grow unboundedly
+  # until the container memory ceiling is hit and the process is SIGKILL-ed.
+  NODE_OPTIONS = "--max-old-space-size=4096"
+  NEXT_TELEMETRY_DISABLED = "1"
