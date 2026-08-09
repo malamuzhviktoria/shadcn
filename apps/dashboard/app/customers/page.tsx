@@ -4,9 +4,10 @@ import { useState, useMemo, useEffect, useRef } from "react"
 import {
   Search, Plus, Pencil, Archive, AlertTriangle, AlertCircle,
   X, Loader2, Info, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RotateCcw,
-  Building2, EllipsisVertical, ChevronDown,
+  Building2, EllipsisVertical, ChevronDown, CheckCircle2,
 } from "lucide-react"
 import { useRole } from "@/lib/role-context"
+import { cn } from "@/lib/utils"
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -58,6 +59,31 @@ const INITIAL_SITE_COUNTS: Record<string, number> = {
   c6: 1,  // has active sites — blocked
   c7: 0,  // zero sites — eligible for archive
   c8: 3,  // has active sites — blocked
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────────
+
+type ToastItem = { id: number; message: string; variant: "success" | "error" }
+
+function ToastContainer({ toasts, onDismiss }: { toasts: ToastItem[]; onDismiss: (id: number) => void }) {
+  return (
+    <div className="fixed bottom-4 right-4 z-[60] flex flex-col gap-2 pointer-events-none">
+      {toasts.map(t => (
+        <div key={t.id} className={cn(
+          "pointer-events-auto flex items-center gap-3 rounded-lg border px-4 py-3 shadow-lg text-sm font-medium min-w-72 max-w-sm",
+          t.variant === "success" && "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300",
+          t.variant === "error"   && "border-destructive/20 bg-destructive/5 text-destructive",
+        )}>
+          {t.variant === "success" && <CheckCircle2 className="size-4 shrink-0" />}
+          {t.variant === "error"   && <AlertCircle  className="size-4 shrink-0" />}
+          <span className="flex-1">{t.message}</span>
+          <button type="button" onClick={() => onDismiss(t.id)} className="shrink-0 opacity-60 hover:opacity-100 transition-opacity">
+            <X className="size-3.5" />
+          </button>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 // ── CSS helpers ────────────────────────────────────────────────────────────────
@@ -402,7 +428,7 @@ function ArchiveModal({
         <>
           <p className="text-sm text-muted-foreground">
             Archiving <strong>{customer.name}</strong> will make it inactive. It will no
-            longer appear in the Customers list. Historical data is preserved.
+            longer appear in the Customers list.
           </p>
           <div className="flex justify-end gap-2 border-t border-border pt-4">
             <button onClick={onCancel} disabled={archiving} className={btnOutline}>
@@ -440,6 +466,14 @@ export default function CustomersPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [editCustomer, setEditCustomer] = useState<Customer | null>(null)
   const [archiveCustomer, setArchiveCustomer] = useState<Customer | null>(null)
+  const [toasts, setToasts] = useState<ToastItem[]>([])
+  const toastId = useRef(0)
+
+  function addToast(message: string, variant: ToastItem["variant"] = "success") {
+    const id = ++toastId.current
+    setToasts(prev => [...prev, { id, message, variant }])
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5000)
+  }
 
   useEffect(() => {
     setLoading(true)
@@ -475,6 +509,7 @@ export default function CustomersPage() {
     setCustomers(prev => [...prev, { id, code, name, legalCompany }])
     setSiteCounts(prev => ({ ...prev, [id]: 0 }))
     setCreateOpen(false)
+    addToast(`${name} created successfully.`)
   }
 
   function handleEdit(customerId: string, code: string, name: string, legalCompany: LegalCompany) {
@@ -482,6 +517,7 @@ export default function CustomersPage() {
       prev.map(c => c.id === customerId ? { ...c, code, name, legalCompany } : c)
     )
     setEditCustomer(null)
+    addToast(`${name} updated successfully.`)
   }
 
   function handleArchive(customerId: string) {
@@ -533,11 +569,10 @@ export default function CustomersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                {["Customer Code", "Customer Name", "Sites", ""].map(col => (
-                  <th key={col} className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
-                    {col}
-                  </th>
-                ))}
+                <th className="w-36 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
+                <th className="w-32 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Sites</th>
+                <th className="w-16 px-4 py-3" />
               </tr>
             </thead>
             <tbody>
@@ -546,7 +581,7 @@ export default function CustomersPage() {
                   <td className="px-4 py-3"><div className="h-3.5 w-10 animate-pulse rounded bg-muted" /></td>
                   <td className="px-4 py-3"><div className="h-3.5 w-48 animate-pulse rounded bg-muted" /></td>
                   <td className="px-4 py-3"><div className="h-3.5 w-6 animate-pulse rounded bg-muted" /></td>
-                  <td className="px-4 py-3"><div className="ml-auto h-7 w-16 animate-pulse rounded bg-muted" /></td>
+                  <td className="px-4 py-3"><div className="ml-auto h-7 w-7 animate-pulse rounded bg-muted" /></td>
                 </tr>
               ))}
             </tbody>
@@ -654,10 +689,10 @@ export default function CustomersPage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Customer Name
                   </th>
-                  <th className="w-14 px-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                  <th className="w-32 px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Sites
                   </th>
-                  {canManage && <th className="w-12 px-4 py-3" />}
+                  {canManage && <th className="w-16 px-4 py-3" />}
                 </tr>
               </thead>
               <tbody>
@@ -815,6 +850,8 @@ export default function CustomersPage() {
           />
         )}
       </Modal>
+
+      <ToastContainer toasts={toasts} onDismiss={id => setToasts(prev => prev.filter(t => t.id !== id))} />
     </>
   )
 }
