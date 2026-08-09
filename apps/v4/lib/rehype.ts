@@ -134,7 +134,7 @@ export function rehypeComponent() {
           let src: string | null = null
 
           if (item.srcPath) {
-            src = path.join(process.cwd(), item.srcPath)
+            src = path.join(/* turbopackIgnore: true */ process.cwd(), item.srcPath)
           } else {
             src = getDemoFilePath(item.name, item.styleName)
 
@@ -166,7 +166,7 @@ export function rehypeComponent() {
             return
           }
 
-          const raw = fs.readFileSync(path.join(process.cwd(), src), "utf8")
+          const raw = fs.readFileSync(path.join(/* turbopackIgnore: true */ process.cwd(), src), "utf8")
           const source = await formatCode(raw, item.styleName)
 
           item.node.children?.push(
