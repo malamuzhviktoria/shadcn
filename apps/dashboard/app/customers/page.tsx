@@ -569,7 +569,7 @@ export default function CustomersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="w-36 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
+                <th className="w-48 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
                 <th className="w-32 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Sites</th>
                 <th className="w-16 px-4 py-3" />
@@ -683,7 +683,7 @@ export default function CustomersPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
-                  <th className="w-36 px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">
+                  <th className="w-48 px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">
                     Customer Code
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">
