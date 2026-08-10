@@ -1,6 +1,6 @@
 [build]
-  command = "turbo run build --filter v4"
-  publish = "apps/v4/.next"
+  command = "turbo run build --filter dashboard"
+  publish = "apps/dashboard/.next"
 
 [build.environment]
   # Cap Node.js heap so V8 GC triggers before the Netlify cgroup OOM-killer
