@@ -1,7 +1,20 @@
 import { createHash } from "crypto"
 import { LRUCache } from "lru-cache"
-import { codeToHtml } from "shiki"
+import { createHighlighterCore } from "shiki/core"
+import { createOnigurumaEngine } from "shiki/engine/oniguruma"
 import type { ShikiTransformer } from "shiki"
+
+// Fine-grained lang imports — only these files enter webpack's module graph
+// instead of all ~200 bundled languages from top-level "shiki" import.
+import langCss from "shiki/dist/langs/css.mjs"
+import langJavascript from "shiki/dist/langs/javascript.mjs"
+import langJson from "shiki/dist/langs/json.mjs"
+import langJsx from "shiki/dist/langs/jsx.mjs"
+import langMdx from "shiki/dist/langs/mdx.mjs"
+import langTsx from "shiki/dist/langs/tsx.mjs"
+import langTypescript from "shiki/dist/langs/typescript.mjs"
+import themeGithubDark from "shiki/dist/themes/github-dark.mjs"
+import themeGithubLight from "shiki/dist/themes/github-light.mjs"
 
 // LRU cache for cross-request caching of highlighted code.
 // Shiki highlighting is CPU-intensive and deterministic, so caching is safe.
@@ -9,6 +22,42 @@ const highlightCache = new LRUCache<string, string>({
   max: 500,
   ttl: 1000 * 60 * 60, // 1 hour.
 })
+
+const SUPPORTED_LANGS = new Set([
+  "tsx",
+  "typescript",
+  "javascript",
+  "jsx",
+  "css",
+  "json",
+  "mdx",
+])
+
+const LANG_ALIASES: Record<string, string> = {
+  ts: "typescript",
+  js: "javascript",
+}
+
+let _highlighterPromise: ReturnType<typeof createHighlighterCore> | null = null
+
+function getHighlighterInstance() {
+  if (!_highlighterPromise) {
+    _highlighterPromise = createHighlighterCore({
+      langs: [
+        langTsx,
+        langTypescript,
+        langJavascript,
+        langJsx,
+        langCss,
+        langJson,
+        langMdx,
+      ],
+      themes: [themeGithubDark, themeGithubLight],
+      engine: createOnigurumaEngine(import("shiki/wasm")),
+    })
+  }
+  return _highlighterPromise
+}
 
 export const transformers = [
   {
@@ -69,8 +118,13 @@ export async function highlightCode(code: string, language: string = "tsx") {
     return cached
   }
 
-  const html = await codeToHtml(code, {
-    lang: language,
+  const highlighter = await getHighlighterInstance()
+
+  const resolvedLang = LANG_ALIASES[language] ?? language
+  const safeLang = SUPPORTED_LANGS.has(resolvedLang) ? resolvedLang : "tsx"
+
+  const html = highlighter.codeToHtml(code, {
+    lang: safeLang,
     themes: {
       dark: "github-dark",
       light: "github-light",
