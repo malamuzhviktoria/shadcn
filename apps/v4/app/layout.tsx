@@ -17,12 +17,18 @@ import { Toaster as BaseToaster } from "@/styles/base-nova/ui/toast"
 import "@/app/globals.css"
 import "@/app/(app)/(typeset)/typeset.css"
 
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.URL ||
+  process.env.DEPLOY_PRIME_URL ||
+  "http://localhost:4000"
+
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
     template: `%s - ${siteConfig.name}`,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
+  metadataBase: new URL(APP_URL),
   description: siteConfig.description,
   keywords: ["Next.js", "React", "Tailwind CSS", "Components", "shadcn"],
   authors: [
@@ -35,13 +41,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: process.env.NEXT_PUBLIC_APP_URL!,
+    url: APP_URL,
     title: siteConfig.name,
     description: siteConfig.description,
     siteName: siteConfig.name,
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_APP_URL}/opengraph-image.png`,
+        url: `${APP_URL}/opengraph-image.png`,
         width: 1200,
         height: 630,
         alt: siteConfig.name,
@@ -52,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    images: [`${process.env.NEXT_PUBLIC_APP_URL}/opengraph-image.png`],
+    images: [`${APP_URL}/opengraph-image.png`],
     creator: "@shadcn",
   },
   icons: {
