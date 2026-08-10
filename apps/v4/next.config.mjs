@@ -30,6 +30,11 @@ const nextConfig = {
       "@phosphor-icons/react",
       "@remixicon/react",
     ],
+    // fumadocs-mdx injects a custom webpack() function, which causes Next.js to
+    // auto-disable the build worker (see build/index.js:850). Explicitly opt in
+    // so webpack compilation runs in a separate child process with a clean heap,
+    // reducing peak memory in the main process during the Netlify production build.
+    webpackBuildWorker: true,
   },
   outputFileTracingIncludes: {
     "/*": ["./registry/**/*", "./styles/**/*"],
