@@ -102,7 +102,7 @@ function LogoutDialog({
 
 export function AppHeader() {
   const breadcrumbs = useBreadcrumbs()
-  const { extra } = useBreadcrumbExtra()
+  const { extra, onParentClick } = useBreadcrumbExtra()
   const { role } = useRole()
   const router = useRouter()
   const { toggleSidebar } = useSidebar()
@@ -143,6 +143,8 @@ export function AppHeader() {
           >
             {breadcrumbs.map((crumb, i) => {
               const isLast = i === breadcrumbs.length - 1 && !extra
+              const isParentWithCallback =
+                i === breadcrumbs.length - 1 && !!extra && !!onParentClick
               return (
                 <React.Fragment key={crumb.href}>
                   {i > 0 && (
@@ -154,6 +156,14 @@ export function AppHeader() {
                     <span className="font-medium text-foreground">
                       {crumb.label}
                     </span>
+                  ) : isParentWithCallback ? (
+                    <button
+                      type="button"
+                      onClick={onParentClick}
+                      className="text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {crumb.label}
+                    </button>
                   ) : (
                     <Link
                       href={crumb.href}

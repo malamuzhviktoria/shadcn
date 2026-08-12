@@ -1882,9 +1882,13 @@ function SitesList({
         {showAM && <FilterDropdown label="Area Manager" options={amOptions} value={amFilter} onChange={v => { setAmFilter(v); setPage(1) }} />}
 
         {hasFilters && (
-          <button onClick={clearFilters} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Reset filters
             <X className="size-3.5" />
-            Clear
           </button>
         )}
       </div>
@@ -1905,21 +1909,15 @@ function SitesList({
             )}
           </div>
         ) : (
-          <table className="w-full table-fixed text-sm">
-            <colgroup>
-              <col className="w-[24%]" />
-              <col className="w-[20%]" />
-              {showAM ? <col className="w-[17%]" /> : <col className="w-[36%]" />}
-              {showAM && <col className="w-[19%]" />}
-              <col className="w-[20%]" />
-            </colgroup>
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[580px] text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Site</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Area</th>
                 {showAM && <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Area Manager</th>}
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">Weekly budget</th>
+                <th className="w-[120px] px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">Weekly budget</th>
               </tr>
             </thead>
             <tbody>
@@ -1943,6 +1941,7 @@ function SitesList({
               ))}
             </tbody>
           </table>
+          </div>
         )}
 
         {/* Pagination */}
@@ -2059,23 +2058,15 @@ function ArchivedSitesList({
             </div>
           </div>
         ) : (
-          <table className="w-full table-fixed text-sm">
-            <colgroup>
-              <col className="w-[23%]" />
-              <col className="w-[17%]" />
-              <col className="w-[16%]" />
-              <col className="w-[18%]" />
-              <col className="w-[13%]" />
-              <col className="w-[13%]" />
-            </colgroup>
+          <div className="overflow-x-auto"><table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Site</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Area</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Area Manager</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">Weekly budget</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">Archived</th>
+                <th className="w-[110px] px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">Weekly budget</th>
+                <th className="w-[110px] px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">Archived</th>
               </tr>
             </thead>
             <tbody>
@@ -2100,6 +2091,7 @@ function ArchivedSitesList({
               ))}
             </tbody>
           </table>
+          </div>
         )}
         {/* Pagination */}
         {filtered.length > 0 && (
@@ -2169,7 +2161,7 @@ function ArchivedSitesList({
 
 export default function SitesPage() {
   const { role } = useRole()
-  const { setExtra } = useBreadcrumbExtra()
+  const { setExtra, setOnParentClick } = useBreadcrumbExtra()
 
   const [view, setView] = useState<View>({ name: "list" })
   const [sites, setSites] = useState<Site[]>(INITIAL_SITES)
@@ -2194,14 +2186,17 @@ export default function SitesPage() {
     if (view.name === "detail") {
       const site = scopedSites.find(s => s.id === (view as { name: "detail"; siteId: string }).siteId)
       setExtra(site?.siteName ?? null)
+      setOnParentClick(() => setView({ name: "list" }))
     } else if (view.name === "archived-detail") {
       const site = archivedSites.find(s => s.id === (view as { name: "archived-detail"; siteId: string }).siteId)
       setExtra(site?.siteName ?? null)
+      setOnParentClick(() => setView({ name: "archived" }))
     } else {
       setExtra(null)
+      setOnParentClick(null)
     }
-    return () => setExtra(null)
-  }, [view, scopedSites, archivedSites, setExtra])
+    return () => { setExtra(null); setOnParentClick(null) }
+  }, [view, scopedSites, archivedSites, setExtra, setOnParentClick])
 
   // Reset view when role loses access to current view
   useEffect(() => {
@@ -2259,19 +2254,19 @@ export default function SitesPage() {
 
   // Page header actions
   const pageActions = canFullAccess ? (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap gap-2">
       <button
         onClick={() => setBulkOpen(true)}
-        className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground"
       >
-        <Upload className="size-4" />
+        <Upload className="size-4 shrink-0" />
         Bulk Edit
       </button>
       <button
         onClick={() => setSyncOpen(true)}
-        className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground whitespace-nowrap transition-colors hover:bg-primary/90"
       >
-        <RefreshCw className="size-4" />
+        <RefreshCw className="size-4 shrink-0" />
         Sync Sites
       </button>
     </div>
@@ -2284,12 +2279,18 @@ export default function SitesPage() {
         <button
           key={v}
           onClick={() => setView({ name: v } as View)}
-          className={`flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors ${view.name === v || (v === "list" && view.name === "detail") || (v === "archived" && view.name === "archived-detail") ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          className={`flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors ${view.name === v || (v === "list" && view.name === "detail") || (v === "archived" && view.name === "archived-detail") ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
         >
-          {v === "list" ? "Active Sites" : (
+          {v === "list" ? (
             <>
-              <Archive className="size-3.5" />
-              Archived Sites
+              <span className="@[400px]:hidden">Active</span>
+              <span className="hidden @[400px]:inline">Active Sites</span>
+            </>
+          ) : (
+            <>
+              <Archive className="size-3.5 shrink-0" />
+              <span className="@[400px]:hidden">Archived</span>
+              <span className="hidden @[400px]:inline">Archived Sites</span>
             </>
           )}
         </button>
@@ -2375,3 +2376,4 @@ export default function SitesPage() {
     </>
   )
 }
+

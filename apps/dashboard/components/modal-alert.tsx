@@ -27,11 +27,11 @@ const VARIANTS: Record<AlertVariant, {
     bodyCls: "text-amber-700 dark:text-amber-400",
   },
   info: {
-    container: "border-blue-300/60 bg-blue-50 dark:border-blue-700/40 dark:bg-blue-500/10",
+    container: "border-blue-300 bg-blue-50",
     Icon: Info,
-    iconCls: "text-blue-600 dark:text-blue-400",
-    titleCls: "font-medium text-blue-800 dark:text-blue-300",
-    bodyCls: "text-blue-700 dark:text-blue-400",
+    iconCls: "text-blue-700",
+    titleCls: "font-medium text-blue-900",
+    bodyCls: "text-blue-800",
   },
 }
 
@@ -46,7 +46,7 @@ export function AlertBox({
 }) {
   const { container, Icon, iconCls, titleCls, bodyCls } = VARIANTS[variant]
   return (
-    <div className={cn("flex items-start gap-3 rounded-lg border p-3 text-sm", container)}>
+    <div className={cn("flex items-start gap-3 rounded-lg border px-4 py-3 text-sm", container)}>
       <Icon className={cn("mt-0.5 size-4 shrink-0", iconCls)} />
       <div>
         {title && <p className={titleCls}>{title}</p>}

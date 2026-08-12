@@ -19,7 +19,7 @@ export function PageShell({
   return (
     <div className={cn("flex flex-col gap-6", className)}>
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 @[680px]:flex-row @[680px]:items-start @[680px]:justify-between @[680px]:gap-4">
         <div className="min-w-0">
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           {description && (

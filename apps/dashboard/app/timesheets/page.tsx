@@ -1036,7 +1036,7 @@ function ExportDialog({ open, onClose }: { open: boolean; onClose: () => void })
               Archived site hours are included when they fall within the selected period. Employees with missing Payroll IDs are included with a blank Payroll ID field.
             </p>
           </div>
-          <AlertBox variant="warning">
+          <AlertBox variant="error">
             The exact Sage 50 file format is pending client confirmation.
           </AlertBox>
         </div>
@@ -1500,7 +1500,7 @@ export default function TimesheetsPage() {
         <DateRangeFilter from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t) }} />
 
         {/* Site */}
-        <MultiFilterDropdown label="Site" options={siteOptions} value={siteFilter} onChange={setSiteFilter} />
+        <MultiFilterDropdown label="Site" options={siteOptions} value={siteFilter} onChange={setSiteFilter} searchable searchPlaceholder="Search sites…" searchEmptyMessage="No sites found" />
 
         {/* Area (SA / HO only) */}
         {showAreaFilter && (
@@ -1508,7 +1508,7 @@ export default function TimesheetsPage() {
         )}
 
         {/* Employee */}
-        <MultiFilterDropdown label="Employee" options={empOptions} value={empFilter} onChange={setEmpFilter} align="right" />
+        <MultiFilterDropdown label="Employee" options={empOptions} value={empFilter} onChange={setEmpFilter} align="right" searchable searchPlaceholder="Search employees…" searchEmptyMessage="No employees found" />
 
         {/* Flags — multi-select */}
         <MultiFilterDropdown label="Flags" options={FLAG_OPTIONS} value={flagFilter} onChange={setFlagFilter} align="right" />
@@ -1526,15 +1526,19 @@ export default function TimesheetsPage() {
         )}
       </div>
 
-      {/* Summary cards */}
-      <div className="flex flex-wrap gap-3">
-        <div className="flex min-w-[160px] max-w-[240px] flex-1 flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-5 py-5">
-          <p className="text-xs text-muted-foreground">Weekly total</p>
-          <p className="text-2xl font-semibold tabular-nums">{fmtH(weeklyTotal)}</p>
+      {/* Scrollable content: preserves min-width so the group headers and table never over-compress */}
+      <div className="overflow-x-auto">
+      <div className="min-w-[760px] flex flex-col gap-4">
+
+      {/* Summary stats */}
+      <div className="inline-flex self-start divide-x divide-border overflow-hidden rounded-xl border border-border bg-muted/40">
+        <div className="flex items-center gap-3 px-4 py-2.5">
+          <span className="text-xs text-muted-foreground">Weekly total</span>
+          <span className="text-sm font-semibold tabular-nums">{fmtH(weeklyTotal)}</span>
         </div>
-        <div className="flex min-w-[160px] max-w-[240px] flex-1 flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-5 py-5">
-          <p className="text-xs text-muted-foreground">Monthly total</p>
-          <p className="text-2xl font-semibold tabular-nums">{fmtH(monthlyTotal)}</p>
+        <div className="flex items-center gap-3 px-4 py-2.5">
+          <span className="text-xs text-muted-foreground">Monthly total</span>
+          <span className="text-sm font-semibold tabular-nums">{fmtH(monthlyTotal)}</span>
         </div>
       </div>
 
@@ -1627,6 +1631,9 @@ export default function TimesheetsPage() {
           </div>
         </div>
       )}
+
+      </div>{/* end min-w inner */}
+      </div>{/* end overflow-x-auto */}
 
       {/* Dialogs */}
       <AdjustDialog

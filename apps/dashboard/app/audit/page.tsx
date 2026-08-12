@@ -1,15 +1,17 @@
 "use client"
 
-import { useState, useMemo, useEffect, type ReactNode } from "react"
+import { useState, useMemo, useEffect } from "react"
 import {
-  Calendar, ChevronDown, Search, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Eye,
-  Info, RefreshCw, AlertCircle,
+  ChevronDown, Search, X, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
+  RefreshCw, AlertCircle,
 } from "lucide-react"
 import { useRole } from "@/lib/role-context"
 import { useRouter } from "next/navigation"
 import { PageShell } from "@/components/page-shell"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { FilterDropdown, DateRangeFilter } from "@/components/filter-dropdown"
+import { AlertBox } from "@/components/modal-alert"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -50,15 +52,16 @@ function getPageWindow(current: number, total: number): number[] {
   return [current - 1, current, current + 1]
 }
 const HOA_AREA_ID = "a1"
+const HOA_AREA_NAME = "North Area"
 
-const CHANGE_TYPE_CONFIG: Record<ChangeType, { label: string; variant: "info" | "success" | "warning" | "neutral" }> = {
+const CHANGE_TYPE_CONFIG: Record<ChangeType, { label: string; variant: "info" | "success" | "danger" | "purple" }> = {
   "hour-adjustment":       { label: "Hour adjustment",       variant: "info"    },
   "pay-rate-added":        { label: "Pay rate added",        variant: "success" },
-  "pay-rate-updated":      { label: "Pay rate updated",      variant: "info"    },
-  "pay-rate-deleted":      { label: "Pay rate deleted",      variant: "neutral" },
-  "holiday-hours-updated": { label: "Holiday hours updated", variant: "warning" },
-  "holiday-hours-deleted": { label: "Holiday hours deleted", variant: "neutral" },
-  "minimum-wage-updated":  { label: "Minimum wage updated",  variant: "warning" },
+  "pay-rate-updated":      { label: "Pay rate updated",      variant: "purple"  },
+  "pay-rate-deleted":      { label: "Pay rate deleted",      variant: "danger"  },
+  "holiday-hours-updated": { label: "Holiday hours updated", variant: "purple"  },
+  "holiday-hours-deleted": { label: "Holiday hours deleted", variant: "danger"  },
+  "minimum-wage-updated":  { label: "Minimum wage updated",  variant: "purple"  },
 }
 
 // ── Sample Data ───────────────────────────────────────────────────────────────
@@ -77,7 +80,7 @@ const ALL_RECORDS: AuditRecord[] = [
     changeType: "hour-adjustment",
     originalValue: "Clock-in 06:10 · Clock-out 13:45 (7h 35m)",
     newValue: "Clock-in 06:00 · Clock-out 14:00 (8h 00m)",
-    reason: "Employee badge malfunction caused incorrect clock-in time",
+    reason: "Employee reported that their badge failed to register the correct clock-in time at the start of the shift.",
   },
   {
     id: "at-002",
@@ -92,7 +95,7 @@ const ALL_RECORDS: AuditRecord[] = [
     changeType: "hour-adjustment",
     originalValue: "Clock-in 07:00 · Clock-out 15:30 (8h 30m)",
     newValue: "Clock-in 07:00 · Clock-out 15:00 (8h 00m)",
-    reason: null,
+    reason: "Clock-out time was corrected after the site manager confirmed the employee remained on site beyond the originally recorded time.",
   },
   {
     id: "at-003",
@@ -152,7 +155,7 @@ const ALL_RECORDS: AuditRecord[] = [
     changeType: "holiday-hours-updated",
     originalValue: "8h · 21–22 Aug 2026",
     newValue: "8h · 28–29 Aug 2026",
-    reason: "Employee requested date change",
+    reason: "Holiday dates were amended following a change requested by the employee and approved by their manager.",
   },
   {
     id: "at-007",
@@ -212,7 +215,7 @@ const ALL_RECORDS: AuditRecord[] = [
     changeType: "holiday-hours-deleted",
     originalValue: "8h · 15–16 Jul 2026",
     newValue: "Deleted",
-    reason: "Duplicate entry removed",
+    reason: "Duplicate holiday entry was removed after payroll reconciliation identified the same absence recorded twice.",
   },
   {
     id: "at-011",
@@ -295,18 +298,6 @@ const ALL_RECORDS: AuditRecord[] = [
 
 const inputCls =
   "h-9 w-full rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-const selectCls =
-  "h-9 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring appearance-none pr-8"
-const btnOutline =
-  "inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50"
-
-function fmtFilterDate(d: string): string {
-  if (!d) return ""
-  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-  const sd = parseInt(d.slice(8))
-  const sm = parseInt(d.slice(5, 7)) - 1
-  return `${sd} ${months[sm]}`
-}
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
@@ -331,102 +322,70 @@ function ChangeTypeBadge({ type }: { type: ChangeType }) {
   return <Badge variant={variant}>{label}</Badge>
 }
 
-// ── Modal ─────────────────────────────────────────────────────────────────────
+// ── DetailRow ─────────────────────────────────────────────────────────────────
 
-function Modal({
-  open, onClose, title, children,
-}: {
-  open: boolean; onClose: () => void; title: string; children: ReactNode
-}) {
-  useEffect(() => {
-    if (!open) return
-    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
-    window.addEventListener("keydown", fn)
-    return () => window.removeEventListener("keydown", fn)
-  }, [open, onClose])
-
-  if (!open) return null
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative z-10 flex w-full max-w-md max-h-[90vh] flex-col rounded-xl border border-border bg-background shadow-xl">
-        <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
-          <h2 className="text-base font-semibold">{title}</h2>
-          <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-muted">
-            <X className="size-4" />
-          </button>
-        </div>
-        <div className="overflow-y-auto">{children}</div>
-      </div>
+    <div className="flex items-start justify-between gap-6 px-6 py-3">
+      <span className="shrink-0 text-sm text-muted-foreground">{label}</span>
+      <span className="text-right text-sm font-medium">{value}</span>
     </div>
   )
 }
 
-// ── AuditDetailContent ────────────────────────────────────────────────────────
+// ── AuditDetailPanel ──────────────────────────────────────────────────────────
 
-function AuditDetailContent({ record }: { record: AuditRecord }) {
+function AuditDetailPanel({ record, onClose }: { record: AuditRecord | null; onClose: () => void }) {
+  useEffect(() => {
+    if (!record) return
+    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
+    window.addEventListener("keydown", fn)
+    return () => window.removeEventListener("keydown", fn)
+  }, [record, onClose])
+
+  if (!record) return null
   return (
-    <div className="divide-y divide-border">
-      {/* Badge + timestamp */}
-      <div className="flex items-start justify-between gap-4 px-5 py-4">
-        <ChangeTypeBadge type={record.changeType} />
-        <div className="text-right">
-          <div className="text-sm font-medium">{formatDate(record.timestamp)}</div>
-          <div className="text-xs text-muted-foreground">{formatTime(record.timestamp)}</div>
+    <div className="fixed inset-0 z-50 flex justify-end" aria-modal role="dialog">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative z-10 flex h-full w-full max-w-[520px] flex-col border-l border-border bg-background shadow-2xl">
+        <div className="relative flex shrink-0 items-center border-b border-border px-6 py-4">
+          <h2 className="text-base font-semibold">Audit Record</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X className="size-4" />
+            <span className="sr-only">Close</span>
+          </button>
         </div>
-      </div>
-
-      {/* Changed by */}
-      <div className="flex items-center justify-between px-5 py-3">
-        <span className="text-sm text-muted-foreground">Changed by</span>
-        <div className="text-right">
-          <div className="text-sm font-medium">{record.changedBy}</div>
-          <div className="text-xs text-muted-foreground">{record.changedByRole}</div>
+        <div className="flex-1 divide-y divide-border overflow-y-auto">
+          <DetailRow
+            label="Date & time"
+            value={`${formatDate(record.timestamp)}, ${formatTime(record.timestamp)}`}
+          />
+          <DetailRow label="Changed by" value={record.changedBy} />
+          <DetailRow
+            label="Employee"
+            value={record.employeeName ?? <span className="font-normal text-muted-foreground">—</span>}
+          />
+          <DetailRow
+            label="Site"
+            value={record.siteName ?? <span className="font-normal text-muted-foreground">—</span>}
+          />
+          <DetailRow label="Change type" value={<ChangeTypeBadge type={record.changeType} />} />
+          <DetailRow label="Original value" value={record.originalValue} />
+          <DetailRow label="New value" value={record.newValue} />
+          <DetailRow
+            label="Reason"
+            value={
+              record.reason
+                ? record.reason
+                : <span className="font-normal italic text-muted-foreground">No reason recorded.</span>
+            }
+          />
+          <DetailRow label="Record ID" value={record.id.toUpperCase()} />
         </div>
-      </div>
-
-      {/* Employee */}
-      <div className="flex items-center justify-between px-5 py-3">
-        <span className="text-sm text-muted-foreground">Employee</span>
-        <span className="text-sm font-medium">{record.employeeName ?? "—"}</span>
-      </div>
-
-      {/* Site */}
-      <div className="flex items-center justify-between px-5 py-3">
-        <span className="text-sm text-muted-foreground">Site</span>
-        <span className="text-sm font-medium">{record.siteName ?? "—"}</span>
-      </div>
-
-      {/* Values */}
-      <div className="flex flex-col gap-3 px-5 py-4">
-        <div>
-          <div className="mb-1.5 text-xs font-medium text-muted-foreground">Original value</div>
-          <div className="rounded-md border border-border bg-muted/40 px-3 py-2 font-mono text-sm">
-            {record.originalValue}
-          </div>
-        </div>
-        <div>
-          <div className="mb-1.5 text-xs font-medium text-muted-foreground">New value</div>
-          <div className="rounded-md border border-border bg-muted/40 px-3 py-2 font-mono text-sm">
-            {record.newValue}
-          </div>
-        </div>
-      </div>
-
-      {/* Reason */}
-      <div className="px-5 py-4">
-        <div className="mb-1.5 text-xs font-medium text-muted-foreground">Reason</div>
-        {record.reason ? (
-          <p className="text-sm">{record.reason}</p>
-        ) : (
-          <p className="text-sm italic text-muted-foreground">No reason recorded.</p>
-        )}
-      </div>
-
-      {/* Record ID */}
-      <div className="flex items-center justify-between px-5 py-3">
-        <span className="text-xs text-muted-foreground">Record ID</span>
-        <span className="font-mono text-xs text-muted-foreground">{record.id.toUpperCase()}</span>
       </div>
     </div>
   )
@@ -458,9 +417,9 @@ export default function AuditTrailPage() {
   const router = useRouter()
 
   const [search, setSearch] = useState("")
-  const [changeType, setChangeType] = useState<ChangeType | "all">("all")
-  const [employeeId, setEmployeeId] = useState("all")
-  const [siteId, setSiteId] = useState("all")
+  const [changeType, setChangeType] = useState<ChangeType | "">("")
+  const [employeeId, setEmployeeId] = useState("")
+  const [siteId, setSiteId] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [page, setPage] = useState(1)
@@ -500,9 +459,9 @@ export default function AuditTrailPage() {
   const filtered = useMemo(() => {
     if (demoState !== "populated") return []
     let list = scopedRecords
-    if (changeType !== "all") list = list.filter(r => r.changeType === changeType)
-    if (employeeId !== "all") list = list.filter(r => r.employeeId === employeeId)
-    if (siteId !== "all") list = list.filter(r => r.siteId === siteId)
+    if (changeType) list = list.filter(r => r.changeType === changeType)
+    if (employeeId) list = list.filter(r => r.employeeId === employeeId)
+    if (siteId) list = list.filter(r => r.siteId === siteId)
     if (dateFrom) {
       const from = new Date(dateFrom)
       list = list.filter(r => new Date(r.timestamp) >= from)
@@ -527,12 +486,11 @@ export default function AuditTrailPage() {
   const pageRecords = filtered.slice((currentPage - 1) * perPage, currentPage * perPage)
 
   const hasActiveFilters =
-    !!search || changeType !== "all" || employeeId !== "all" ||
-    siteId !== "all" || !!dateFrom || !!dateTo
+    !!search || !!changeType || !!employeeId || !!siteId || !!dateFrom || !!dateTo
 
   function clearFilters() {
-    setSearch(""); setChangeType("all"); setEmployeeId("all")
-    setSiteId("all"); setDateFrom(""); setDateTo(""); setPage(1)
+    setSearch(""); setChangeType(""); setEmployeeId("")
+    setSiteId(""); setDateFrom(""); setDateTo(""); setPage(1)
   }
 
   if (role === "area-manager") return null
@@ -543,9 +501,9 @@ export default function AuditTrailPage() {
       description="A full log of admin actions taken across employees, pay rates, and settings."
     >
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-end gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {/* Search */}
-        <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+        <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover">
           <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
             type="text"
@@ -555,106 +513,63 @@ export default function AuditTrailPage() {
             className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {search && (
-            <button type="button" onClick={() => setSearch("")} aria-label="Clear search" className="shrink-0 text-muted-foreground hover:text-foreground">
+            <button type="button" onClick={() => setSearch("")} aria-label="Clear search" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
               <X className="size-3.5" />
             </button>
           )}
         </div>
 
-        {/* Date From */}
-        <div className="flex flex-col gap-0.5">
-          <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">From</label>
-          <div className="relative w-[130px]">
-            <div className={cn(
-              "flex h-9 items-center justify-between rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover",
-              dateFrom ? "text-foreground" : "text-muted-foreground"
-            )}>
-              <span className="truncate">{dateFrom ? fmtFilterDate(dateFrom) : "Select date"}</span>
-              <Calendar className="ml-2 size-4 shrink-0 text-foreground/50" />
-            </div>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={e => setDateFrom(e.target.value)}
-              max={dateTo || undefined}
-              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              aria-label="From date"
-            />
-          </div>
-        </div>
+        <DateRangeFilter
+          from={dateFrom}
+          to={dateTo}
+          onChange={(f, t) => { setDateFrom(f); setDateTo(t); setPage(1) }}
+        />
 
-        {/* Date To */}
-        <div className="flex flex-col gap-0.5">
-          <label className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">To</label>
-          <div className="relative w-[130px]">
-            <div className={cn(
-              "flex h-9 items-center justify-between rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover",
-              dateTo ? "text-foreground" : "text-muted-foreground"
-            )}>
-              <span className="truncate">{dateTo ? fmtFilterDate(dateTo) : "Select date"}</span>
-              <Calendar className="ml-2 size-4 shrink-0 text-foreground/50" />
-            </div>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={e => setDateTo(e.target.value)}
-              min={dateFrom || undefined}
-              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-              aria-label="To date"
-            />
-          </div>
-        </div>
+        <FilterDropdown
+          label="Change type"
+          options={(Object.entries(CHANGE_TYPE_CONFIG) as [ChangeType, { label: string }][]).map(([value, { label }]) => ({ value, label }))}
+          value={changeType}
+          onChange={v => { setChangeType(v as ChangeType | ""); setPage(1) }}
+        />
 
-        {/* Change Type */}
-        <div className="relative flex items-center">
-          <select
-            value={changeType}
-            onChange={e => setChangeType(e.target.value as ChangeType | "all")}
-            className={selectCls}
-          >
-            <option value="all">All change types</option>
-            {(Object.keys(CHANGE_TYPE_CONFIG) as ChangeType[]).map(ct => (
-              <option key={ct} value={ct}>{CHANGE_TYPE_CONFIG[ct].label}</option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 size-3.5 text-muted-foreground" />
-        </div>
+        <FilterDropdown
+          label="Employee"
+          options={employeeOptions.map(e => ({ value: e.id, label: e.name }))}
+          value={employeeId}
+          onChange={v => { setEmployeeId(v); setPage(1) }}
+          searchable
+          searchPlaceholder="Search employees…"
+          searchEmptyMessage="No employees found"
+        />
 
-        {/* Employee */}
-        <div className="relative flex items-center">
-          <select value={employeeId} onChange={e => setEmployeeId(e.target.value)} className={selectCls}>
-            <option value="all">All employees</option>
-            {employeeOptions.map(e => (
-              <option key={e.id} value={e.id}>{e.name}</option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 size-3.5 text-muted-foreground" />
-        </div>
-
-        {/* Site */}
-        <div className="relative flex items-center">
-          <select value={siteId} onChange={e => setSiteId(e.target.value)} className={selectCls}>
-            <option value="all">All sites</option>
-            {siteOptions.map(s => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 size-3.5 text-muted-foreground" />
-        </div>
+        <FilterDropdown
+          label="Site"
+          options={siteOptions.map(s => ({ value: s.id, label: s.name }))}
+          value={siteId}
+          onChange={v => { setSiteId(v); setPage(1) }}
+          searchable
+          searchPlaceholder="Search sites…"
+          searchEmptyMessage="No sites found"
+        />
 
         {hasActiveFilters && (
-          <button onClick={clearFilters} className={btnOutline}>
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Reset filters
             <X className="size-3.5" />
-            Clear filters
           </button>
         )}
       </div>
 
       {/* ── HoA scope banner ─────────────────────────────────────────────────── */}
       {role === "head-of-area" && (
-        <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs text-blue-800 dark:border-blue-800/40 dark:bg-blue-900/20 dark:text-blue-400">
-          <Info className="mt-0.5 size-3.5 shrink-0" />
-          Showing audit records for sites in your assigned area (North Area) only.
+        <div className="w-fit">
+          <AlertBox variant="info">
+            Showing audit records for sites in your assigned area ({HOA_AREA_NAME}) only.
+          </AlertBox>
         </div>
       )}
 
@@ -666,7 +581,7 @@ export default function AuditTrailPage() {
               <tr className="border-b border-border bg-muted/50">
                 {[
                   "Date & Time", "Changed By", "Employee", "Site",
-                  "Change Type", "Original Value", "New Value", "Reason", "",
+                  "Change Type", "Original Value", "New Value", "Reason",
                 ].map(col => (
                   <th key={col} className="px-3 py-3 text-left text-xs font-medium text-muted-foreground">
                     {col}
@@ -745,15 +660,15 @@ export default function AuditTrailPage() {
               {demoState === "populated" && pageRecords.map(record => (
                 <tr
                   key={record.id}
-                  className="border-b border-border last:border-0 hover:bg-muted/30"
+                  onClick={() => setDetail(record)}
+                  className="cursor-pointer border-b border-border last:border-0 hover:bg-muted/30"
                 >
                   <td className="px-3 py-3">
                     <div className="whitespace-nowrap text-sm">{formatDate(record.timestamp)}</div>
                     <div className="text-xs text-muted-foreground">{formatTime(record.timestamp)}</div>
                   </td>
-                  <td className="px-3 py-3">
-                    <div className="text-sm font-medium">{record.changedBy}</div>
-                    <div className="text-xs text-muted-foreground">{record.changedByRole}</div>
+                  <td className="px-3 py-3 text-sm">
+                    {record.changedBy}
                   </td>
                   <td className="px-3 py-3 text-sm">
                     {record.employeeName ?? <span className="text-muted-foreground">—</span>}
@@ -765,33 +680,23 @@ export default function AuditTrailPage() {
                     <ChangeTypeBadge type={record.changeType} />
                   </td>
                   <td className="px-3 py-3">
-                    <span className="font-mono text-xs text-muted-foreground" title={record.originalValue}>
-                      {truncate(record.originalValue)}
-                    </span>
+                    <div className="max-w-[150px] truncate font-mono text-xs text-muted-foreground" title={record.originalValue}>
+                      {record.originalValue}
+                    </div>
                   </td>
                   <td className="px-3 py-3">
-                    <span className="font-mono text-xs" title={record.newValue}>
-                      {truncate(record.newValue)}
-                    </span>
+                    <div className="max-w-[150px] truncate font-mono text-xs" title={record.newValue}>
+                      {record.newValue}
+                    </div>
                   </td>
                   <td className="px-3 py-3">
                     {record.reason ? (
-                      <span className="text-xs text-muted-foreground" title={record.reason}>
-                        {truncate(record.reason, 28)}
-                      </span>
+                      <div className="max-w-[200px] truncate text-xs text-muted-foreground" title={record.reason}>
+                        {record.reason}
+                      </div>
                     ) : (
                       <span className="text-xs text-muted-foreground/40">—</span>
                     )}
-                  </td>
-                  <td className="px-3 py-3">
-                    <button
-                      onClick={() => setDetail(record)}
-                      className="flex h-7 w-7 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:bg-muted"
-                      aria-label="View record details"
-                      title="View details"
-                    >
-                      <Eye className="size-3.5" />
-                    </button>
                   </td>
                 </tr>
               ))}
@@ -857,14 +762,8 @@ export default function AuditTrailPage() {
         )}
       </div>
 
-      {/* ── Detail modal ─────────────────────────────────────────────────────── */}
-      <Modal
-        open={detail !== null}
-        onClose={() => setDetail(null)}
-        title="Audit Record"
-      >
-        {detail && <AuditDetailContent record={detail} />}
-      </Modal>
+      {/* ── Detail panel ─────────────────────────────────────────────────────── */}
+      <AuditDetailPanel record={detail} onClose={() => setDetail(null)} />
 
       {/* ── Demo state control ───────────────────────────────────────────────── */}
       <div className="rounded-lg border border-border bg-muted/40 p-3">

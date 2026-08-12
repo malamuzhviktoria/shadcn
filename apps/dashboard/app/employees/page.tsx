@@ -1213,7 +1213,7 @@ function ArchiveEmployeeDialog({
               Archiving <span className="font-medium text-foreground">{employee.firstName} {employee.lastName}</span> will
               immediately remove their access to the Spectrum Clean PWA. Their work history and pay rate data will be retained.
             </p>
-            <AlertBox variant="warning" title="PWA access will be removed immediately.">
+            <AlertBox variant="error" title="PWA access will be removed immediately.">
               If {employee.firstName} is currently clocked in, their shift will be closed at the time of archiving.
             </AlertBox>
           </>
@@ -1376,23 +1376,23 @@ export default function EmployeesPage() {
         title={`Employees (${employees.length})`}
         description="Manage your workforce across all areas and sites."
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap gap-2 items-center">
             {canImport && (
               <button type="button" onClick={() => setShowImport(true)}
-                className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent">
-                <Upload className="size-4" />Import employees
+                className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground whitespace-nowrap transition-colors hover:bg-accent">
+                <Upload className="size-4 shrink-0" />Import employees
               </button>
             )}
             <button type="button" onClick={() => setShowCreate(true)}
-              className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-              <Plus className="size-4" />Create employee
+              className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground whitespace-nowrap transition-colors hover:bg-primary/90">
+              <Plus className="size-4 shrink-0" />Create employee
             </button>
           </div>
         }
       >
         {/* Toolbar */}
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex h-9 flex-1 min-w-0 @[500px]:flex-none @[500px]:w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
             <Search className="size-3.5 shrink-0 text-muted-foreground" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name or T&A ID…"
@@ -1498,21 +1498,15 @@ export default function EmployeesPage() {
         {/* Table */}
         {paged.length > 0 ? (
           <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <table className="w-full table-fixed text-sm">
-              <colgroup>
-                <col style={{ width: "32%" }} />
-                <col style={{ width: "17%" }} />
-                <col style={{ width: "24%" }} />
-                <col style={{ width: "19%" }} />
-                <col style={{ width: "8%" }} />
-              </colgroup>
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
                   <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Employee</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">T&A ID</th>
+                  <th className="w-[120px] px-4 py-3 text-left text-xs font-medium text-muted-foreground">T&A ID</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Job role</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Status</th>
-                  <th className="px-4 py-3" />
+                  <th className="w-[120px] px-4 py-3 text-left text-xs font-medium text-muted-foreground">Status</th>
+                  <th className="w-[52px] px-4 py-3" />
                 </tr>
               </thead>
               <tbody>
@@ -1528,7 +1522,7 @@ export default function EmployeesPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-mono text-muted-foreground">{emp.taid}</td>
+                    <td className="whitespace-nowrap px-4 py-3 font-mono text-muted-foreground">{emp.taid}</td>
                     <td className="truncate px-4 py-3 text-muted-foreground">{emp.jobRole}</td>
                     <td className="px-4 py-3"><EmployeeStatusBadge status={emp.status} /></td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -1549,6 +1543,7 @@ export default function EmployeesPage() {
                 ))}
               </tbody>
             </table>
+            </div>
 
             <div className="flex items-center gap-4 border-t border-border px-4 py-3">
               {/* Left: rows per page — shrink-0 so it never compresses */}

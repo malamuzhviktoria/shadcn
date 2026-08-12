@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
-  Info, CheckCircle, AlertCircle, AlertTriangle,
-  X, Loader2, Pencil, Trash2, Plus,
+  CheckCircle, AlertCircle,
+  X, Loader2, Pencil, Trash2, Plus, EllipsisVertical,
 } from "lucide-react"
 import { useRole } from "@/lib/role-context"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { AlertBox } from "@/components/modal-alert"
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -43,7 +45,7 @@ const inputCls =
   "w-full rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
 const inputErrCls = "border-destructive hover:border-destructive focus:ring-destructive/30"
 const btnPrimary =
-  "inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+  "inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:hover:bg-muted"
 const btnPrimarySmall =
   "inline-flex h-8 items-center gap-1.5 rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
 const btnOutline =
@@ -53,29 +55,27 @@ const btnDestructive =
 
 // ── Primitive UI ───────────────────────────────────────────────────────────────
 
-function InfoNote({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs text-blue-800 dark:border-blue-800/40 dark:bg-blue-900/20 dark:text-blue-400">
-      <Info className="mt-0.5 size-3.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  )
-}
-
-function WarningNote({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 dark:border-amber-800/40 dark:bg-amber-900/20 dark:text-amber-400">
-      <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  )
-}
-
 function SuccessNote({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-900/20 dark:text-emerald-400">
       <CheckCircle className="size-3.5 shrink-0" />
       <span>{children}</span>
+    </div>
+  )
+}
+
+function Toast({ message, onClose }: { message: string | null; onClose: () => void }) {
+  if (!message) return null
+  return (
+    <div className="fixed right-4 top-4 z-[100] flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 shadow-lg dark:border-emerald-800/40 dark:bg-emerald-900/20 dark:text-emerald-400">
+      <CheckCircle className="size-4 shrink-0" />
+      <span>{message}</span>
+      <button
+        onClick={onClose}
+        className="ml-1 rounded p-0.5 text-emerald-700 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:bg-emerald-800/30"
+      >
+        <X className="size-3.5" />
+      </button>
     </div>
   )
 }
@@ -123,6 +123,15 @@ function validatePositiveNumber(value: string, fieldName: string): string | null
   return null
 }
 
+function validateWholeNumber(value: string, fieldName: string): string | null {
+  const stripped = value.trim()
+  if (!stripped) return `${fieldName} is required.`
+  const n = Number(stripped)
+  if (isNaN(n) || !isFinite(n) || !Number.isInteger(n)) return "Enter a whole number."
+  if (n <= 0) return `${fieldName} must be greater than 0.`
+  return null
+}
+
 // ── Holiday Accrual Section ────────────────────────────────────────────────────
 
 function HolidayAccrualSection() {
@@ -156,15 +165,11 @@ function HolidayAccrualSection() {
       <h2 className="mb-1 text-sm font-semibold">Holiday Accrual</h2>
       <p className="mb-5 text-xs text-muted-foreground">
         Sets the global Holiday Accrual Percentage applied to all employees.
-        Formula: Total Hours Worked × Accrual Percentage.
       </p>
 
-      <div className="flex max-w-sm flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium">
-            Holiday Accrual Percentage <span className="text-destructive">*</span>
-          </label>
-          <div className="relative w-48">
+          <div className="relative w-60">
             <input
               type="text"
               inputMode="decimal"
@@ -173,24 +178,19 @@ function HolidayAccrualSection() {
               className={`${inputCls} pr-8 ${error ? inputErrCls : ""}`}
               placeholder="e.g. 12.07"
               disabled={saving}
+              aria-label="Holiday Accrual Percentage"
             />
             <span className="pointer-events-none absolute right-3 top-2.5 text-sm text-muted-foreground">
               %
             </span>
           </div>
-          {error ? (
-            <p className="text-xs text-destructive">{error}</p>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              Enter as a percentage, e.g. 12.07 for 12.07%.
-            </p>
-          )}
+          {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
 
-        <InfoNote>
+        <AlertBox variant="info">
           Changes apply to future holiday accrual calculations only. Previously accrued hours will not
           be recalculated.
-        </InfoNote>
+        </AlertBox>
 
         {success && (
           <SuccessNote>Holiday Accrual Percentage updated successfully.</SuccessNote>
@@ -257,16 +257,12 @@ function MinimumWageSection() {
       <section className="rounded-xl border border-border bg-card p-6">
         <h2 className="mb-1 text-sm font-semibold">Minimum Wage</h2>
         <p className="mb-5 text-xs text-muted-foreground">
-          Defines the lowest Pay Rate allowed in the system. Raising the minimum automatically updates
-          any employee Pay Rate below the new value for future clock-ins.
+          Sets the minimum Pay Rate for future clock-ins across the system.
         </p>
 
-        <div className="flex max-w-sm flex-col gap-4">
+        <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium">
-              Minimum Wage <span className="text-destructive">*</span>
-            </label>
-            <div className="relative w-48">
+            <div className="relative w-60">
               <span className="pointer-events-none absolute left-3 top-2.5 text-sm text-muted-foreground">
                 £
               </span>
@@ -275,20 +271,23 @@ function MinimumWageSection() {
                 inputMode="decimal"
                 value={value}
                 onChange={e => setValue(e.target.value)}
-                className={`${inputCls} pl-7 ${error ? inputErrCls : ""}`}
+                className={`${inputCls} pl-7 pr-[76px] ${error ? inputErrCls : ""}`}
                 placeholder="e.g. 11.44"
                 disabled={saving}
+                aria-label="Minimum Wage"
               />
+              <span className="pointer-events-none absolute right-3 top-2.5 text-sm text-muted-foreground">
+                per hour
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground">£ per hour</p>
             {error && <p className="text-xs text-destructive">{error}</p>}
           </div>
 
-          <WarningNote>
+          <AlertBox variant="error">
             Any current employee Pay Rates below the new minimum will be raised automatically for
             future clock-ins. Historical Timesheets will not change. This change is recorded in the
             Audit Trail.
-          </WarningNote>
+          </AlertBox>
 
           {success && (
             <SuccessNote>
@@ -496,6 +495,110 @@ function DeleteBlockedContent({
   )
 }
 
+// ── Job Role Row Actions ───────────────────────────────────────────────────────
+
+function JobRoleRowActions({
+  role,
+  onEdit,
+  onDelete,
+}: {
+  role: JobRole
+  onEdit: () => void
+  onDelete: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onPointer(e: PointerEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") { setOpen(false); triggerRef.current?.focus() }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault()
+        const items = Array.from(ref.current?.querySelectorAll('[role="menuitem"]') ?? []) as HTMLElement[]
+        const idx = items.indexOf(document.activeElement as HTMLElement)
+        const next = e.key === "ArrowDown" ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length
+        items[next]?.focus()
+      }
+    }
+    document.addEventListener("pointerdown", onPointer)
+    window.addEventListener("keydown", onKey)
+    setTimeout(() => {
+      const first = ref.current?.querySelector('[role="menuitem"]') as HTMLElement | null
+      first?.focus()
+    }, 10)
+    return () => {
+      document.removeEventListener("pointerdown", onPointer)
+      window.removeEventListener("keydown", onKey)
+    }
+  }, [open])
+
+  function pick(action: () => void) {
+    return (e: React.MouseEvent) => {
+      e.stopPropagation()
+      setOpen(false)
+      triggerRef.current?.focus()
+      action()
+    }
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-label="Open actions"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={e => { e.stopPropagation(); setOpen(v => !v) }}
+        className={cn(
+          "flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors",
+          "hover:bg-accent hover:text-accent-foreground",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          open && "bg-accent text-accent-foreground",
+        )}
+      >
+        <EllipsisVertical className="size-4" />
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
+        >
+          <button
+            role="menuitem"
+            type="button"
+            onClick={pick(onEdit)}
+            className="flex w-full cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+          >
+            <Pencil className="size-3.5 shrink-0 text-muted-foreground" />
+            Edit
+          </button>
+          {!role.isDefault && (
+            <>
+              <div className="-mx-1 my-1 h-px bg-border" />
+              <button
+                role="menuitem"
+                type="button"
+                onClick={pick(onDelete)}
+                className="flex w-full cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive outline-none transition-colors hover:bg-destructive/10 focus:bg-destructive/10"
+              >
+                <Trash2 className="size-3.5 shrink-0" />
+                Delete
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Job Roles Section ──────────────────────────────────────────────────────────
 
 function JobRolesSection() {
@@ -546,25 +649,21 @@ function JobRolesSection() {
 
   return (
     <>
-      <section className="rounded-xl border border-border bg-card p-6">
-        <div className="mb-5 flex items-start justify-between gap-4">
+      <section className="@container rounded-xl border border-border bg-card p-6">
+        <div className="mb-5 flex flex-col gap-3 @[380px]:flex-row @[380px]:items-start @[380px]:justify-between @[380px]:gap-4">
           <div>
             <h2 className="mb-1 text-sm font-semibold">Job Roles</h2>
             <p className="text-xs text-muted-foreground">
               System-wide Job Role dictionary used for employee assignment and Pay Rate Overrides.
             </p>
           </div>
-          <button onClick={() => setDialog({ type: "add" })} className={btnPrimarySmall}>
-            <Plus className="size-3.5" />
+          <button onClick={() => setDialog({ type: "add" })} className={cn(btnPrimary, "shrink-0 self-start whitespace-nowrap")}>
+            <Plus className="size-4" />
             Add Job Role
           </button>
         </div>
 
-        {successMsg && (
-          <div className="mb-4">
-            <SuccessNote>{successMsg}</SuccessNote>
-          </div>
-        )}
+        <Toast message={successMsg} onClose={() => setSuccessMsg(null)} />
 
         {loading ? (
           <div className="overflow-hidden rounded-lg border border-border">
@@ -574,10 +673,7 @@ function JobRolesSection() {
                 className="flex items-center justify-between border-b border-border px-4 py-3 last:border-0"
               >
                 <div className="h-3.5 w-36 animate-pulse rounded bg-muted" />
-                <div className="flex gap-1.5">
-                  <div className="size-7 animate-pulse rounded-md bg-muted" />
-                  <div className="size-7 animate-pulse rounded-md bg-muted" />
-                </div>
+                <div className="size-8 animate-pulse rounded-md bg-muted" />
               </div>
             ))}
           </div>
@@ -589,7 +685,7 @@ function JobRolesSection() {
                   <th className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground">
                     Job Role
                   </th>
-                  <th className="w-20 px-4 py-2.5" />
+                  <th className="px-4 py-2.5" />
                 </tr>
               </thead>
               <tbody>
@@ -606,25 +702,12 @@ function JobRolesSection() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => setDialog({ type: "edit", role })}
-                          className="flex h-7 w-7 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:bg-muted"
-                          aria-label={`Edit ${role.name}`}
-                          title="Edit"
-                        >
-                          <Pencil className="size-3.5" />
-                        </button>
-                        {!role.isDefault && (
-                          <button
-                            onClick={() => handleDeleteClick(role)}
-                            className="flex h-7 w-7 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-                            aria-label={`Delete ${role.name}`}
-                            title="Delete"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </button>
-                        )}
+                      <div className="flex justify-end">
+                        <JobRoleRowActions
+                          role={role}
+                          onEdit={() => setDialog({ type: "edit", role })}
+                          onDelete={() => handleDeleteClick(role)}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -686,6 +769,89 @@ function JobRolesSection() {
   )
 }
 
+// ── Shift History Window Section ───────────────────────────────────────────────
+
+const INITIAL_SHIFT_WINDOW = "14"
+
+function ShiftHistoryWindowSection() {
+  const [saved, setSaved] = useState(INITIAL_SHIFT_WINDOW)
+  const [value, setValue] = useState(INITIAL_SHIFT_WINDOW)
+  const [saving, setSaving] = useState(false)
+  const [success, setSuccess] = useState(false)
+
+  const isDirty = value.trim() !== saved
+  const error = isDirty ? validateWholeNumber(value, "Shift history window") : null
+  const canSave = isDirty && !error
+
+  useEffect(() => { if (isDirty) setSuccess(false) }, [isDirty])
+
+  async function handleSave() {
+    if (!canSave) return
+    setSaving(true)
+    await new Promise(r => setTimeout(r, 800))
+    setSaving(false)
+    setSaved(value.trim())
+    setSuccess(true)
+  }
+
+  function handleCancel() {
+    setValue(saved)
+    setSuccess(false)
+  }
+
+  return (
+    <section className="rounded-xl border border-border bg-card p-6">
+      <h2 className="mb-1 text-sm font-semibold">Shift History Window</h2>
+      <p className="mb-5 text-xs text-muted-foreground">
+        Sets how many days back shift history is visible across the system.
+      </p>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <div className="relative w-60">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={value}
+              onChange={e => setValue(e.target.value)}
+              className={`${inputCls} pr-16 ${error ? inputErrCls : ""}`}
+              placeholder="e.g. 14"
+              disabled={saving}
+              aria-label="Shift history window (days)"
+            />
+            <span className="pointer-events-none absolute right-3 top-2.5 text-sm text-muted-foreground">
+              days
+            </span>
+          </div>
+          {error && <p className="text-xs text-destructive">{error}</p>}
+        </div>
+
+        {success && (
+          <SuccessNote>Shift history window updated successfully.</SuccessNote>
+        )}
+
+        <div className="flex items-center gap-2">
+          <button onClick={handleSave} disabled={!canSave || saving} className={btnPrimary}>
+            {saving ? (
+              <>
+                <Loader2 className="size-3.5 animate-spin" />
+                Saving…
+              </>
+            ) : (
+              "Save Changes"
+            )}
+          </button>
+          {isDirty && !saving && (
+            <button onClick={handleCancel} className={btnOutline}>
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 
 export default function SystemSettingsPage() {
@@ -705,13 +871,14 @@ export default function SystemSettingsPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">System Settings</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Configure global settings for holiday accrual, minimum pay, and job roles.
+          Configure global settings for holiday accrual, minimum wage, job roles, and shift history.
         </p>
       </div>
-      <div className="flex max-w-2xl flex-col gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <HolidayAccrualSection />
         <MinimumWageSection />
         <JobRolesSection />
+        <ShiftHistoryWindowSection />
       </div>
     </div>
   )

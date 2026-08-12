@@ -940,7 +940,7 @@ function ArchiveAreaModal({
 export default function AreasPage() {
   const { role } = useRole()
   const router = useRouter()
-  const { setExtra } = useBreadcrumbExtra()
+  const { setExtra, setOnParentClick } = useBreadcrumbExtra()
 
   const canManage = role === "super-admin" || role === "head-office"
   const isHoA = role === "head-of-area"
@@ -972,11 +972,13 @@ export default function AreasPage() {
     if (view.name === "detail") {
       const area = areas.find(a => a.id === (view as { name: "detail"; areaId: string }).areaId)
       setExtra(area?.areaName ?? null)
+      setOnParentClick(() => setView({ name: "list" }))
     } else {
       setExtra(null)
+      setOnParentClick(null)
     }
-    return () => setExtra(null)
-  }, [view, areas, setExtra])
+    return () => { setExtra(null); setOnParentClick(null) }
+  }, [view, areas, setExtra, setOnParentClick])
 
   // Modals
   const [createOpen, setCreateOpen] = useState(false)

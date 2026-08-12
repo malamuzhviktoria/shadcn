@@ -599,20 +599,21 @@ export default function CustomersPage() {
   if (loading) {
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-3 @[680px]:flex-row @[680px]:items-start @[680px]:justify-between @[680px]:gap-4">
           <div className="flex flex-col gap-1.5">
             <div className="h-7 w-36 animate-pulse rounded-md bg-muted" />
             <div className="h-4 w-72 animate-pulse rounded bg-muted" />
           </div>
-          <div className="h-9 w-40 animate-pulse rounded-md bg-muted" />
+          <div className="h-9 w-40 shrink-0 animate-pulse rounded-md bg-muted" />
         </div>
-        <div className="h-9 w-64 animate-pulse rounded-md bg-muted" />
+        <div className="h-9 w-full @[500px]:w-80 animate-pulse rounded-md bg-muted" />
         <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <table className="w-full table-fixed text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] table-fixed text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="w-36 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
-                <th className="w-56 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
+                <th className="w-56 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Name</th>
+                <th className="w-36 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Customer Code</th>
                 <th className="w-52 pl-20 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">Sites</th>
                 <th className="w-16 px-4 py-3" />
               </tr>
@@ -620,14 +621,15 @@ export default function CustomersPage() {
             <tbody>
               {Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3"><div className="h-3.5 w-10 animate-pulse rounded bg-muted" /></td>
-                  <td className="pl-4 pr-4 py-3"><div className="h-3.5 w-48 animate-pulse rounded bg-muted" /></td>
+                  <td className="px-4 py-3"><div className="h-3.5 w-48 animate-pulse rounded bg-muted" /></td>
+                  <td className="pl-4 pr-4 py-3"><div className="h-3.5 w-10 animate-pulse rounded bg-muted" /></td>
                   <td className="px-4 py-3"><div className="h-3.5 w-6 animate-pulse rounded bg-muted" /></td>
                   <td className="px-4 py-3"><div className="ml-auto h-7 w-7 animate-pulse rounded bg-muted" /></td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     )
@@ -667,23 +669,23 @@ export default function CustomersPage() {
     <>
       <div className="flex flex-col gap-4">
         {/* Page header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div className="flex flex-col gap-3 @[680px]:flex-row @[680px]:items-start @[680px]:justify-between @[680px]:gap-4">
+          <div className="min-w-0">
             <h1 className="text-2xl font-semibold tracking-tight">Customers ({customers.length})</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Manage customer accounts and their associated Sites.
             </p>
           </div>
           {canManage && (
-            <button onClick={() => setCreateOpen(true)} className={btnPrimary}>
-              <Plus className="size-4" />
+            <button onClick={() => setCreateOpen(true)} className={cn(btnPrimary, "shrink-0 whitespace-nowrap")}>
+              <Plus className="size-4 shrink-0" />
               Create Customer
             </button>
           )}
         </div>
 
         {/* Search */}
-        <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+        <div className="flex h-9 w-full @[500px]:w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
           <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
             placeholder="Search by customer name or code…"
@@ -719,14 +721,15 @@ export default function CustomersPage() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <table className="w-full table-fixed text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] table-fixed text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
-                  <th className="w-36 px-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">
-                    Customer Code
-                  </th>
-                  <th className="w-56 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
+                  <th className="w-56 px-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Customer Name
+                  </th>
+                  <th className="w-36 pl-4 pr-4 py-3 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">
+                    Customer Code
                   </th>
                   <th className="w-52 pl-20 pr-4 py-3 text-left text-xs font-medium text-muted-foreground">
                     Sites
@@ -762,12 +765,12 @@ export default function CustomersPage() {
                       key={customer.id}
                       className="border-b border-border last:border-0 hover:bg-muted/30"
                     >
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 font-medium truncate">{customer.name}</td>
+                      <td className="pl-4 pr-4 py-3">
                         <span className="font-mono text-xs font-semibold tracking-widest text-muted-foreground">
                           {customer.code}
                         </span>
                       </td>
-                      <td className="pl-4 pr-4 py-3 font-medium truncate">{customer.name}</td>
                       <td className="pl-20 pr-4 py-3 tabular-nums text-muted-foreground">
                         {siteCounts[customer.id] ?? 0}
                       </td>
@@ -786,6 +789,7 @@ export default function CustomersPage() {
                 )}
               </tbody>
             </table>
+            </div>
 
             {/* Pagination footer */}
             {filtered.length > 0 && (

@@ -5,7 +5,7 @@ import {
   AlertCircle, AlertTriangle, Archive, Check, CheckCircle, ChevronDown,
   ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight,
   CircleCheck, CirclePlus, EllipsisVertical,
-  Info, Loader2, Mail, Pencil, Plus, RotateCcw, Search, Send,
+  Loader2, Mail, Pencil, Plus, RotateCcw, Search, Send,
   UserX, Users, X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -13,6 +13,7 @@ import { useRole } from "@/lib/role-context"
 import { useRouter } from "next/navigation"
 import { PageShell } from "@/components/page-shell"
 import { Badge } from "@/components/ui/badge"
+import { AlertBox } from "@/components/modal-alert"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -231,7 +232,7 @@ function OverflowMenu({ children }: { children: ReactNode }) {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-20 mt-1 w-48 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
           onClick={() => setOpen(false)}
         >
           {children}
@@ -256,15 +257,6 @@ function ErrorNote({ children }: { children: ReactNode }) {
   return (
     <div className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2.5 text-xs text-destructive">
       <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
-      <span>{children}</span>
-    </div>
-  )
-}
-
-function InfoNote({ children }: { children: ReactNode }) {
-  return (
-    <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs text-blue-800 dark:border-blue-800/40 dark:bg-blue-900/20 dark:text-blue-400">
-      <Info className="mt-0.5 size-3.5 shrink-0" />
       <span>{children}</span>
     </div>
   )
@@ -366,26 +358,27 @@ function UserForm({
           disabled={saving}
           className={`${inputCls} ${fieldErr("email") ? inputErrCls : ""}`}
         />
-        {fieldErr("email") ? (
+        {fieldErr("email") && (
           <p className="text-xs text-destructive">{fieldErr("email")}</p>
-        ) : mode === "edit" ? (
-          <p className="text-xs text-muted-foreground">Changing the email will resend a new registration link.</p>
-        ) : null}
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium">Role <span className="text-destructive">*</span></label>
-        <select
-          value={role}
-          onChange={e => setRole(e.target.value as AdminRole | "")}
-          disabled={saving}
-          className={`${inputCls} ${fieldErr("role") ? inputErrCls : ""}`}
-        >
-          <option value="">Select a role…</option>
-          {availableRoles.map(r => (
-            <option key={r} value={r}>{ADMIN_ROLE_LABELS[r]}</option>
-          ))}
-        </select>
+        <div className="relative">
+          <select
+            value={role}
+            onChange={e => setRole(e.target.value as AdminRole | "")}
+            disabled={saving}
+            className={`${inputCls} appearance-none pr-8 ${fieldErr("role") ? inputErrCls : ""}`}
+          >
+            <option value="">Select a role…</option>
+            {availableRoles.map(r => (
+              <option key={r} value={r}>{ADMIN_ROLE_LABELS[r]}</option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-foreground/70" />
+        </div>
         {fieldErr("role") && <p className="text-xs text-destructive">{fieldErr("role")}</p>}
       </div>
 
@@ -426,18 +419,18 @@ function DeactivateConfirmContent({ user, onConfirm, onCancel }: {
         <span className="font-medium text-foreground">{user.name}</span>?
         They will immediately lose access to Spectrum Clean Manager.
       </p>
-      <div className="rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm">
-        <div className="flex items-center justify-between py-1">
-          <span className="text-muted-foreground">Name</span>
+      <div className="divide-y divide-border rounded-lg border border-border bg-muted/40 text-sm">
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <span className="text-xs text-muted-foreground">Name</span>
           <span className="font-medium">{user.name}</span>
         </div>
-        <div className="flex items-center justify-between border-t border-border py-1">
-          <span className="text-muted-foreground">Role</span>
-          <RoleBadge role={user.role} />
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <span className="text-xs text-muted-foreground">Role</span>
+          <span className="font-medium">{ADMIN_ROLE_LABELS[user.role]}</span>
         </div>
-        <div className="flex items-center justify-between border-t border-border py-1">
-          <span className="text-muted-foreground">Email</span>
-          <span className="text-xs font-medium">{user.email}</span>
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <span className="text-xs text-muted-foreground">Email</span>
+          <span className="text-muted-foreground">{user.email}</span>
         </div>
       </div>
       <div className="flex justify-end gap-2 border-t border-border pt-4">
@@ -511,9 +504,9 @@ function ResendLinkContent({ user, onConfirm, onCancel }: {
         <span className="font-medium text-foreground">{user.email}</span>.
         The previous link will be invalidated immediately.
       </p>
-      <InfoNote>
-        Registration links expire after 72 hours. The user must complete registration before the link expires.
-      </InfoNote>
+      <AlertBox variant="info" title="Registration links expire after 72 hours">
+        The user must complete registration before the link expires.
+      </AlertBox>
       <div className="flex justify-end gap-2 border-t border-border pt-4">
         <button onClick={onCancel} disabled={sending} className={btnOutline}>Cancel</button>
         <button onClick={handleSend} disabled={sending} className={btnPrimary}>
@@ -681,7 +674,7 @@ export default function AdminUsersPage() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Search */}
-        <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+        <div className="flex h-9 flex-1 min-w-[180px] items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
           <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
             type="text"
@@ -722,7 +715,9 @@ export default function AdminUsersPage() {
               <>
                 <span className="mx-0.5 h-4 w-px shrink-0 bg-border" aria-hidden />
                 {ROLE_ORDER.filter(r => roleFilter.includes(r)).map(r => (
-                  <RoleBadge key={r} role={r} />
+                  <span key={r} className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-foreground">
+                    {ADMIN_ROLE_LABELS[r]}
+                  </span>
                 ))}
               </>
             )}
@@ -794,19 +789,14 @@ export default function AdminUsersPage() {
       {/* Table */}
       {pageUsers.length > 0 || hasFilters ? (
         <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <table className="w-full table-fixed text-sm">
-            <colgroup>
-              <col style={{ width: "44%" }} />
-              <col style={{ width: "22%" }} />
-              <col style={{ width: "26%" }} />
-              <col style={{ width: "8%" }} />
-            </colgroup>
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[640px] table-fixed text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Admin user</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Role</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-3" />
+                <th className="w-56 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Admin user</th>
+                <th className="w-36 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Role</th>
+                <th className="w-52 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Status</th>
+                <th className="w-16 px-4 py-3" />
               </tr>
             </thead>
             <tbody>
@@ -834,7 +824,7 @@ export default function AdminUsersPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3"><RoleBadge role={user.role} /></td>
+                  <td className="px-4 py-3 text-muted-foreground">{ADMIN_ROLE_LABELS[user.role]}</td>
                   <td className="px-4 py-3"><StatusBadge status={user.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end">
@@ -875,6 +865,7 @@ export default function AdminUsersPage() {
               ))}
             </tbody>
           </table>
+          </div>
 
           {/* Pagination footer */}
           <div className="flex items-center gap-4 border-t border-border px-4 py-3">

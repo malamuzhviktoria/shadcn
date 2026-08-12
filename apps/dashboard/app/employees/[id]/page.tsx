@@ -127,9 +127,9 @@ const MOCK_PAY_RATES: PayRateEntry[] = [
 ]
 
 const MOCK_HOLIDAY_ENTRIES: HolidayEntry[] = [
-  { id: "h1", dateFrom: "14 Jul 2025", dateTo: "18 Jul 2025", hours: 40, loggedBy: "Admin" },
-  { id: "h2", dateFrom: "2 Jun 2025",  dateTo: "2 Jun 2025",  hours: 8,  loggedBy: "Admin" },
-  { id: "h3", dateFrom: "19 May 2025", dateTo: "23 May 2025", hours: 40, loggedBy: "Admin" },
+  { id: "h1", dateFrom: "2025-07-14", dateTo: "2025-07-18", hours: 40, loggedBy: "Admin" },
+  { id: "h2", dateFrom: "2025-06-02", dateTo: "2025-06-02", hours: 8,  loggedBy: "Admin" },
+  { id: "h3", dateFrom: "2025-05-19", dateTo: "2025-05-23", hours: 40, loggedBy: "Admin" },
 ]
 
 const JOB_ROLES = ["Cleaner", "Supervisor", "Team Leader", "Window Cleaner", "Operative"]
@@ -226,6 +226,12 @@ function formatISODate(iso: string): string {
   const DAY  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
   const MON  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
   return `${DAY[date.getDay()]}, ${d} ${MON[m - 1]} ${y}`
+}
+
+function formatHolidayDate(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number)
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+  return `${d} ${MON[m - 1]} ${y}`
 }
 
 // ─── Dialog ─────────────────────────────────────────────────────────────────────
@@ -540,11 +546,11 @@ function OverviewTab({ employee, activeShift }: { employee: Employee; activeShif
 
 // ─── Work History Primitives ─────────────────────────────────────────────────────
 
-function DateButton({ value, onChange, placeholder }: {
-  value: string; onChange: (v: string) => void; placeholder: string
+function DateButton({ value, onChange, placeholder, className }: {
+  value: string; onChange: (v: string) => void; placeholder: string; className?: string
 }) {
   return (
-    <div className="relative w-[160px]">
+    <div className={cn("relative w-[160px]", className)}>
       <div className={cn(
         "flex h-9 items-center justify-between rounded-md border px-3 text-sm transition-colors",
         "border-input bg-muted/50 hover:border-input-hover",
@@ -675,7 +681,7 @@ function WorkHistoryTab({ employee }: { employee: Employee }) {
       <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-8 py-16 text-center">
         <Search className="mb-3 size-8 text-muted-foreground/40" />
         <p className="font-medium">No work history yet</p>
-        <p className="mt-1 text-sm text-muted-foreground">This employee hasn&apos;t started yet. Shifts will appear here once they clock in for the first time.</p>
+        <p className="mt-1 text-sm text-muted-foreground">This employee has been invited but has not started working yet.</p>
       </div>
     )
   }
@@ -1007,7 +1013,7 @@ function PayRatesTab({ employee, canEdit }: { employee: Employee; canEdit: boole
       <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-8 py-16 text-center">
         <Search className="mb-3 size-8 text-muted-foreground/40" />
         <p className="font-medium">No pay rates yet</p>
-        <p className="mt-1 text-sm text-muted-foreground">This employee hasn&apos;t started yet. Pay rates will appear once they clock in for the first time.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Pay rates will appear here once this employee starts working at assigned sites.</p>
       </div>
     )
   }
@@ -1524,8 +1530,8 @@ function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Em
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card px-8 py-16 text-center">
         <Calendar className="mb-3 size-8 text-muted-foreground/40" />
-        <p className="font-medium">No holiday data yet</p>
-        <p className="mt-1 text-sm text-muted-foreground">This employee hasn&apos;t started yet. Holiday hours will begin accruing once they start.</p>
+        <p className="font-medium">No holiday hours yet</p>
+        <p className="mt-1 text-sm text-muted-foreground">Holiday hours will become available once this employee starts working.</p>
       </div>
     )
   }
@@ -1583,7 +1589,7 @@ function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Em
             <tbody>
               {entries.map(entry => (
                 <tr key={entry.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3">{entry.dateFrom} – {entry.dateTo}</td>
+                  <td className="px-4 py-3">{formatHolidayDate(entry.dateFrom)} – {formatHolidayDate(entry.dateTo)}</td>
                   <td className="px-4 py-3 tabular-nums">{entry.hours}h</td>
                   <td className="px-4 py-3 text-muted-foreground">{entry.loggedBy}</td>
                   <td className="px-4 py-3">
@@ -1686,10 +1692,10 @@ function HolidayDialog({
       <div className="flex flex-col gap-4 p-6">
         <div className="grid grid-cols-2 gap-3">
           <Field label="From" required error={errors.dateFrom}>
-            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className={inputCls(!!errors.dateFrom)} />
+            <DateButton value={dateFrom} onChange={setDateFrom} placeholder="Select date" className="w-full" />
           </Field>
           <Field label="To" required error={errors.dateTo}>
-            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className={inputCls(!!errors.dateTo)} />
+            <DateButton value={dateTo} onChange={setDateTo} placeholder="Select date" className="w-full" />
           </Field>
         </div>
         <Field label="Hours" required error={errors.hours}>
