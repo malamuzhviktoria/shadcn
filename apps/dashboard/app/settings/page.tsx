@@ -507,19 +507,39 @@ function JobRoleRowActions({
   onDelete: () => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<React.CSSProperties | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  function handleOpen(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!open) {
+      const rect = triggerRef.current?.getBoundingClientRect()
+      if (rect) {
+        const right = window.innerWidth - rect.right
+        const menuH = role.isDefault ? 42 : 88
+        const spaceBelow = window.innerHeight - rect.bottom - 8
+        setPos(spaceBelow >= menuH
+          ? { top: rect.bottom + 4, right }
+          : { bottom: window.innerHeight - rect.top + 4, right })
+      }
+    }
+    setOpen(v => !v)
+  }
 
   useEffect(() => {
     if (!open) return
     function onPointer(e: PointerEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (
+        menuRef.current && !menuRef.current.contains(e.target as Node) &&
+        triggerRef.current && !triggerRef.current.contains(e.target as Node)
+      ) setOpen(false)
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") { setOpen(false); triggerRef.current?.focus() }
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault()
-        const items = Array.from(ref.current?.querySelectorAll('[role="menuitem"]') ?? []) as HTMLElement[]
+        const items = Array.from(menuRef.current?.querySelectorAll('[role="menuitem"]') ?? []) as HTMLElement[]
         const idx = items.indexOf(document.activeElement as HTMLElement)
         const next = e.key === "ArrowDown" ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length
         items[next]?.focus()
@@ -528,7 +548,7 @@ function JobRoleRowActions({
     document.addEventListener("pointerdown", onPointer)
     window.addEventListener("keydown", onKey)
     setTimeout(() => {
-      const first = ref.current?.querySelector('[role="menuitem"]') as HTMLElement | null
+      const first = menuRef.current?.querySelector('[role="menuitem"]') as HTMLElement | null
       first?.focus()
     }, 10)
     return () => {
@@ -547,14 +567,14 @@ function JobRoleRowActions({
   }
 
   return (
-    <div ref={ref} className="relative">
+    <>
       <button
         ref={triggerRef}
         type="button"
         aria-label="Open actions"
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={e => { e.stopPropagation(); setOpen(v => !v) }}
+        onClick={handleOpen}
         className={cn(
           "flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors",
           "hover:bg-accent hover:text-accent-foreground",
@@ -565,10 +585,12 @@ function JobRoleRowActions({
         <EllipsisVertical className="size-4" />
       </button>
 
-      {open && (
+      {open && pos && (
         <div
+          ref={menuRef}
           role="menu"
-          className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          style={{ position: "fixed", zIndex: 200, ...pos }}
+          className="w-40 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
         >
           <button
             role="menuitem"
@@ -595,7 +617,7 @@ function JobRoleRowActions({
           )}
         </div>
       )}
-    </div>
+    </>
   )
 }
 

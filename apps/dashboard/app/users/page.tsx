@@ -186,18 +186,38 @@ function Modal({
 
 function OverflowMenu({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<React.CSSProperties | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  function handleOpen(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!open) {
+      const rect = triggerRef.current?.getBoundingClientRect()
+      if (rect) {
+        const right = window.innerWidth - rect.right
+        const spaceBelow = window.innerHeight - rect.bottom - 8
+        setPos(spaceBelow >= 120
+          ? { top: rect.bottom + 4, right }
+          : { bottom: window.innerHeight - rect.top + 4, right })
+      }
+    }
+    setOpen(o => !o)
+  }
+
   useEffect(() => {
     if (!open) return
     function fn(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (
+        menuRef.current && !menuRef.current.contains(e.target as Node) &&
+        triggerRef.current && !triggerRef.current.contains(e.target as Node)
+      ) setOpen(false)
     }
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") { setOpen(false); triggerRef.current?.focus() }
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault()
-        const items = Array.from(ref.current?.querySelectorAll('[role="menuitem"]') ?? []) as HTMLElement[]
+        const items = Array.from(menuRef.current?.querySelectorAll('[role="menuitem"]') ?? []) as HTMLElement[]
         const idx = items.indexOf(document.activeElement as HTMLElement)
         const next = e.key === "ArrowDown" ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length
         items[next]?.focus()
@@ -206,7 +226,7 @@ function OverflowMenu({ children }: { children: ReactNode }) {
     document.addEventListener("mousedown", fn)
     window.addEventListener("keydown", onKey)
     setTimeout(() => {
-      const first = ref.current?.querySelector('[role="menuitem"]') as HTMLElement | null
+      const first = menuRef.current?.querySelector('[role="menuitem"]') as HTMLElement | null
       first?.focus()
     }, 10)
     return () => {
@@ -214,11 +234,12 @@ function OverflowMenu({ children }: { children: ReactNode }) {
       window.removeEventListener("keydown", onKey)
     }
   }, [open])
+
   return (
-    <div ref={ref} className="relative">
+    <>
       <button
         ref={triggerRef}
-        onClick={(e) => { e.stopPropagation(); setOpen(o => !o) }}
+        onClick={handleOpen}
         aria-label="Open actions"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -231,16 +252,18 @@ function OverflowMenu({ children }: { children: ReactNode }) {
       >
         <EllipsisVertical className="size-4" />
       </button>
-      {open && (
+      {open && pos && (
         <div
+          ref={menuRef}
           role="menu"
-          className="absolute right-0 top-full z-20 mt-1 w-56 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
+          style={{ position: "fixed", zIndex: 200, ...pos }}
+          className="w-56 overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md"
           onClick={() => setOpen(false)}
         >
           {children}
         </div>
       )}
-    </div>
+    </>
   )
 }
 
@@ -664,7 +687,7 @@ export default function AdminUsersPage() {
       description="Manage admin accounts and role assignments."
       action={
         <div className="w-full @[680px]:w-auto">
-          <button type="button" onClick={() => setDialog({ type: "create" })} className={`${btnPrimary} w-full`}>
+          <button type="button" onClick={() => setDialog({ type: "create" })} className={`${btnPrimary} w-full justify-center`}>
             <Plus className="size-4" />
             Add user
           </button>

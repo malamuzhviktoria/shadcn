@@ -1667,28 +1667,32 @@ function SiteDetails({
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <button onClick={onBack} className="flex size-8 shrink-0 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:bg-muted">
-            <ChevronLeft className="size-4" />
-          </button>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-semibold">{site.siteName}</h1>
-            <Badge variant="neutral">{site.siteNumber}</Badge>
+      <div className="@container">
+        <div className="flex flex-col gap-3 @[520px]:flex-row @[520px]:items-center @[520px]:justify-between @[520px]:gap-4">
+          <div className="flex items-center gap-3">
+            <button onClick={onBack} className="flex size-8 shrink-0 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:bg-muted">
+              <ChevronLeft className="size-4" />
+            </button>
+            <div className="flex items-center gap-2">
+              <h1 className="whitespace-nowrap text-xl font-semibold">{site.siteName}</h1>
+              <Badge variant="neutral">{site.siteNumber}</Badge>
+            </div>
           </div>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {canFullEdit && (
-            <button onClick={onEdit} className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-              <Pencil className="size-4" />
-              Edit site
-            </button>
-          )}
-          {canEditBudget && (
-            <button onClick={onEditBudget} className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-              <Pencil className="size-4" />
-              Edit daily budgets
-            </button>
+          {(canFullEdit || canEditBudget) && (
+            <div className="flex w-full items-center gap-2 @[520px]:w-auto @[520px]:shrink-0">
+              {canFullEdit && (
+                <button onClick={onEdit} className="inline-flex h-9 flex-1 @[520px]:flex-none items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+                  <Pencil className="size-4" />
+                  Edit site
+                </button>
+              )}
+              {canEditBudget && (
+                <button onClick={onEditBudget} className="inline-flex h-9 flex-1 @[520px]:flex-none items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+                  <Pencil className="size-4" />
+                  Edit daily budgets
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -2322,12 +2326,12 @@ export default function SitesPage() {
 
   // View‑tab switcher (Active / Archived)
   const viewSwitcher = canSeeArchived ? (
-    <div className="flex w-fit rounded-lg border border-border bg-muted/30 p-0.5">
+    <div className="flex w-full @[640px]:w-fit rounded-lg border border-border bg-muted/30 p-0.5">
       {(["list", "archived"] as const).map(v => (
         <button
           key={v}
           onClick={() => setView({ name: v } as View)}
-          className={`flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors ${view.name === v || (v === "list" && view.name === "detail") || (v === "archived" && view.name === "archived-detail") ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          className={`flex h-8 flex-1 @[640px]:flex-none items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors ${view.name === v || (v === "list" && view.name === "detail") || (v === "archived" && view.name === "archived-detail") ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
         >
           {v === "list" ? (
             <>

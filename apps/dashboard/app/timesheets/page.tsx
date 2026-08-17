@@ -1476,11 +1476,11 @@ export default function TimesheetsPage() {
       }
     >
       {/* View mode switcher — By Site / By Employee */}
-      <div className="flex w-fit rounded-lg border border-border bg-muted/30 p-0.5">
+      <div className="flex w-full @[640px]:w-fit rounded-lg border border-border bg-muted/30 p-0.5">
         {([ ["by-site","By Site"], ["by-employee","By Employee"] ] as const).map(([val, label]) => (
           <button key={val} type="button" onClick={() => setViewMode(val)}
             className={cn(
-              "flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors",
+              "flex h-8 flex-1 @[640px]:flex-none items-center justify-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors",
               viewMode === val
                 ? "bg-background shadow-sm text-foreground"
                 : "text-muted-foreground hover:text-foreground"
@@ -1603,21 +1603,21 @@ export default function TimesheetsPage() {
         </FilterSheetSection>
       </MobileFilterSheet>
 
+      {/* Summary stats — full width, always outside the horizontal-scroll container */}
+      <div className="flex divide-x divide-border overflow-hidden rounded-lg border border-border bg-muted/40">
+        <div className="flex flex-1 items-center justify-center gap-1.5 px-2 py-2">
+          <span className="whitespace-nowrap text-xs text-muted-foreground">Weekly total</span>
+          <span className="whitespace-nowrap text-sm font-semibold tabular-nums">{fmtH(weeklyTotal)}</span>
+        </div>
+        <div className="flex flex-1 items-center justify-center gap-1.5 px-2 py-2">
+          <span className="whitespace-nowrap text-xs text-muted-foreground">Monthly total</span>
+          <span className="whitespace-nowrap text-sm font-semibold tabular-nums">{fmtH(monthlyTotal)}</span>
+        </div>
+      </div>
+
       {/* Scrollable content: preserves min-width so the group headers and table never over-compress */}
       <div className="overflow-x-auto">
       <div className="min-w-[760px] flex flex-col gap-4">
-
-      {/* Summary stats */}
-      <div className="inline-flex self-start divide-x divide-border overflow-hidden rounded-xl border border-border bg-muted/40">
-        <div className="flex items-center gap-3 px-4 py-2.5">
-          <span className="text-xs text-muted-foreground">Weekly total</span>
-          <span className="text-sm font-semibold tabular-nums">{fmtH(weeklyTotal)}</span>
-        </div>
-        <div className="flex items-center gap-3 px-4 py-2.5">
-          <span className="text-xs text-muted-foreground">Monthly total</span>
-          <span className="text-sm font-semibold tabular-nums">{fmtH(monthlyTotal)}</span>
-        </div>
-      </div>
 
       {/* Content */}
       {filtered.length === 0 ? (

@@ -369,7 +369,7 @@ function AreaListView({
         {canManage && (
           <button
             onClick={onCreateArea}
-            className="inline-flex h-9 w-full @[680px]:w-auto @[680px]:shrink-0 @[680px]:self-start items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
+            className="inline-flex h-9 w-full @[680px]:w-auto @[680px]:shrink-0 @[680px]:self-start items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
           >
             <Plus className="size-4" />
             Create Area
@@ -575,39 +575,41 @@ function AreaDetailView({
 }) {
   return (
     <div className="flex flex-col gap-6">
-      {/* Header — matches Employee Profile / SiteDetails pattern */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          {!isHoA && (
-            <button
-              onClick={onBack}
-              className="flex size-8 shrink-0 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:bg-muted"
-              aria-label="Back to Areas"
-            >
-              <ChevronLeft className="size-4" />
-            </button>
-          )}
-          <h1 className="text-xl font-semibold">{area.areaName}</h1>
-        </div>
-
-        {canManage && (
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              onClick={onEdit}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <Pencil className="size-4" />
-              Edit Area
-            </button>
-            <button
-              onClick={onArchive}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <Archive className="size-4" />
-              Archive Area
-            </button>
+      {/* Header */}
+      <div className="@container">
+        <div className="flex flex-col gap-3 @[520px]:flex-row @[520px]:items-center @[520px]:justify-between @[520px]:gap-4">
+          <div className="flex items-center gap-3">
+            {!isHoA && (
+              <button
+                onClick={onBack}
+                className="flex size-8 shrink-0 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:bg-muted"
+                aria-label="Back to Areas"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+            )}
+            <h1 className="whitespace-nowrap text-xl font-semibold">{area.areaName}</h1>
           </div>
-        )}
+
+          {canManage && (
+            <div className="flex w-full items-center gap-2 @[520px]:w-auto @[520px]:shrink-0">
+              <button
+                onClick={onEdit}
+                className="inline-flex h-9 flex-1 @[520px]:flex-none items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                <Pencil className="size-4 shrink-0" />
+                Edit Area
+              </button>
+              <button
+                onClick={onArchive}
+                className="inline-flex h-9 flex-1 @[520px]:flex-none items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                <Archive className="size-4 shrink-0" />
+                Archive Area
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Area Information — Employee Profile card pattern */}
@@ -642,33 +644,35 @@ function AreaDetailView({
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="w-1/2 px-4 py-3 text-left text-xs font-medium text-muted-foreground">Site</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Area Manager</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sites.map(site => (
-                  <tr
-                    key={site.id}
-                    className="border-b border-border last:border-0 transition-colors hover:bg-muted/30"
-                  >
-                    <td
-                      className="cursor-pointer px-4 py-3.5"
-                      onClick={() => onOpenSite(site.id)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold hover:underline">{site.siteName}</span>
-                        <span className="inline-flex items-center rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{site.siteNumber}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-sm text-muted-foreground">{site.areaManagerName}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[480px] text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Site</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Area Manager</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {sites.map(site => (
+                    <tr
+                      key={site.id}
+                      className="border-b border-border last:border-0 transition-colors hover:bg-muted/30"
+                    >
+                      <td
+                        className="cursor-pointer px-4 py-3.5"
+                        onClick={() => onOpenSite(site.id)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold hover:underline">{site.siteName}</span>
+                          <span className="inline-flex items-center whitespace-nowrap rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{site.siteNumber}</span>
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3.5 text-sm text-muted-foreground">{site.areaManagerName}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

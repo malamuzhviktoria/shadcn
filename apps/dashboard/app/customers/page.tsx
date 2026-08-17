@@ -677,7 +677,7 @@ export default function CustomersPage() {
             </p>
           </div>
           {canManage && (
-            <button onClick={() => setCreateOpen(true)} className={cn(btnPrimary, "w-full @[680px]:w-auto @[680px]:shrink-0 @[680px]:self-start whitespace-nowrap")}>
+            <button onClick={() => setCreateOpen(true)} className={cn(btnPrimary, "w-full @[680px]:w-auto @[680px]:shrink-0 @[680px]:self-start justify-center whitespace-nowrap")}>
               <Plus className="size-4 shrink-0" />
               Create Customer
             </button>

@@ -29,6 +29,13 @@ import { type EmployeeStatus, EmployeeStatusBadge } from "@/components/employee-
 import { Badge } from "@/components/ui/badge"
 import { EditEmployeeDialog } from "@/components/edit-employee-dialog"
 import { TabSwitcher } from "@/components/tab-switcher"
+import {
+  MobileFilterSheet,
+  FiltersButton,
+  FilterSheetSection,
+  FilterSheetDateRange,
+  FilterSheetRadioList,
+} from "@/components/mobile-filter-sheet"
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -644,11 +651,12 @@ function ShiftRow({ shift, employee }: { shift: ShiftEntry; employee: Employee }
 // ─── Work History Tab ────────────────────────────────────────────────────────────
 
 function WorkHistoryTab({ employee }: { employee: Employee }) {
-  const [dateFrom,   setDateFrom]   = useState("")
-  const [dateTo,     setDateTo]     = useState("")
-  const [siteFilter, setSiteFilter] = useState("all")
-  const [perPage,    setPerPage]    = useState(10)
-  const [page,       setPage]       = useState(1)
+  const [dateFrom,       setDateFrom]       = useState("")
+  const [dateTo,         setDateTo]         = useState("")
+  const [siteFilter,     setSiteFilter]     = useState("all")
+  const [perPage,        setPerPage]        = useState(10)
+  const [page,           setPage]           = useState(1)
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false)
 
   const activeShift = (employee.id === "1" && employee.status === "active")
     ? MOCK_SHIFTS.find(s => s.clockOut === null) ?? null
@@ -666,8 +674,9 @@ function WorkHistoryTab({ employee }: { employee: Employee }) {
   const showActiveRow = !!(activeShift && (siteFilter === "all" || activeShift.site === siteFilter))
   const totalPages    = Math.max(1, Math.ceil(filtered.length / perPage))
   const paged         = filtered.slice((page - 1) * perPage, page * perPage)
-  const hasFilters    = dateFrom !== "" || dateTo !== "" || siteFilter !== "all"
-  const totalCount    = filtered.length + (showActiveRow ? 1 : 0)
+  const hasFilters        = dateFrom !== "" || dateTo !== "" || siteFilter !== "all"
+  const mobileFilterCount = (dateFrom ? 1 : 0) + (dateTo ? 1 : 0) + (siteFilter !== "all" ? 1 : 0)
+  const totalCount        = filtered.length + (showActiveRow ? 1 : 0)
 
   const uniqueSites = Array.from(new Set(MOCK_SHIFTS.map(s => s.site))).sort()
 
@@ -689,42 +698,77 @@ function WorkHistoryTab({ employee }: { employee: Employee }) {
   return (
     <div className="flex flex-col gap-4">
       {/* Filter toolbar */}
-      <div className="flex flex-wrap items-end gap-2">
-        {/* From + To always stay together; responsive width */}
-        <div className="flex w-full @[500px]:w-auto items-end gap-2">
-          <div className="flex flex-1 flex-col gap-1">
-            <span className="text-xs text-muted-foreground">From</span>
-            <DateButton value={dateFrom} onChange={v => { setDateFrom(v); setPage(1) }} placeholder="Start date" className="w-full @[500px]:w-[160px]" />
-          </div>
-          <div className="flex flex-1 flex-col gap-1">
-            <span className="text-xs text-muted-foreground">To</span>
-            <DateButton value={dateTo}   onChange={v => { setDateTo(v);   setPage(1) }} placeholder="End date" className="w-full @[500px]:w-[160px]" />
-          </div>
-        </div>
-        {/* Site + Reset wrap to next row at narrow widths */}
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <select
-              value={siteFilter}
-              onChange={e => { setSiteFilter(e.target.value); setPage(1) }}
-              className={cn(inputCls(), "w-[180px] appearance-none pr-8")}
-            >
-              <option value="all">All sites</option>
-              {uniqueSites.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-foreground/70" />
-          </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Mobile: Filters button (hidden at @[500px]+) */}
+        <div className="flex items-center gap-2 @[500px]:hidden">
+          <FiltersButton activeCount={mobileFilterCount} onClick={() => setFilterSheetOpen(true)} />
           {hasFilters && (
             <button type="button" onClick={resetFilters}
               className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-              Reset filters <RotateCcw className="size-3.5" />
+              Reset <RotateCcw className="size-3.5" />
             </button>
           )}
+        </div>
+        {/* Desktop: Inline filter controls (hidden below @[500px]) */}
+        <div className="hidden @[500px]:flex @[500px]:flex-wrap @[500px]:items-end @[500px]:gap-2">
+          <div className="flex items-end gap-2">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">From</span>
+              <DateButton value={dateFrom} onChange={v => { setDateFrom(v); setPage(1) }} placeholder="Start date" className="w-[160px]" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted-foreground">To</span>
+              <DateButton value={dateTo} onChange={v => { setDateTo(v); setPage(1) }} placeholder="End date" className="w-[160px]" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <select
+                value={siteFilter}
+                onChange={e => { setSiteFilter(e.target.value); setPage(1) }}
+                className={cn(inputCls(), "w-[180px] appearance-none pr-8")}
+              >
+                <option value="all">All sites</option>
+                {uniqueSites.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-foreground/70" />
+            </div>
+            {hasFilters && (
+              <button type="button" onClick={resetFilters}
+                className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+                Reset filters <RotateCcw className="size-3.5" />
+              </button>
+            )}
+          </div>
         </div>
         <span className="ml-auto whitespace-nowrap text-sm text-muted-foreground">
           {totalCount} {totalCount === 1 ? "entry" : "entries"}
         </span>
       </div>
+
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filterSheetOpen}
+        onClose={() => setFilterSheetOpen(false)}
+        onReset={resetFilters}
+        activeCount={mobileFilterCount}
+      >
+        <FilterSheetSection title="Date range">
+          <FilterSheetDateRange
+            from={dateFrom}
+            to={dateTo}
+            onChange={(f, t) => { setDateFrom(f); setDateTo(t); setPage(1) }}
+          />
+        </FilterSheetSection>
+        <FilterSheetSection title="Site">
+          <FilterSheetRadioList
+            options={uniqueSites.map(s => ({ value: s, label: s }))}
+            value={siteFilter === "all" ? "" : siteFilter}
+            onChange={v => { setSiteFilter(v || "all"); setPage(1) }}
+            allLabel="All sites"
+          />
+        </FilterSheetSection>
+      </MobileFilterSheet>
 
       {/* Table or empty state */}
       {hasRows ? (
@@ -1592,13 +1636,7 @@ function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Em
       <div className="rounded-xl border border-border bg-card">
         {entries.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[440px] table-fixed text-sm">
-            <colgroup>
-              <col style={{ width: "43%" }} />
-              <col style={{ width: "18%" }} />
-              <col style={{ width: "27%" }} />
-              <col style={{ width: "12%" }} />
-            </colgroup>
+          <table className="w-full min-w-[500px] text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/40">
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Date range</th>
@@ -1610,7 +1648,7 @@ function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Em
             <tbody>
               {entries.map(entry => (
                 <tr key={entry.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3">{formatHolidayDate(entry.dateFrom)} – {formatHolidayDate(entry.dateTo)}</td>
+                  <td className="whitespace-nowrap px-4 py-3">{formatHolidayDate(entry.dateFrom)} – {formatHolidayDate(entry.dateTo)}</td>
                   <td className="px-4 py-3 tabular-nums">{entry.hours}h</td>
                   <td className="px-4 py-3 text-muted-foreground">{entry.loggedBy}</td>
                   <td className="px-2 py-3">
