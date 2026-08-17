@@ -13,6 +13,12 @@ import { useRole } from "@/lib/role-context"
 import { cn } from "@/lib/utils"
 import { PageShell } from "@/components/page-shell"
 import { FilterDropdown } from "@/components/filter-dropdown"
+import {
+  FiltersButton,
+  FilterSheetSection,
+  FilterSheetRadioList,
+  MobileFilterSheet,
+} from "@/components/mobile-filter-sheet"
 import { useBreadcrumbExtra } from "@/lib/breadcrumb-context"
 import { EmployeeStatusBadge } from "@/components/employee-status-badge"
 import { Badge } from "@/components/ui/badge"
@@ -1821,6 +1827,7 @@ function SitesList({
   const [areaFilter, setAreaFilter] = useState("")
   const [customerFilter, setCustomerFilter] = useState("")
   const [amFilter, setAmFilter] = useState("")
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(10)
 
@@ -1852,6 +1859,7 @@ function SitesList({
 
   const clearFilters = () => { setSearch(""); setAreaFilter(""); setCustomerFilter(""); setAmFilter(""); setPage(1) }
   const hasFilters = !!(search || areaFilter || customerFilter || amFilter)
+  const mobileFilterCount = (areaFilter ? 1 : 0) + (customerFilter ? 1 : 0) + (amFilter ? 1 : 0)
 
   const areaOptions = availableAreas.map(area => ({ value: area, label: area }))
   const customerOptions = availableCustomers.map(c => ({ value: c.code, label: c.name }))
@@ -1859,9 +1867,27 @@ function SitesList({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Search */}
+      {/* Mobile toolbar: Search + Filters button */}
+      <div className="flex items-center gap-2 @[640px]:hidden">
+        <div className="flex h-9 flex-1 min-w-0 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover">
+          <Search className="size-3.5 shrink-0 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1) }}
+            placeholder="Search by site name or number…"
+            className="flex-1 bg-transparent placeholder:text-muted-foreground focus:outline-none"
+          />
+          {search && (
+            <button onClick={() => { setSearch(""); setPage(1) }} className="text-muted-foreground hover:text-foreground">
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+        <FiltersButton activeCount={mobileFilterCount} onClick={() => setFiltersOpen(true)} />
+      </div>
+
+      {/* Desktop toolbar: inline filters */}
+      <div className="hidden @[640px]:flex flex-wrap items-center gap-2">
         <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover">
           <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
@@ -1892,6 +1918,38 @@ function SitesList({
           </button>
         )}
       </div>
+
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onReset={() => { setAreaFilter(""); setCustomerFilter(""); setAmFilter(""); setPage(1) }}
+        activeCount={mobileFilterCount}
+      >
+        <FilterSheetSection title="Area">
+          <FilterSheetRadioList
+            options={areaOptions}
+            value={areaFilter}
+            onChange={v => { setAreaFilter(v); setPage(1) }}
+          />
+        </FilterSheetSection>
+        <FilterSheetSection title="Customer">
+          <FilterSheetRadioList
+            options={customerOptions}
+            value={customerFilter}
+            onChange={v => { setCustomerFilter(v); setPage(1) }}
+          />
+        </FilterSheetSection>
+        {showAM && (
+          <FilterSheetSection title="Area Manager">
+            <FilterSheetRadioList
+              options={amOptions}
+              value={amFilter}
+              onChange={v => { setAmFilter(v); setPage(1) }}
+            />
+          </FilterSheetSection>
+        )}
+      </MobileFilterSheet>
 
       {/* Table */}
       <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -1946,7 +2004,7 @@ function SitesList({
 
         {/* Pagination */}
         {filtered.length > 0 && (
-          <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
             <div className="flex shrink-0 items-center gap-2">
               <div className="relative flex items-center">
                 <select
@@ -1960,46 +2018,41 @@ function SitesList({
               </div>
               <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
             </div>
-            <div className="flex-1" />
-            <div className="flex shrink-0 items-center gap-3">
-              <span className="whitespace-nowrap text-xs text-muted-foreground">
-                Page {safePage} of {totalPages}
-              </span>
-              <div className="flex shrink-0 items-center gap-1">
-                <button type="button" onClick={() => setPage(1)} disabled={safePage === 1}
-                  aria-label="First page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsLeft className="size-3.5" />
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              <button type="button" onClick={() => setPage(1)} disabled={safePage === 1}
+                aria-label="First page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronsLeft className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage === 1}
+                aria-label="Previous page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronLeft className="size-3.5" />
+              </button>
+              <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">{safePage} / {totalPages}</span>
+              {pageWindow.map(n => (
+                <button key={n} type="button" onClick={() => setPage(n)}
+                  aria-label={`Page ${n}`}
+                  aria-current={n === safePage ? "page" : undefined}
+                  className={cn(
+                    "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                    n === safePage
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                  )}>
+                  {n}
                 </button>
-                <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage === 1}
-                  aria-label="Previous page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronLeft className="size-3.5" />
-                </button>
-                {pageWindow.map(n => (
-                  <button key={n} type="button" onClick={() => setPage(n)}
-                    aria-label={`Page ${n}`}
-                    aria-current={n === safePage ? "page" : undefined}
-                    className={cn(
-                      "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
-                      n === safePage
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
-                    )}>
-                    {n}
-                  </button>
-                ))}
-                <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
-                  aria-label="Next page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronRight className="size-3.5" />
-                </button>
-                <button type="button" onClick={() => setPage(totalPages)} disabled={safePage === totalPages}
-                  aria-label="Last page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsRight className="size-3.5" />
-                </button>
-              </div>
+              ))}
+              <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
+                aria-label="Next page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronRight className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => setPage(totalPages)} disabled={safePage === totalPages}
+                aria-label="Last page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronsRight className="size-3.5" />
+              </button>
             </div>
           </div>
         )}
@@ -2033,7 +2086,7 @@ function ArchivedSitesList({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm">
+      <div className="flex h-9 w-full @[500px]:w-80 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm">
         <Search className="size-3.5 shrink-0 text-muted-foreground" />
         <input
           value={search}
@@ -2095,7 +2148,7 @@ function ArchivedSitesList({
         )}
         {/* Pagination */}
         {filtered.length > 0 && (
-          <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
             <div className="flex shrink-0 items-center gap-2">
               <div className="relative flex items-center">
                 <select
@@ -2109,46 +2162,41 @@ function ArchivedSitesList({
               </div>
               <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
             </div>
-            <div className="flex-1" />
-            <div className="flex shrink-0 items-center gap-3">
-              <span className="whitespace-nowrap text-xs text-muted-foreground">
-                Page {safePage} of {totalPages}
-              </span>
-              <div className="flex shrink-0 items-center gap-1">
-                <button type="button" onClick={() => setPage(1)} disabled={safePage === 1}
-                  aria-label="First page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsLeft className="size-3.5" />
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              <button type="button" onClick={() => setPage(1)} disabled={safePage === 1}
+                aria-label="First page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronsLeft className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage === 1}
+                aria-label="Previous page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronLeft className="size-3.5" />
+              </button>
+              <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">{safePage} / {totalPages}</span>
+              {pageWindow.map(n => (
+                <button key={n} type="button" onClick={() => setPage(n)}
+                  aria-label={`Page ${n}`}
+                  aria-current={n === safePage ? "page" : undefined}
+                  className={cn(
+                    "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                    n === safePage
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                  )}>
+                  {n}
                 </button>
-                <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage === 1}
-                  aria-label="Previous page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronLeft className="size-3.5" />
-                </button>
-                {pageWindow.map(n => (
-                  <button key={n} type="button" onClick={() => setPage(n)}
-                    aria-label={`Page ${n}`}
-                    aria-current={n === safePage ? "page" : undefined}
-                    className={cn(
-                      "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
-                      n === safePage
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
-                    )}>
-                    {n}
-                  </button>
-                ))}
-                <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
-                  aria-label="Next page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronRight className="size-3.5" />
-                </button>
-                <button type="button" onClick={() => setPage(totalPages)} disabled={safePage === totalPages}
-                  aria-label="Last page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsRight className="size-3.5" />
-                </button>
-              </div>
+              ))}
+              <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}
+                aria-label="Next page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronRight className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => setPage(totalPages)} disabled={safePage === totalPages}
+                aria-label="Last page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronsRight className="size-3.5" />
+              </button>
             </div>
           </div>
         )}
@@ -2254,20 +2302,20 @@ export default function SitesPage() {
 
   // Page header actions
   const pageActions = canFullAccess ? (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex w-full gap-2 @[680px]:w-auto">
       <button
         onClick={() => setBulkOpen(true)}
-        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground"
+        className="inline-flex h-9 flex-1 min-w-0 @[680px]:flex-none items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
       >
         <Upload className="size-4 shrink-0" />
-        Bulk Edit
+        <span className="truncate">Bulk Edit</span>
       </button>
       <button
         onClick={() => setSyncOpen(true)}
-        className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground whitespace-nowrap transition-colors hover:bg-primary/90"
+        className="inline-flex h-9 flex-1 min-w-0 @[680px]:flex-none items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
       >
         <RefreshCw className="size-4 shrink-0" />
-        Sync Sites
+        <span className="truncate">Sync Sites</span>
       </button>
     </div>
   ) : null

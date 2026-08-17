@@ -21,22 +21,24 @@ export function TabSwitcher<T extends string>({
   className,
 }: TabSwitcherProps<T>) {
   return (
-    <div className={cn("flex w-fit rounded-lg border border-border bg-muted/30 p-0.5", className)}>
-      {tabs.map(tab => (
-        <button
-          key={tab.id}
-          type="button"
-          onClick={() => onChange(tab.id)}
-          className={cn(
-            "flex h-8 items-center gap-1.5 rounded-md px-3 text-sm font-medium transition-colors",
-            value === tab.id
-              ? "bg-background shadow-sm text-foreground"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <div className={cn("overflow-x-auto", className)}>
+      <div className="flex w-fit rounded-lg border border-border bg-muted/30 p-0.5">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => onChange(tab.id)}
+            className={cn(
+              "flex h-8 shrink-0 items-center gap-1.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors",
+              value === tab.id
+                ? "bg-background shadow-sm text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

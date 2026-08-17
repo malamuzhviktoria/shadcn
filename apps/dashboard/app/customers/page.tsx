@@ -677,7 +677,7 @@ export default function CustomersPage() {
             </p>
           </div>
           {canManage && (
-            <button onClick={() => setCreateOpen(true)} className={cn(btnPrimary, "shrink-0 whitespace-nowrap")}>
+            <button onClick={() => setCreateOpen(true)} className={cn(btnPrimary, "w-full @[680px]:w-auto @[680px]:shrink-0 @[680px]:self-start whitespace-nowrap")}>
               <Plus className="size-4 shrink-0" />
               Create Customer
             </button>
@@ -721,6 +721,7 @@ export default function CustomersPage() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-border bg-card">
+            {paged.length > 0 ? (
             <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] table-fixed text-sm">
               <thead>
@@ -738,29 +739,7 @@ export default function CustomersPage() {
                 </tr>
               </thead>
               <tbody>
-                {paged.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={canManage ? 4 : 3}
-                      className="px-4 py-12 text-center"
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <Search className="size-5 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">
-                          No customers found for{" "}
-                          <span className="font-medium">"{search}"</span>
-                        </p>
-                        <button
-                          onClick={() => setSearch("")}
-                          className="text-sm text-primary underline-offset-4 hover:underline"
-                        >
-                          Clear search
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  paged.map(customer => (
+                {paged.map(customer => (
                     <tr
                       key={customer.id}
                       className="border-b border-border last:border-0 hover:bg-muted/30"
@@ -786,14 +765,32 @@ export default function CustomersPage() {
                       )}
                     </tr>
                   ))
-                )}
+                }
               </tbody>
             </table>
             </div>
+            ) : (
+              /* No search results — outside overflow-x-auto so it fills the visible card width */
+              <div className="px-4 py-12 text-center">
+                <div className="flex flex-col items-center gap-2">
+                  <Search className="size-5 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    No customers found for{" "}
+                    <span className="font-medium">"{search}"</span>
+                  </p>
+                  <button
+                    onClick={() => setSearch("")}
+                    className="text-sm text-primary underline-offset-4 hover:underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Pagination footer */}
             {filtered.length > 0 && (
-              <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
                 <div className="flex shrink-0 items-center gap-2">
                   <div className="relative flex items-center">
                     <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setPage(1) }}
@@ -804,46 +801,41 @@ export default function CustomersPage() {
                   </div>
                   <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
                 </div>
-                <div className="flex-1" />
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
-                      aria-label="First page"
-                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                      <ChevronsLeft className="size-3.5" />
+                <div className="ml-auto flex shrink-0 items-center gap-1">
+                  <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
+                    aria-label="First page"
+                    className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                    <ChevronsLeft className="size-3.5" />
+                  </button>
+                  <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                    aria-label="Previous page"
+                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                    <ChevronLeft className="size-3.5" />
+                  </button>
+                  <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">{currentPage} / {totalPages}</span>
+                  {getPageWindow(currentPage, totalPages).map(n => (
+                    <button key={n} type="button" onClick={() => setPage(n)}
+                      aria-label={`Page ${n}`}
+                      aria-current={n === currentPage ? "page" : undefined}
+                      className={cn(
+                        "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                        n === currentPage
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                      )}>
+                      {n}
                     </button>
-                    <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                      aria-label="Previous page"
-                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                      <ChevronLeft className="size-3.5" />
-                    </button>
-                    {getPageWindow(currentPage, totalPages).map(n => (
-                      <button key={n} type="button" onClick={() => setPage(n)}
-                        aria-label={`Page ${n}`}
-                        aria-current={n === currentPage ? "page" : undefined}
-                        className={cn(
-                          "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
-                          n === currentPage
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
-                        )}>
-                        {n}
-                      </button>
-                    ))}
-                    <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                      aria-label="Next page"
-                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                      <ChevronRight className="size-3.5" />
-                    </button>
-                    <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
-                      aria-label="Last page"
-                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                      <ChevronsRight className="size-3.5" />
-                    </button>
-                  </div>
+                  ))}
+                  <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+                    aria-label="Next page"
+                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                    <ChevronRight className="size-3.5" />
+                  </button>
+                  <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
+                    aria-label="Last page"
+                    className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                    <ChevronsRight className="size-3.5" />
+                  </button>
                 </div>
               </div>
             )}

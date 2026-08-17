@@ -26,7 +26,11 @@ export function PageShell({
             <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           )}
         </div>
-        {action && <div className="shrink-0">{action}</div>}
+        {action && (
+          <div className="w-full @[680px]:w-auto @[680px]:shrink-0 @[680px]:self-start">
+            {action}
+          </div>
+        )}
       </div>
 
       {children && <div className="flex flex-col gap-4">{children}</div>}

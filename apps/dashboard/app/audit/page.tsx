@@ -11,6 +11,7 @@ import { PageShell } from "@/components/page-shell"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { FilterDropdown, DateRangeFilter } from "@/components/filter-dropdown"
+import { FiltersButton, FilterSheetSection, FilterSheetCheckboxList, FilterSheetRadioList, FilterSheetDateRange, MobileFilterSheet } from "@/components/mobile-filter-sheet"
 import { AlertBox } from "@/components/modal-alert"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -426,6 +427,7 @@ export default function AuditTrailPage() {
   const [perPage, setPerPage] = useState(10)
   const [detail, setDetail] = useState<AuditRecord | null>(null)
   const [demoState, setDemoState] = useState<DemoState>("populated")
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   useEffect(() => {
     if (role === "area-manager") router.push("/employees")
@@ -487,6 +489,8 @@ export default function AuditTrailPage() {
 
   const hasActiveFilters =
     !!search || !!changeType || !!employeeId || !!siteId || !!dateFrom || !!dateTo
+  const mobileFilterCount =
+    (dateFrom || dateTo ? 1 : 0) + (changeType ? 1 : 0) + (employeeId ? 1 : 0) + (siteId ? 1 : 0)
 
   function clearFilters() {
     setSearch(""); setChangeType(""); setEmployeeId("")
@@ -501,8 +505,29 @@ export default function AuditTrailPage() {
       description="A full log of admin actions taken across employees, pay rates, and settings."
     >
       {/* ── Filters ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Search */}
+
+      {/* Mobile toolbar: Search + Filters button */}
+      <div className="flex items-center gap-2 @[640px]:hidden">
+        <div className="flex h-9 flex-1 min-w-0 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover">
+          <Search className="size-3.5 shrink-0 text-muted-foreground" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by manager, employee, or site…"
+            className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+          />
+          {search && (
+            <button type="button" onClick={() => setSearch("")} aria-label="Clear search" className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+        <FiltersButton activeCount={mobileFilterCount} onClick={() => setFiltersOpen(true)} />
+      </div>
+
+      {/* Desktop toolbar: inline filters */}
+      <div className="hidden @[640px]:flex flex-wrap items-center gap-2">
         <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover">
           <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
@@ -564,6 +589,47 @@ export default function AuditTrailPage() {
         )}
       </div>
 
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onReset={() => { setChangeType(""); setEmployeeId(""); setSiteId(""); setDateFrom(""); setDateTo(""); setPage(1) }}
+        activeCount={mobileFilterCount}
+      >
+        <FilterSheetSection title="Date range">
+          <FilterSheetDateRange
+            from={dateFrom}
+            to={dateTo}
+            onChange={(f, t) => { setDateFrom(f); setDateTo(t); setPage(1) }}
+          />
+        </FilterSheetSection>
+        <FilterSheetSection title="Change type">
+          <FilterSheetRadioList
+            options={(Object.entries(CHANGE_TYPE_CONFIG) as [ChangeType, { label: string }][]).map(([value, { label }]) => ({ value, label }))}
+            value={changeType}
+            onChange={v => { setChangeType(v as ChangeType | ""); setPage(1) }}
+          />
+        </FilterSheetSection>
+        <FilterSheetSection title="Employee">
+          <FilterSheetRadioList
+            options={employeeOptions.map(e => ({ value: e.id, label: e.name }))}
+            value={employeeId}
+            onChange={v => { setEmployeeId(v); setPage(1) }}
+            searchable
+            searchPlaceholder="Search employees…"
+          />
+        </FilterSheetSection>
+        <FilterSheetSection title="Site">
+          <FilterSheetRadioList
+            options={siteOptions.map(s => ({ value: s.id, label: s.name }))}
+            value={siteId}
+            onChange={v => { setSiteId(v); setPage(1) }}
+            searchable
+            searchPlaceholder="Search sites…"
+          />
+        </FilterSheetSection>
+      </MobileFilterSheet>
+
       {/* ── HoA scope banner ─────────────────────────────────────────────────── */}
       {role === "head-of-area" && (
         <div className="w-fit">
@@ -575,6 +641,8 @@ export default function AuditTrailPage() {
 
       {/* ── Table ───────────────────────────────────────────────────────────── */}
       <div className="rounded-xl border border-border bg-card">
+        {/* Table — only rendered when loading (skeletons) or when there are rows to display */}
+        {(demoState === "loading" || (demoState === "populated" && pageRecords.length > 0)) && (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[960px] text-sm">
             <thead>
@@ -590,71 +658,10 @@ export default function AuditTrailPage() {
               </tr>
             </thead>
             <tbody>
-              {/* Loading */}
+              {/* Loading skeletons — stay inside the table for correct column layout */}
               {demoState === "loading" && Array.from({ length: 6 }).map((_, i) => (
                 <SkeletonRow key={i} index={i} />
               ))}
-
-              {/* Error */}
-              {demoState === "error" && (
-                <tr>
-                  <td colSpan={9} className="px-4 py-14 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-full bg-destructive/10">
-                        <AlertCircle className="size-5 text-destructive" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Failed to load audit records</p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Something went wrong. Please try again.
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => setDemoState("populated")}
-                        className="mt-1 inline-flex h-9 items-center gap-1.5 rounded-md border border-input bg-muted/50 px-3 text-sm font-medium transition-colors hover:bg-muted"
-                      >
-                        <RefreshCw className="size-3.5" />
-                        Retry
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )}
-
-              {/* Empty — no records at all */}
-              {demoState === "empty" && (
-                <tr>
-                  <td colSpan={9} className="px-4 py-14 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <p className="text-sm font-medium text-muted-foreground">No audit records</p>
-                      <p className="text-xs text-muted-foreground">
-                        Records will appear here once admin actions are performed.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-
-              {/* No results from filters */}
-              {demoState === "populated" && filtered.length === 0 && (
-                <tr>
-                  <td colSpan={9} className="px-4 py-14 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Search className="size-5 text-muted-foreground" />
-                      <p className="text-sm font-medium">No records match your filters</p>
-                      <p className="text-xs text-muted-foreground">
-                        Try adjusting or clearing your search and filters.
-                      </p>
-                      <button
-                        onClick={clearFilters}
-                        className="mt-1 text-xs text-primary underline-offset-4 hover:underline"
-                      >
-                        Clear filters
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )}
 
               {/* Populated rows */}
               {demoState === "populated" && pageRecords.map(record => (
@@ -703,10 +710,66 @@ export default function AuditTrailPage() {
             </tbody>
           </table>
         </div>
+        )}
+
+        {/* Error — outside overflow-x-auto so it spans the visible card width */}
+        {demoState === "error" && (
+          <div className="px-4 py-14 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-full bg-destructive/10">
+                <AlertCircle className="size-5 text-destructive" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Failed to load audit records</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Something went wrong. Please try again.
+                </p>
+              </div>
+              <button
+                onClick={() => setDemoState("populated")}
+                className="mt-1 inline-flex h-9 items-center gap-1.5 rounded-md border border-input bg-muted/50 px-3 text-sm font-medium transition-colors hover:bg-muted"
+              >
+                <RefreshCw className="size-3.5" />
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Empty — no records at all */}
+        {demoState === "empty" && (
+          <div className="px-4 py-14 text-center">
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-sm font-medium text-muted-foreground">No audit records</p>
+              <p className="text-xs text-muted-foreground">
+                Records will appear here once admin actions are performed.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* No results from filters */}
+        {demoState === "populated" && filtered.length === 0 && (
+          <div className="px-4 py-14 text-center">
+            <div className="flex flex-col items-center gap-2">
+              <Search className="size-5 text-muted-foreground" />
+              <p className="text-sm font-medium">No records match your filters</p>
+              <p className="text-xs text-muted-foreground">
+                Try adjusting or clearing your search and filters.
+              </p>
+              <button
+                onClick={clearFilters}
+                className="mt-1 text-xs text-primary underline-offset-4 hover:underline"
+              >
+                Clear filters
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Pagination footer */}
         {demoState === "populated" && filtered.length > 0 && (
-          <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
             <div className="flex shrink-0 items-center gap-2">
               <div className="relative flex items-center">
                 <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setPage(1) }}
@@ -717,46 +780,41 @@ export default function AuditTrailPage() {
               </div>
               <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
             </div>
-            <div className="flex-1" />
-            <div className="flex shrink-0 items-center gap-3">
-              <span className="whitespace-nowrap text-xs text-muted-foreground">
-                Page {currentPage} of {totalPages}
-              </span>
-              <div className="flex shrink-0 items-center gap-1">
-                <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
-                  aria-label="First page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsLeft className="size-3.5" />
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
+                aria-label="First page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronsLeft className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                aria-label="Previous page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronLeft className="size-3.5" />
+              </button>
+              <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">{currentPage} / {totalPages}</span>
+              {getPageWindow(currentPage, totalPages).map(n => (
+                <button key={n} type="button" onClick={() => setPage(n)}
+                  aria-label={`Page ${n}`}
+                  aria-current={n === currentPage ? "page" : undefined}
+                  className={cn(
+                    "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                    n === currentPage
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                  )}>
+                  {n}
                 </button>
-                <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                  aria-label="Previous page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronLeft className="size-3.5" />
-                </button>
-                {getPageWindow(currentPage, totalPages).map(n => (
-                  <button key={n} type="button" onClick={() => setPage(n)}
-                    aria-label={`Page ${n}`}
-                    aria-current={n === currentPage ? "page" : undefined}
-                    className={cn(
-                      "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
-                      n === currentPage
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
-                    )}>
-                    {n}
-                  </button>
-                ))}
-                <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                  aria-label="Next page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronRight className="size-3.5" />
-                </button>
-                <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
-                  aria-label="Last page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsRight className="size-3.5" />
-                </button>
-              </div>
+              ))}
+              <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+                aria-label="Next page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronRight className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
+                aria-label="Last page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronsRight className="size-3.5" />
+              </button>
             </div>
           </div>
         )}

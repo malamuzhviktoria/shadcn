@@ -24,7 +24,14 @@ import {
 import { cn } from "@/lib/utils"
 import { useRole } from "@/lib/role-context"
 import { PageShell } from "@/components/page-shell"
-import { MultiFilterDropdown } from "@/components/filter-dropdown"
+import { MultiFilterDropdown, usePopoverStyle } from "@/components/filter-dropdown"
+import {
+  FiltersButton,
+  FilterSheetSection,
+  FilterSheetCheckboxList,
+  FilterSheetDateRange,
+  MobileFilterSheet,
+} from "@/components/mobile-filter-sheet"
 import { AlertBox } from "@/components/modal-alert"
 import { Badge } from "@/components/ui/badge"
 
@@ -644,11 +651,13 @@ function DateRangeFilter({ from, to, onChange }: {
   onChange: (from: string, to: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverStyle = usePopoverStyle(triggerRef, open, 320)
 
   useEffect(() => {
     function handler(e: PointerEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener("pointerdown", handler)
     return () => document.removeEventListener("pointerdown", handler)
@@ -657,8 +666,9 @@ function DateRangeFilter({ from, to, onChange }: {
   const hasValue = !!(from || to)
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={containerRef}>
       <button
+        ref={triggerRef}
         type="button"
         aria-expanded={open}
         onClick={() => setOpen(v => !v)}
@@ -682,7 +692,7 @@ function DateRangeFilter({ from, to, onChange }: {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1.5 w-80 rounded-xl border border-border bg-background shadow-lg">
+        <div style={popoverStyle} className="overflow-hidden rounded-xl border border-border bg-background shadow-lg">
           <div className="grid grid-cols-2 gap-2 p-3">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium text-muted-foreground">From</span>
@@ -1313,6 +1323,7 @@ export default function TimesheetsPage() {
   const [areaFilter, setAreaFilter]     = useState<string[]>([])
   const [empFilter, setEmpFilter]       = useState<string[]>([])
   const [flagFilter, setFlagFilter]     = useState<string[]>([])
+  const [filtersOpen, setFiltersOpen]   = useState(false)
   const [adjusting, setAdjusting]       = useState<Entry | null>(null)
   const [showExport, setShowExport]     = useState(false)
   const [groupPage, setGroupPage]       = useState(1)
@@ -1419,6 +1430,7 @@ export default function TimesheetsPage() {
   const accessibleSitesList = SITES_LIST.filter(s => accessibleSites.includes(s.id))
   const accessibleAreas     = [...new Set(accessibleSitesList.map(s => s.area))]
   const anyFilter           = !!(search || dateFrom || dateTo || siteFilter.length > 0 || areaFilter.length > 0 || empFilter.length > 0 || flagFilter.length > 0)
+  const mobileFilterCount   = (dateFrom || dateTo ? 1 : 0) + siteFilter.length + (showAreaFilter ? areaFilter.length : 0) + empFilter.length + flagFilter.length
 
   const siteOptions = accessibleSitesList.map(s => ({ value: s.id, label: s.name, sublabel: `SN-${s.code}` }))
   const areaOptions = accessibleAreas.map(a => ({ value: a, label: `${a} Area` }))
@@ -1457,7 +1469,7 @@ export default function TimesheetsPage() {
       action={
         canExport ? (
           <button type="button" onClick={() => setShowExport(true)}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+            className="inline-flex h-9 w-full @[680px]:w-auto items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
             <Download className="size-4" />Export payroll
           </button>
         ) : undefined
@@ -1479,8 +1491,27 @@ export default function TimesheetsPage() {
       </div>
 
       {/* Filter controls — Search → Date range → Site → Area → Employee → Flags */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Search — matches Employees screen exactly */}
+      {/* Mobile toolbar: Search + Filters button */}
+      <div className="flex items-center gap-2 @[640px]:hidden">
+        <div className="flex h-9 flex-1 min-w-0 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover">
+          <Search className="size-3.5 shrink-0 text-muted-foreground" />
+          <input
+            value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search employee, T&A ID, site…"
+            className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+          />
+          {search && (
+            <button type="button" onClick={() => setSearch("")}
+              className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+        <FiltersButton activeCount={mobileFilterCount} onClick={() => setFiltersOpen(true)} />
+      </div>
+
+      {/* Desktop toolbar: inline filters */}
+      <div className="hidden @[640px]:flex flex-wrap items-center gap-2">
         <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input bg-muted/50 px-3 text-sm transition-colors hover:border-input-hover">
           <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
@@ -1513,7 +1544,7 @@ export default function TimesheetsPage() {
         {/* Flags — multi-select */}
         <MultiFilterDropdown label="Flags" options={FLAG_OPTIONS} value={flagFilter} onChange={setFlagFilter} align="right" />
 
-        {/* Reset — visible when any filter active, matches Employees pattern */}
+        {/* Reset */}
         {anyFilter && (
           <button
             type="button"
@@ -1525,6 +1556,52 @@ export default function TimesheetsPage() {
           </button>
         )}
       </div>
+
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onReset={() => { setDateFrom(""); setDateTo(""); setSiteFilter([]); setAreaFilter([]); setEmpFilter([]); setFlagFilter([]) }}
+        activeCount={mobileFilterCount}
+      >
+        <FilterSheetSection title="Date range">
+          <FilterSheetDateRange from={dateFrom} to={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t) }} />
+        </FilterSheetSection>
+        <FilterSheetSection title="Site">
+          <FilterSheetCheckboxList
+            options={siteOptions.map(s => ({ value: s.value, label: s.label }))}
+            value={siteFilter}
+            onChange={setSiteFilter}
+            searchable
+            searchPlaceholder="Search sites…"
+          />
+        </FilterSheetSection>
+        {showAreaFilter && (
+          <FilterSheetSection title="Area">
+            <FilterSheetCheckboxList
+              options={areaOptions.map(a => ({ value: a.value, label: a.label }))}
+              value={areaFilter}
+              onChange={setAreaFilter}
+            />
+          </FilterSheetSection>
+        )}
+        <FilterSheetSection title="Employee">
+          <FilterSheetCheckboxList
+            options={empOptions.map(e => ({ value: e.value, label: e.label }))}
+            value={empFilter}
+            onChange={setEmpFilter}
+            searchable
+            searchPlaceholder="Search employees…"
+          />
+        </FilterSheetSection>
+        <FilterSheetSection title="Flags">
+          <FilterSheetCheckboxList
+            options={FLAG_OPTIONS}
+            value={flagFilter}
+            onChange={setFlagFilter}
+          />
+        </FilterSheetSection>
+      </MobileFilterSheet>
 
       {/* Scrollable content: preserves min-width so the group headers and table never over-compress */}
       <div className="overflow-x-auto">
@@ -1571,69 +1648,63 @@ export default function TimesheetsPage() {
             />
           ))}
 
-          {/* Pagination */}
-          <div className="flex items-center gap-4 py-3">
-            <div className="flex shrink-0 items-center gap-2">
-              <div className="relative flex items-center">
-                <select
-                  value={groupPerPage}
-                  onChange={e => { setGroupPerPage(Number(e.target.value)); setGroupPage(1) }}
-                  className="flex h-8 appearance-none rounded-md border border-input bg-muted/50 pl-2.5 pr-7 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring transition-colors hover:border-input-hover">
-                  {[5, 10, 15, 20].map(n => <option key={n} value={n}>{n}</option>)}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-1.5 size-3 text-muted-foreground" />
-              </div>
-              <span className="whitespace-nowrap text-xs text-muted-foreground">Groups per page</span>
-            </div>
-
-            <div className="flex-1" />
-
-            <div className="flex shrink-0 items-center gap-3">
-              <span className="whitespace-nowrap text-xs text-muted-foreground">
-                Page {safeGroupPage} of {totalGroupPages}
-              </span>
-              <div className="flex shrink-0 items-center gap-1">
-                <button type="button" onClick={() => setGroupPage(1)} disabled={safeGroupPage === 1}
-                  aria-label="First page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsLeft className="size-3.5" />
-                </button>
-                <button type="button" onClick={() => setGroupPage(p => Math.max(1, p - 1))} disabled={safeGroupPage === 1}
-                  aria-label="Previous page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronLeft className="size-3.5" />
-                </button>
-                {getPageWindow(safeGroupPage, totalGroupPages).map(n => (
-                  <button key={n} type="button" onClick={() => setGroupPage(n)}
-                    aria-label={`Page ${n}`}
-                    aria-current={n === safeGroupPage ? "page" : undefined}
-                    className={cn(
-                      "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
-                      n === safeGroupPage
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
-                    )}>
-                    {n}
-                  </button>
-                ))}
-                <button type="button" onClick={() => setGroupPage(p => Math.min(totalGroupPages, p + 1))} disabled={safeGroupPage === totalGroupPages}
-                  aria-label="Next page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronRight className="size-3.5" />
-                </button>
-                <button type="button" onClick={() => setGroupPage(totalGroupPages)} disabled={safeGroupPage === totalGroupPages}
-                  aria-label="Last page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsRight className="size-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
       </div>{/* end min-w inner */}
       </div>{/* end overflow-x-auto */}
+
+      {/* Pagination — outside the horizontal scroll container */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="relative flex items-center">
+            <select
+              value={groupPerPage}
+              onChange={e => { setGroupPerPage(Number(e.target.value)); setGroupPage(1) }}
+              className="flex h-8 appearance-none rounded-md border border-input bg-muted/50 pl-2.5 pr-7 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring transition-colors hover:border-input-hover">
+              {[5, 10, 15, 20].map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-1.5 size-3 text-muted-foreground" />
+          </div>
+          <span className="whitespace-nowrap text-xs text-muted-foreground">Groups per page</span>
+        </div>
+        <div className="ml-auto flex shrink-0 items-center gap-1">
+          <button type="button" onClick={() => setGroupPage(1)} disabled={safeGroupPage === 1}
+            aria-label="First page"
+            className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+            <ChevronsLeft className="size-3.5" />
+          </button>
+          <button type="button" onClick={() => setGroupPage(p => Math.max(1, p - 1))} disabled={safeGroupPage === 1}
+            aria-label="Previous page"
+            className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+            <ChevronLeft className="size-3.5" />
+          </button>
+          <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">{safeGroupPage} / {totalGroupPages}</span>
+          {getPageWindow(safeGroupPage, totalGroupPages).map(n => (
+            <button key={n} type="button" onClick={() => setGroupPage(n)}
+              aria-label={`Page ${n}`}
+              aria-current={n === safeGroupPage ? "page" : undefined}
+              className={cn(
+                "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                n === safeGroupPage
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+              )}>
+              {n}
+            </button>
+          ))}
+          <button type="button" onClick={() => setGroupPage(p => Math.min(totalGroupPages, p + 1))} disabled={safeGroupPage === totalGroupPages}
+            aria-label="Next page"
+            className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+            <ChevronRight className="size-3.5" />
+          </button>
+          <button type="button" onClick={() => setGroupPage(totalGroupPages)} disabled={safeGroupPage === totalGroupPages}
+            aria-label="Last page"
+            className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+            <ChevronsRight className="size-3.5" />
+          </button>
+        </div>
+      </div>
 
       {/* Dialogs */}
       <AdjustDialog

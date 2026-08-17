@@ -124,7 +124,7 @@ export function AppHeader() {
 
   return (
     <>
-      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
+      <header className="@container flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
         {/* Sidebar toggle */}
         <button
           type="button"
@@ -204,10 +204,10 @@ export function AppHeader() {
             <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">
               VM
             </div>
-            <span className="font-medium text-foreground">Viktoria M.</span>
+            <span className="hidden @[440px]:block whitespace-nowrap font-medium text-foreground">Viktoria M.</span>
             <ChevronDown
               className={cn(
-                "size-3.5 text-muted-foreground transition-transform duration-150",
+                "size-4 text-muted-foreground transition-transform duration-150",
                 menuOpen && "rotate-180"
               )}
             />

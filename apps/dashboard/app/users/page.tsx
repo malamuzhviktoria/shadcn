@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation"
 import { PageShell } from "@/components/page-shell"
 import { Badge } from "@/components/ui/badge"
 import { AlertBox } from "@/components/modal-alert"
+import { usePopoverStyle } from "@/components/filter-dropdown"
+import { FiltersButton, FilterSheetSection, FilterSheetCheckboxList, MobileFilterSheet } from "@/components/mobile-filter-sheet"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -532,8 +534,11 @@ export default function AdminUsersPage() {
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE)
   const [dialog, setDialog] = useState<UserDialog>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const roleRef = useRef<HTMLDivElement>(null)
+  const roleTriggerRef = useRef<HTMLButtonElement>(null)
+  const rolePopoverStyle = usePopoverStyle(roleTriggerRef, roleOpen, 220)
 
   useEffect(() => {
     if (role === "head-of-area" || role === "area-manager") router.push("/employees")
@@ -586,6 +591,7 @@ export default function AdminUsersPage() {
   const currentPage = Math.min(page, totalPages)
   const pageUsers = filtered.slice((currentPage - 1) * perPage, currentPage * perPage)
   const hasFilters = roleFilter.length > 0 || search.trim() !== ""
+  const mobileFilterCount = roleFilter.length
 
   function toggleRole(r: AdminRole) {
     setRoleFilter(prev => prev.includes(r) ? prev.filter(x => x !== r) : [...prev, r])
@@ -657,10 +663,12 @@ export default function AdminUsersPage() {
       title={`Admin users (${users.length})`}
       description="Manage admin accounts and role assignments."
       action={
-        <button type="button" onClick={() => setDialog({ type: "create" })} className={btnPrimary}>
-          <Plus className="size-4" />
-          Add user
-        </button>
+        <div className="w-full @[680px]:w-auto">
+          <button type="button" onClick={() => setDialog({ type: "create" })} className={`${btnPrimary} w-full`}>
+            <Plus className="size-4" />
+            Add user
+          </button>
+        </div>
       }
     >
       {/* Success flash */}
@@ -671,10 +679,9 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Search */}
-        <div className="flex h-9 flex-1 min-w-[180px] items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+      {/* Mobile toolbar: Search + Filters button */}
+      <div className="flex items-center gap-2 @[640px]:hidden">
+        <div className="flex h-9 flex-1 min-w-0 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
           <Search className="size-3.5 shrink-0 text-muted-foreground" />
           <input
             type="text"
@@ -684,12 +691,27 @@ export default function AdminUsersPage() {
             className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
           />
           {search && (
-            <button
-              type="button"
-              onClick={() => setSearch("")}
-              className="shrink-0 text-muted-foreground hover:text-foreground"
-              aria-label="Clear search"
-            >
+            <button type="button" onClick={() => setSearch("")} className="shrink-0 text-muted-foreground hover:text-foreground" aria-label="Clear search">
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
+        <FiltersButton activeCount={mobileFilterCount} onClick={() => setFiltersOpen(true)} />
+      </div>
+
+      {/* Desktop toolbar: inline filters */}
+      <div className="hidden @[640px]:flex flex-wrap items-center gap-2">
+        <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+          <Search className="size-3.5 shrink-0 text-muted-foreground" />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name or email…"
+            className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+          />
+          {search && (
+            <button type="button" onClick={() => setSearch("")} className="shrink-0 text-muted-foreground hover:text-foreground" aria-label="Clear search">
               <X className="size-3.5" />
             </button>
           )}
@@ -698,6 +720,7 @@ export default function AdminUsersPage() {
         {/* Role faceted filter */}
         <div className="relative" ref={roleRef}>
           <button
+            ref={roleTriggerRef}
             type="button"
             aria-label="Filter by role"
             aria-expanded={roleOpen}
@@ -724,41 +747,43 @@ export default function AdminUsersPage() {
           </button>
 
           {roleOpen && (
-            <div className="absolute left-0 top-full z-20 mt-1.5 min-w-[200px] rounded-xl border border-border bg-background shadow-lg">
-              <div className="p-1" role="group" aria-label="Filter by role">
-                {ROLE_ORDER.map(r => {
-                  const checked = roleFilter.includes(r)
-                  return (
-                    <label
-                      key={r}
-                      className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
-                    >
-                      <div
-                        className={cn(
-                          "flex size-4 shrink-0 items-center justify-center rounded border",
-                          checked ? "border-primary bg-primary text-primary-foreground" : "border-input"
-                        )}
-                        aria-hidden
+            <div style={rolePopoverStyle} className="flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-lg">
+              <div className="min-h-0 flex-1 overflow-y-auto">
+                <div className="p-1" role="group" aria-label="Filter by role">
+                  {ROLE_ORDER.map(r => {
+                    const checked = roleFilter.includes(r)
+                    return (
+                      <label
+                        key={r}
+                        className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
                       >
-                        {checked && <Check className="size-2.5" />}
-                      </div>
-                      <span className="flex-1">{ADMIN_ROLE_LABELS[r]}</span>
-                      <span className="tabular-nums text-xs text-muted-foreground">{roleCounts[r]}</span>
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleRole(r)}
-                        aria-label={`Filter by ${ADMIN_ROLE_LABELS[r]}`}
-                        className="sr-only"
-                      />
-                    </label>
-                  )
-                })}
+                        <div
+                          className={cn(
+                            "flex size-4 shrink-0 items-center justify-center rounded border",
+                            checked ? "border-primary bg-primary text-primary-foreground" : "border-input"
+                          )}
+                          aria-hidden
+                        >
+                          {checked && <Check className="size-2.5" />}
+                        </div>
+                        <span className="flex-1">{ADMIN_ROLE_LABELS[r]}</span>
+                        <span className="tabular-nums text-xs text-muted-foreground">{roleCounts[r]}</span>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleRole(r)}
+                          aria-label={`Filter by ${ADMIN_ROLE_LABELS[r]}`}
+                          className="sr-only"
+                        />
+                      </label>
+                    )
+                  })}
+                </div>
               </div>
               {roleFilter.length > 0 && (
                 <>
-                  <div className="border-t border-border" />
-                  <div className="p-1">
+                  <div className="flex-none border-t border-border" />
+                  <div className="flex-none p-1">
                     <button
                       type="button"
                       onClick={() => { setRoleFilter([]); setRoleOpen(false) }}
@@ -786,9 +811,26 @@ export default function AdminUsersPage() {
         )}
       </div>
 
+      {/* Mobile filter sheet */}
+      <MobileFilterSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onReset={() => { setRoleFilter([]); setPage(1) }}
+        activeCount={mobileFilterCount}
+      >
+        <FilterSheetSection title="Role">
+          <FilterSheetCheckboxList
+            options={ROLE_ORDER.map(r => ({ value: r, label: ADMIN_ROLE_LABELS[r], count: roleCounts[r] }))}
+            value={roleFilter}
+            onChange={v => { setRoleFilter(v as AdminRole[]); setPage(1) }}
+          />
+        </FilterSheetSection>
+      </MobileFilterSheet>
+
       {/* Table */}
       {pageUsers.length > 0 || hasFilters ? (
         <div className="overflow-hidden rounded-xl border border-border bg-card">
+          {pageUsers.length > 0 ? (
           <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] table-fixed text-sm">
             <thead>
@@ -800,13 +842,7 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {pageUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-4 py-12 text-center text-sm text-muted-foreground">
-                    No users match your filters.
-                  </td>
-                </tr>
-              ) : pageUsers.map(user => (
+              {pageUsers.map(user => (
                 <tr
                   key={user.id}
                   className={cn(
@@ -866,9 +902,14 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
           </div>
+          ) : (
+            <div className="px-4 py-12 text-center text-sm text-muted-foreground">
+              No users match your filters.
+            </div>
+          )}
 
           {/* Pagination footer */}
-          <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
             {/* Left: rows per page */}
             <div className="flex shrink-0 items-center gap-2">
               <div className="relative flex items-center">
@@ -886,68 +927,62 @@ export default function AdminUsersPage() {
               <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
             </div>
 
-            <div className="flex-1" />
-
-            {/* Right: page info + navigation */}
-            <div className="flex shrink-0 items-center gap-3">
-              <span className="whitespace-nowrap text-xs text-muted-foreground">
-                Page {currentPage} of {totalPages}
-              </span>
-              <div className="flex shrink-0 items-center gap-1">
+            {/* Right: navigation */}
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setPage(1)}
+                disabled={currentPage === 1}
+                aria-label="First page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronsLeft className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronLeft className="size-3.5" />
+              </button>
+              <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">{currentPage} / {totalPages}</span>
+              {getPageWindow(currentPage, totalPages).map(n => (
                 <button
+                  key={n}
                   type="button"
-                  onClick={() => setPage(1)}
-                  disabled={currentPage === 1}
-                  aria-label="First page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+                  onClick={() => setPage(n)}
+                  aria-label={`Page ${n}`}
+                  aria-current={n === currentPage ? "page" : undefined}
+                  className={cn(
+                    "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                    n === currentPage
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                  )}
                 >
-                  <ChevronsLeft className="size-3.5" />
+                  {n}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  aria-label="Previous page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <ChevronLeft className="size-3.5" />
-                </button>
-                {getPageWindow(currentPage, totalPages).map(n => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setPage(n)}
-                    aria-label={`Page ${n}`}
-                    aria-current={n === currentPage ? "page" : undefined}
-                    className={cn(
-                      "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
-                      n === currentPage
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
-                    )}
-                  >
-                    {n}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  aria-label="Next page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <ChevronRight className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPage(totalPages)}
-                  disabled={currentPage === totalPages}
-                  aria-label="Last page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <ChevronsRight className="size-3.5" />
-                </button>
-              </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                aria-label="Next page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronRight className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setPage(totalPages)}
+                disabled={currentPage === totalPages}
+                aria-label="Last page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ChevronsRight className="size-3.5" />
+              </button>
             </div>
           </div>
         </div>

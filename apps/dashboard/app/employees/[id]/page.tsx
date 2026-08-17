@@ -530,9 +530,9 @@ function OverviewTab({ employee, activeShift }: { employee: Employee; activeShif
         </div>
         <div className="divide-y divide-border">
           {detailRows.map(({ label, value, mono }) => (
-            <div key={label} className="flex items-center gap-4 px-5 py-3.5">
-              <span className="w-40 shrink-0 text-sm text-muted-foreground">{label}</span>
-              <span className={cn("text-sm text-foreground", mono && "font-mono")}>{value}</span>
+            <div key={label} className="flex flex-col gap-0.5 px-5 py-3 @[480px]:flex-row @[480px]:items-center @[480px]:gap-4 @[480px]:py-3.5">
+              <span className="shrink-0 text-xs text-muted-foreground @[480px]:w-40 @[480px]:text-sm">{label}</span>
+              <span className={cn("break-words text-sm text-foreground", mono && "font-mono")}>{value}</span>
             </div>
           ))}
         </div>
@@ -690,31 +690,37 @@ function WorkHistoryTab({ employee }: { employee: Employee }) {
     <div className="flex flex-col gap-4">
       {/* Filter toolbar */}
       <div className="flex flex-wrap items-end gap-2">
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">From</span>
-          <DateButton value={dateFrom} onChange={v => { setDateFrom(v); setPage(1) }} placeholder="Start date" />
+        {/* From + To always stay together; responsive width */}
+        <div className="flex w-full @[500px]:w-auto items-end gap-2">
+          <div className="flex flex-1 flex-col gap-1">
+            <span className="text-xs text-muted-foreground">From</span>
+            <DateButton value={dateFrom} onChange={v => { setDateFrom(v); setPage(1) }} placeholder="Start date" className="w-full @[500px]:w-[160px]" />
+          </div>
+          <div className="flex flex-1 flex-col gap-1">
+            <span className="text-xs text-muted-foreground">To</span>
+            <DateButton value={dateTo}   onChange={v => { setDateTo(v);   setPage(1) }} placeholder="End date" className="w-full @[500px]:w-[160px]" />
+          </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">To</span>
-          <DateButton value={dateTo}   onChange={v => { setDateTo(v);   setPage(1) }} placeholder="End date" />
+        {/* Site + Reset wrap to next row at narrow widths */}
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <select
+              value={siteFilter}
+              onChange={e => { setSiteFilter(e.target.value); setPage(1) }}
+              className={cn(inputCls(), "w-[180px] appearance-none pr-8")}
+            >
+              <option value="all">All sites</option>
+              {uniqueSites.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-foreground/70" />
+          </div>
+          {hasFilters && (
+            <button type="button" onClick={resetFilters}
+              className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+              Reset filters <RotateCcw className="size-3.5" />
+            </button>
+          )}
         </div>
-        <div className="relative">
-          <select
-            value={siteFilter}
-            onChange={e => { setSiteFilter(e.target.value); setPage(1) }}
-            className={cn(inputCls(), "w-[180px] appearance-none pr-8")}
-          >
-            <option value="all">All sites</option>
-            {uniqueSites.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-foreground/70" />
-        </div>
-        {hasFilters && (
-          <button type="button" onClick={resetFilters}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Reset filters <RotateCcw className="size-3.5" />
-          </button>
-        )}
         <span className="ml-auto whitespace-nowrap text-sm text-muted-foreground">
           {totalCount} {totalCount === 1 ? "entry" : "entries"}
         </span>
@@ -724,43 +730,33 @@ function WorkHistoryTab({ employee }: { employee: Employee }) {
       {hasRows ? (
         <div className="rounded-xl border border-border bg-card">
           <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] table-fixed text-sm">
-            <colgroup>
-              <col style={{ width: "22%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "8%" }} />
-              <col style={{ width: "8%" }} />
-              <col style={{ width: "7%" }} />
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "17%" }} />
-            </colgroup>
+          <table className="w-full min-w-[800px] text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 {["Date", "Site", "Job role", "Clock in", "Clock out", "Total", "Pay rate", "Flags"].map(col => (
-                  <th key={col} className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">{col}</th>
+                  <th key={col} className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground">{col}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {showActiveRow && <ActiveShiftRow shift={activeShift!} employee={employee} />}
               {paged.map(s => <ShiftRow key={s.id} shift={s} employee={employee} />)}
-              {paged.length === 0 && (
-                <tr>
-                  <td colSpan={8}>
-                    <div className="flex flex-col items-center justify-center px-4 py-10 text-center">
-                      <Search className="mb-3 size-7 text-muted-foreground/40" />
-                      <p className="text-sm font-medium">No completed shifts match your filters</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Try adjusting the date range or site filter.</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
           </div>{/* end overflow-x-auto */}
 
-          <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+          {/* No completed shifts — outside overflow-x-auto so it fills the visible card width */}
+          {paged.length === 0 && (
+            <div className="px-4 py-10 text-center">
+              <div className="flex flex-col items-center justify-center">
+                <Search className="mb-3 size-7 text-muted-foreground/40" />
+                <p className="text-sm font-medium">No completed shifts match your filters</p>
+                <p className="mt-1 text-xs text-muted-foreground">Try adjusting the date range or site filter.</p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
             {/* Rows per page */}
             <div className="flex shrink-0 items-center gap-2">
               <div className="relative flex items-center">
@@ -776,43 +772,42 @@ function WorkHistoryTab({ employee }: { employee: Employee }) {
               <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
             </div>
 
-            <div className="flex-1" />
-
-            {/* Page nav */}
-            <div className="flex shrink-0 items-center gap-3">
-              <span className="whitespace-nowrap text-xs text-muted-foreground">
-                Page {page} of {totalPages}
+            {/* Page nav — ml-auto pushes right; wraps to new row at narrow widths */}
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              {/* First/Last hidden at narrow container widths */}
+              <button type="button" onClick={() => changePage(1)} disabled={page === 1} aria-label="First page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronsLeft className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => changePage(Math.max(1, page - 1))} disabled={page === 1} aria-label="Previous page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronLeft className="size-3.5" />
+              </button>
+              {/* Compact page indicator at narrow widths */}
+              <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">
+                {page} / {totalPages}
               </span>
-              <div className="flex shrink-0 items-center gap-1">
-                <button type="button" onClick={() => changePage(1)} disabled={page === 1} aria-label="First page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsLeft className="size-3.5" />
+              {/* Numbered page buttons at wider widths */}
+              {getPageWindow(page, totalPages).map(n => (
+                <button key={n} type="button" onClick={() => changePage(n)} aria-label={`Page ${n}`}
+                  aria-current={n === page ? "page" : undefined}
+                  className={cn(
+                    "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                    n === page
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                  )}>
+                  {n}
                 </button>
-                <button type="button" onClick={() => changePage(Math.max(1, page - 1))} disabled={page === 1} aria-label="Previous page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronLeft className="size-3.5" />
-                </button>
-                {getPageWindow(page, totalPages).map(n => (
-                  <button key={n} type="button" onClick={() => changePage(n)} aria-label={`Page ${n}`}
-                    aria-current={n === page ? "page" : undefined}
-                    className={cn(
-                      "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
-                      n === page
-                        ? "bg-primary text-primary-foreground"
-                        : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
-                    )}>
-                    {n}
-                  </button>
-                ))}
-                <button type="button" onClick={() => changePage(Math.min(totalPages, page + 1))} disabled={page === totalPages} aria-label="Next page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronRight className="size-3.5" />
-                </button>
-                <button type="button" onClick={() => changePage(totalPages)} disabled={page === totalPages} aria-label="Last page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                  <ChevronsRight className="size-3.5" />
-                </button>
-              </div>
+              ))}
+              <button type="button" onClick={() => changePage(Math.min(totalPages, page + 1))} disabled={page === totalPages} aria-label="Next page"
+                className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronRight className="size-3.5" />
+              </button>
+              <button type="button" onClick={() => changePage(totalPages)} disabled={page === totalPages} aria-label="Last page"
+                className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                <ChevronsRight className="size-3.5" />
+              </button>
             </div>
           </div>
         </div>
@@ -1028,7 +1023,7 @@ function PayRatesTab({ employee, canEdit }: { employee: Employee; canEdit: boole
           </button>
           Show inactive rates
         </label>
-        <p className="text-right text-xs text-muted-foreground sm:max-w-[300px]">
+        <p className="text-left @[600px]:text-right text-xs text-muted-foreground @[600px]:max-w-[300px]">
           Showing sites worked in the last 3 months, including sites using the default minimum wage.
         </p>
       </div>
@@ -1107,24 +1102,45 @@ function RowActionMenu({
   onDelete: () => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; right: number } | null>(null)
+  const wrapRef  = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef  = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (!open) return
     function onPointer(e: PointerEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (
+        !wrapRef.current?.contains(e.target as Node) &&
+        !menuRef.current?.contains(e.target as Node)
+      ) setOpen(false)
     }
     document.addEventListener("pointerdown", onPointer)
     return () => document.removeEventListener("pointerdown", onPointer)
-  }, [])
+  }, [open])
 
   const disabled = !row.isOverride
 
+  function handleOpen() {
+    if (disabled || !triggerRef.current) return
+    const rect = triggerRef.current.getBoundingClientRect()
+    const menuH = 92
+    const right = window.innerWidth - rect.right
+    if (window.innerHeight - rect.bottom >= menuH + 8) {
+      setPos({ top: rect.bottom + 4, right })
+    } else {
+      setPos({ bottom: window.innerHeight - rect.top + 4, right })
+    }
+    setOpen(v => !v)
+  }
+
   return (
-    <div className="relative" ref={ref}>
+    <div ref={wrapRef}>
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
-        onClick={() => !disabled && setOpen(v => !v)}
+        onClick={handleOpen}
         title={disabled ? "No actions available for default minimum wage" : undefined}
         className={cn(
           "flex size-7 items-center justify-center rounded-md transition-colors",
@@ -1135,8 +1151,12 @@ function RowActionMenu({
       >
         <EllipsisVertical className="size-4" />
       </button>
-      {open && (
-        <div className="absolute right-0 top-full z-20 mt-1 w-44 rounded-xl border border-border bg-background shadow-lg">
+      {open && pos && (
+        <div
+          ref={menuRef}
+          style={{ position: "fixed", zIndex: 50, ...pos }}
+          className="w-44 rounded-xl border border-border bg-background shadow-lg"
+        >
           <div className="p-1">
             <button type="button"
               onClick={() => { setOpen(false); onEdit() }}
@@ -1543,16 +1563,16 @@ function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Em
           <Calendar className="size-3.5 shrink-0" />
           Holiday year: 1 Nov 2025 – 31 Oct 2026
         </div>
-        <div className="flex flex-wrap gap-3">
-          <div className="flex min-w-[160px] max-w-[240px] flex-1 flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-5 py-5">
+        <div className="grid grid-cols-1 @[480px]:grid-cols-3 gap-3">
+          <div className="flex flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-4 py-4 @[480px]:px-5 @[480px]:py-5">
             <p className="text-xs text-muted-foreground">Total accrued</p>
             <p className="text-2xl font-semibold tabular-nums">{totalAccrued.toFixed(2)}h</p>
           </div>
-          <div className="flex min-w-[160px] max-w-[240px] flex-1 flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-5 py-5">
+          <div className="flex flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-4 py-4 @[480px]:px-5 @[480px]:py-5">
             <p className="text-xs text-muted-foreground">Hours taken</p>
             <p className="text-2xl font-semibold tabular-nums">{totalTaken.toFixed(2)}h</p>
           </div>
-          <div className="flex min-w-[160px] max-w-[240px] flex-1 flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-5 py-5">
+          <div className="flex flex-col justify-center gap-1 rounded-xl border border-border bg-muted/40 px-4 py-4 @[480px]:px-5 @[480px]:py-5">
             <p className="text-xs text-muted-foreground">Remaining balance</p>
             <p className="text-2xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{remaining.toFixed(2)}h</p>
           </div>
@@ -1570,20 +1590,21 @@ function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Em
       </div>
 
       <div className="rounded-xl border border-border bg-card">
+        {entries.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[420px] table-fixed text-sm">
+          <table className="w-full min-w-[440px] table-fixed text-sm">
             <colgroup>
-              <col style={{ width: "46%" }} />
-              <col style={{ width: "19%" }} />
-              <col style={{ width: "25%" }} />
-              <col style={{ width: "10%" }} />
+              <col style={{ width: "43%" }} />
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "27%" }} />
+              <col style={{ width: "12%" }} />
             </colgroup>
             <thead>
               <tr className="border-b border-border bg-muted/40">
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Date range</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Hours</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Logged by</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground"></th>
+                <th className="px-2 py-3 text-left text-xs font-medium text-muted-foreground"></th>
               </tr>
             </thead>
             <tbody>
@@ -1592,7 +1613,7 @@ function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Em
                   <td className="px-4 py-3">{formatHolidayDate(entry.dateFrom)} – {formatHolidayDate(entry.dateTo)}</td>
                   <td className="px-4 py-3 tabular-nums">{entry.hours}h</td>
                   <td className="px-4 py-3 text-muted-foreground">{entry.loggedBy}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3">
                     {canEdit && (
                       <div className="flex justify-end">
                         <HolidayRowActionMenu
@@ -1604,12 +1625,14 @@ function HolidayHoursTab({ canEdit, employee }: { canEdit: boolean; employee: Em
                   </td>
                 </tr>
               ))}
-              {entries.length === 0 && (
-                <tr><td colSpan={4} className="px-4 py-8 text-center text-sm text-muted-foreground">No holiday entries recorded.</td></tr>
-              )}
             </tbody>
           </table>
         </div>
+        ) : (
+          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+            No holiday entries recorded.
+          </div>
+        )}
       </div>
 
       <HolidayDialog open={showAdd} onClose={() => setShowAdd(false)} remainingBalance={remaining}
@@ -1769,44 +1792,46 @@ export default function EmployeeProfilePage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Profile header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <button type="button" onClick={() => router.push("/employees")}
-            className="flex size-8 shrink-0 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:bg-muted"
-            aria-label="Back to employees">
-            <ChevronLeft className="size-4" />
-          </button>
-          <div className={cn(
-            "flex size-14 shrink-0 items-center justify-center rounded-full text-lg font-semibold",
-            employee.status === "archived" ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
-          )}>
-            {initials}
+      <div className="@container">
+        <div className="flex flex-col gap-3 @[520px]:flex-row @[520px]:items-center @[520px]:justify-between @[520px]:gap-4">
+          <div className="flex items-center gap-4">
+            <button type="button" onClick={() => router.push("/employees")}
+              className="flex size-8 shrink-0 items-center justify-center rounded-md border border-input bg-muted/50 transition-colors hover:bg-muted"
+              aria-label="Back to employees">
+              <ChevronLeft className="size-4" />
+            </button>
+            <div className={cn(
+              "flex size-14 shrink-0 items-center justify-center rounded-full text-lg font-semibold",
+              employee.status === "archived" ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
+            )}>
+              {initials}
+            </div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="whitespace-nowrap text-xl font-semibold">{employee.firstName} {employee.lastName}</h1>
+              <span className="hidden @[355px]:block"><EmployeeStatusBadge status={employee.status} /></span>
+            </div>
           </div>
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-semibold">{employee.firstName} {employee.lastName}</h1>
-            <EmployeeStatusBadge status={employee.status} />
-          </div>
-        </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          {employee.status !== "archived" && (
-            <button type="button" onClick={() => setShowEdit(true)}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent">
-              <Edit2 className="size-4" />Edit
-            </button>
-          )}
-          {canArchive && employee.status === "active" && (
-            <button type="button" onClick={handleArchiveClick}
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent">
-              Archive
-            </button>
-          )}
-          {canArchive && employee.status === "archived" && (
-            <button type="button" onClick={() => setShowReinstate(true)}
-              className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-              Reinstate
-            </button>
-          )}
+          <div className="flex w-full items-center gap-2 @[520px]:w-auto @[520px]:shrink-0">
+            {employee.status !== "archived" && (
+              <button type="button" onClick={() => setShowEdit(true)}
+                className="inline-flex h-9 flex-1 @[520px]:flex-none items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent">
+                <Edit2 className="size-4" />Edit
+              </button>
+            )}
+            {canArchive && employee.status === "active" && (
+              <button type="button" onClick={handleArchiveClick}
+                className="inline-flex h-9 flex-1 @[520px]:flex-none items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium transition-colors hover:bg-accent">
+                Archive
+              </button>
+            )}
+            {canArchive && employee.status === "archived" && (
+              <button type="button" onClick={() => setShowReinstate(true)}
+                className="inline-flex h-9 flex-1 @[520px]:flex-none items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                Reinstate
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

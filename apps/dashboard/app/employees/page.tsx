@@ -31,6 +31,13 @@ import { PageShell } from "@/components/page-shell"
 import { type EmployeeStatus, EMPLOYEE_STATUS_CONFIG, EmployeeStatusBadge } from "@/components/employee-status-badge"
 import { EditEmployeeDialog } from "@/components/edit-employee-dialog"
 import { AlertBox } from "@/components/modal-alert"
+import { usePopoverStyle } from "@/components/filter-dropdown"
+import {
+  FiltersButton,
+  FilterSheetSection,
+  FilterSheetCheckboxList,
+  MobileFilterSheet,
+} from "@/components/mobile-filter-sheet"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1272,6 +1279,7 @@ export default function EmployeesPage() {
   const [page, setPage]                   = useState(1)
   const [perPage, setPerPage]             = useState(10)
   const [statusOpen, setStatusOpen]       = useState(false)
+  const [filtersOpen, setFiltersOpen]     = useState(false)
   const [showCreate, setShowCreate]       = useState(false)
   const [showImport, setShowImport]       = useState(false)
   const [toasts, setToasts]               = useState<ToastItem[]>([])
@@ -1280,6 +1288,8 @@ export default function EmployeesPage() {
   const [reinstateTarget, setReinstateTarget] = useState<Employee | null>(null)
   const toastId = useRef(0)
   const statusRef = useRef<HTMLDivElement>(null)
+  const statusTriggerRef = useRef<HTMLButtonElement>(null)
+  const statusPopoverStyle = usePopoverStyle(statusTriggerRef, statusOpen, 220)
 
   useEffect(() => {
     function onPointer(e: PointerEvent) {
@@ -1376,23 +1386,39 @@ export default function EmployeesPage() {
         title={`Employees (${employees.length})`}
         description="Manage your workforce across all areas and sites."
         action={
-          <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex w-full gap-2 @[680px]:w-auto">
             {canImport && (
               <button type="button" onClick={() => setShowImport(true)}
-                className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground whitespace-nowrap transition-colors hover:bg-accent">
-                <Upload className="size-4 shrink-0" />Import employees
+                className="inline-flex h-9 flex-1 min-w-0 @[680px]:flex-none items-center justify-center gap-2 rounded-md border border-input bg-muted/50 px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent">
+                <Upload className="size-4 shrink-0" /><span className="truncate">Import employees</span>
               </button>
             )}
             <button type="button" onClick={() => setShowCreate(true)}
-              className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground whitespace-nowrap transition-colors hover:bg-primary/90">
-              <Plus className="size-4 shrink-0" />Create employee
+              className="inline-flex h-9 flex-1 min-w-0 @[680px]:flex-none items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+              <Plus className="size-4 shrink-0" /><span className="truncate">Create employee</span>
             </button>
           </div>
         }
       >
-        {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex h-9 flex-1 min-w-0 @[500px]:flex-none @[500px]:w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+        {/* Mobile toolbar: Search + Filters button */}
+        <div className="flex items-center gap-2 @[640px]:hidden">
+          <div className="flex h-9 flex-1 min-w-0 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+            <Search className="size-3.5 shrink-0 text-muted-foreground" />
+            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name or T&A ID…"
+              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none" />
+            {search && (
+              <button type="button" onClick={() => setSearch("")} className="shrink-0 text-muted-foreground hover:text-foreground">
+                <X className="size-3.5" />
+              </button>
+            )}
+          </div>
+          <FiltersButton activeCount={statusFilter.length} onClick={() => setFiltersOpen(true)} />
+        </div>
+
+        {/* Desktop toolbar: inline filters */}
+        <div className="hidden @[640px]:flex flex-wrap items-center gap-2">
+          <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
             <Search className="size-3.5 shrink-0 text-muted-foreground" />
             <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name or T&A ID…"
@@ -1407,6 +1433,7 @@ export default function EmployeesPage() {
           {/* Status faceted filter */}
           <div className="relative" ref={statusRef}>
             <button
+              ref={statusTriggerRef}
               type="button"
               aria-label="Filter employees by status"
               aria-expanded={statusOpen}
@@ -1431,43 +1458,45 @@ export default function EmployeesPage() {
             </button>
 
             {statusOpen && (
-              <div className="absolute left-0 top-full z-20 mt-1.5 min-w-[200px] rounded-xl border border-border bg-background shadow-lg">
-                <div className="p-1" role="group" aria-label="Filter by status">
-                  {STATUS_ORDER.map((s) => {
-                    const checked = statusFilter.includes(s)
-                    return (
-                      <label
-                        key={s}
-                        className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
-                      >
-                        <div
-                          className={cn(
-                            "flex size-4 shrink-0 items-center justify-center rounded border",
-                            checked ? "border-primary bg-primary text-primary-foreground" : "border-input"
-                          )}
-                          aria-hidden
+              <div style={statusPopoverStyle} className="flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-lg">
+                <div className="min-h-0 flex-1 overflow-y-auto">
+                  <div className="p-1" role="group" aria-label="Filter by status">
+                    {STATUS_ORDER.map((s) => {
+                      const checked = statusFilter.includes(s)
+                      return (
+                        <label
+                          key={s}
+                          className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
                         >
-                          {checked && <Check className="size-2.5" />}
-                        </div>
-                        <span className="flex-1">{EMPLOYEE_STATUS_CONFIG[s].label}</span>
-                        <span className="tabular-nums text-xs text-muted-foreground">
-                          {statusCounts[s]}
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleStatus(s)}
-                          aria-label={`Filter by ${EMPLOYEE_STATUS_CONFIG[s].label}`}
-                          className="sr-only"
-                        />
-                      </label>
-                    )
-                  })}
+                          <div
+                            className={cn(
+                              "flex size-4 shrink-0 items-center justify-center rounded border",
+                              checked ? "border-primary bg-primary text-primary-foreground" : "border-input"
+                            )}
+                            aria-hidden
+                          >
+                            {checked && <Check className="size-2.5" />}
+                          </div>
+                          <span className="flex-1">{EMPLOYEE_STATUS_CONFIG[s].label}</span>
+                          <span className="tabular-nums text-xs text-muted-foreground">
+                            {statusCounts[s]}
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleStatus(s)}
+                            aria-label={`Filter by ${EMPLOYEE_STATUS_CONFIG[s].label}`}
+                            className="sr-only"
+                          />
+                        </label>
+                      )
+                    })}
+                  </div>
                 </div>
                 {statusFilter.length > 0 && (
                   <>
-                    <div className="border-t border-border" />
-                    <div className="p-1">
+                    <div className="flex-none border-t border-border" />
+                    <div className="flex-none p-1">
                       <button
                         type="button"
                         onClick={() => { setStatusFilter([]); setStatusOpen(false) }}
@@ -1482,7 +1511,7 @@ export default function EmployeesPage() {
             )}
           </div>
 
-          {/* Reset filters — visible only when a status is selected */}
+          {/* Reset filters */}
           {statusFilter.length > 0 && (
             <button
               type="button"
@@ -1494,6 +1523,26 @@ export default function EmployeesPage() {
             </button>
           )}
         </div>
+
+        {/* Mobile filter sheet */}
+        <MobileFilterSheet
+          open={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
+          onReset={() => { setStatusFilter([]); setPage(1) }}
+          activeCount={statusFilter.length}
+        >
+          <FilterSheetSection title="Status">
+            <FilterSheetCheckboxList
+              options={STATUS_ORDER.map(s => ({
+                value: s,
+                label: EMPLOYEE_STATUS_CONFIG[s].label,
+                count: statusCounts[s],
+              }))}
+              value={statusFilter}
+              onChange={v => { setStatusFilter(v as EmployeeStatus[]); setPage(1) }}
+            />
+          </FilterSheetSection>
+        </MobileFilterSheet>
 
         {/* Table */}
         {paged.length > 0 ? (
@@ -1545,8 +1594,8 @@ export default function EmployeesPage() {
             </table>
             </div>
 
-            <div className="flex items-center gap-4 border-t border-border px-4 py-3">
-              {/* Left: rows per page — shrink-0 so it never compresses */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
+              {/* Left: rows per page */}
               <div className="flex shrink-0 items-center gap-2">
                 <div className="relative flex items-center">
                   <select
@@ -1563,18 +1612,11 @@ export default function EmployeesPage() {
                 <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
               </div>
 
-              {/* Spacer */}
-              <div className="flex-1" />
-
-              {/* Right: page label + navigation together */}
-              <div className="flex shrink-0 items-center gap-3">
-                <span className="whitespace-nowrap text-xs text-muted-foreground">
-                  Page {currentPage} of {totalPages}
-                </span>
-              <div className="flex shrink-0 items-center gap-1">
+              {/* Right: navigation */}
+              <div className="ml-auto flex shrink-0 items-center gap-1">
                 <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
                   aria-label="First page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                  className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
                   <ChevronsLeft className="size-3.5" />
                 </button>
                 <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}
@@ -1582,12 +1624,13 @@ export default function EmployeesPage() {
                   className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
                   <ChevronLeft className="size-3.5" />
                 </button>
+                <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">{currentPage} / {totalPages}</span>
                 {getPageWindow(currentPage, totalPages).map((n) => (
                   <button key={n} type="button" onClick={() => setPage(n)}
                     aria-label={`Page ${n}`}
                     aria-current={n === currentPage ? "page" : undefined}
                     className={cn(
-                      "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                      "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
                       n === currentPage
                         ? "bg-primary text-primary-foreground"
                         : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
@@ -1602,10 +1645,9 @@ export default function EmployeesPage() {
                 </button>
                 <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
                   aria-label="Last page"
-                  className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                  className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
                   <ChevronsRight className="size-3.5" />
                 </button>
-              </div>
               </div>
             </div>
           </div>

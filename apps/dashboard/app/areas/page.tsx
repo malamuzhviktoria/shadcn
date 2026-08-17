@@ -359,8 +359,8 @@ function AreaListView({
   return (
     <div className="flex flex-col gap-4">
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-3 @[680px]:flex-row @[680px]:items-start @[680px]:justify-between @[680px]:gap-4">
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold tracking-tight">Areas ({areas.length})</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage cleaning operation areas and their Heads of Area.
@@ -369,7 +369,7 @@ function AreaListView({
         {canManage && (
           <button
             onClick={onCreateArea}
-            className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex h-9 w-full @[680px]:w-auto @[680px]:shrink-0 @[680px]:self-start items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
           >
             <Plus className="size-4" />
             Create Area
@@ -378,7 +378,7 @@ function AreaListView({
       </div>
 
       {/* Search */}
-      <div className="flex h-9 w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
+      <div className="flex h-9 w-full @[500px]:w-80 items-center gap-2 rounded-md border border-input transition-colors hover:border-input-hover bg-muted/50 px-3 text-sm">
         <Search className="size-3.5 shrink-0 text-muted-foreground" />
         <input
           type="text"
@@ -422,7 +422,9 @@ function AreaListView({
           </div>
         ) : (
           <>
-            <table className="w-full text-sm">
+            {paged.length > 0 ? (
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px] text-sm">
               <colgroup>
                 <col className="w-[24%]" />
                 <col className="w-[27%]" />
@@ -440,26 +442,7 @@ function AreaListView({
                 </tr>
               </thead>
               <tbody>
-                {paged.length === 0 ? (
-                  /* No search results */
-                  <tr>
-                    <td colSpan={canManage ? 5 : 4} className="px-4 py-12 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <Search className="size-6 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">
-                          No areas found for <strong>&ldquo;{search}&rdquo;</strong>
-                        </p>
-                        <button
-                          onClick={() => setSearch("")}
-                          className="text-xs text-primary hover:underline"
-                        >
-                          Clear search
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  paged.map(area => {
+                {paged.map(area => {
                     const sites = AREA_SITES[area.id] ?? []
                     const managerCount = countManagers(sites)
                     return (
@@ -489,13 +472,31 @@ function AreaListView({
                       </tr>
                     )
                   })
-                )}
+                }
               </tbody>
             </table>
+            </div>
+            ) : (
+              /* No search results — outside overflow-x-auto so it fills the visible card width */
+              <div className="px-4 py-12 text-center">
+                <div className="flex flex-col items-center gap-2">
+                  <Search className="size-6 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    No areas found for <strong>&ldquo;{search}&rdquo;</strong>
+                  </p>
+                  <button
+                    onClick={() => setSearch("")}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Pagination footer */}
             {filtered.length > 0 && (
-              <div className="flex items-center gap-4 border-t border-border px-4 py-3">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border px-4 py-3">
                 <div className="flex shrink-0 items-center gap-2">
                   <div className="relative flex items-center">
                     <select value={perPage} onChange={e => { setPerPage(Number(e.target.value)); setPage(1) }}
@@ -506,46 +507,41 @@ function AreaListView({
                   </div>
                   <span className="whitespace-nowrap text-xs text-muted-foreground">Rows per page</span>
                 </div>
-                <div className="flex-1" />
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="whitespace-nowrap text-xs text-muted-foreground">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
-                      aria-label="First page"
-                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                      <ChevronsLeft className="size-3.5" />
+                <div className="ml-auto flex shrink-0 items-center gap-1">
+                  <button type="button" onClick={() => setPage(1)} disabled={currentPage === 1}
+                    aria-label="First page"
+                    className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                    <ChevronsLeft className="size-3.5" />
+                  </button>
+                  <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+                    aria-label="Previous page"
+                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                    <ChevronLeft className="size-3.5" />
+                  </button>
+                  <span className="inline-flex @[460px]:hidden whitespace-nowrap px-2 text-xs text-muted-foreground">{currentPage} / {totalPages}</span>
+                  {getPageWindow(currentPage, totalPages).map(n => (
+                    <button key={n} type="button" onClick={() => setPage(n)}
+                      aria-label={`Page ${n}`}
+                      aria-current={n === currentPage ? "page" : undefined}
+                      className={cn(
+                        "hidden @[460px]:flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
+                        n === currentPage
+                          ? "bg-primary text-primary-foreground"
+                          : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
+                      )}>
+                      {n}
                     </button>
-                    <button type="button" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-                      aria-label="Previous page"
-                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                      <ChevronLeft className="size-3.5" />
-                    </button>
-                    {getPageWindow(currentPage, totalPages).map(n => (
-                      <button key={n} type="button" onClick={() => setPage(n)}
-                        aria-label={`Page ${n}`}
-                        aria-current={n === currentPage ? "page" : undefined}
-                        className={cn(
-                          "flex size-7 items-center justify-center rounded-md text-xs font-medium transition-colors",
-                          n === currentPage
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-input bg-muted/50 text-muted-foreground hover:bg-accent"
-                        )}>
-                        {n}
-                      </button>
-                    ))}
-                    <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-                      aria-label="Next page"
-                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                      <ChevronRight className="size-3.5" />
-                    </button>
-                    <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
-                      aria-label="Last page"
-                      className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
-                      <ChevronsRight className="size-3.5" />
-                    </button>
-                  </div>
+                  ))}
+                  <button type="button" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+                    aria-label="Next page"
+                    className="flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                    <ChevronRight className="size-3.5" />
+                  </button>
+                  <button type="button" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}
+                    aria-label="Last page"
+                    className="hidden @[460px]:flex size-7 items-center justify-center rounded-md border border-input bg-muted/50 text-muted-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40">
+                    <ChevronsRight className="size-3.5" />
+                  </button>
                 </div>
               </div>
             )}

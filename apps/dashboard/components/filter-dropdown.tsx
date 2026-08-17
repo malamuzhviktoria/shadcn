@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, type CSSProperties } from "react"
 import { Calendar, Check, CirclePlus, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -8,6 +8,45 @@ export type FilterOption = {
   value: string
   label: string
   sublabel?: string
+}
+
+export function usePopoverStyle(
+  triggerRef: { current: HTMLButtonElement | null },
+  open: boolean,
+  preferredWidth = 240
+): CSSProperties {
+  const [style, setStyle] = useState<CSSProperties>({})
+  useEffect(() => {
+    if (!open || !triggerRef.current) { setStyle({}); return }
+    const t = triggerRef.current.getBoundingClientRect()
+    const vw = window.innerWidth
+    const vh = window.innerHeight
+    const gap = 6
+    const pad = 8
+    const width = Math.min(preferredWidth, vw - 2 * pad)
+    let left = t.left
+    if (left + width > vw - pad) left = t.right - width
+    left = Math.max(pad, Math.min(left, vw - width - pad))
+    const spaceBelow = vh - t.bottom - gap - pad
+    const spaceAbove = t.top - gap - pad
+    const openAbove = spaceBelow < 120 && spaceAbove > spaceBelow
+    setStyle(openAbove ? {
+      position: "fixed",
+      left,
+      width,
+      zIndex: 50,
+      bottom: vh - t.top + gap,
+      maxHeight: Math.max(100, Math.min(360, spaceAbove)),
+    } : {
+      position: "fixed",
+      left,
+      width,
+      zIndex: 50,
+      top: t.bottom + gap,
+      maxHeight: Math.max(100, Math.min(360, spaceBelow)),
+    })
+  }, [open, preferredWidth]) // eslint-disable-line react-hooks/exhaustive-deps
+  return style
 }
 
 export function FilterDropdown({
@@ -31,11 +70,13 @@ export function FilterDropdown({
 }) {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const ref = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverStyle = usePopoverStyle(triggerRef, open)
 
   useEffect(() => {
     function onPointer(e: PointerEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
         setSearchQuery("")
       }
@@ -54,8 +95,9 @@ export function FilterDropdown({
     : options
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={containerRef}>
       <button
+        ref={triggerRef}
         type="button"
         aria-expanded={open}
         aria-haspopup="listbox"
@@ -81,13 +123,11 @@ export function FilterDropdown({
         <div
           role="listbox"
           aria-label={`Filter by ${label}`}
-          className={cn(
-            "absolute top-full z-20 mt-1.5 min-w-[220px] rounded-xl border border-border bg-background shadow-lg",
-            align === "right" ? "right-0" : "left-0"
-          )}
+          style={popoverStyle}
+          className="flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-lg"
         >
           {searchable && (
-            <div className="p-2 pb-1">
+            <div className="flex-none p-2 pb-1">
               <div className="flex h-8 items-center gap-2 rounded-md border border-input bg-muted/50 px-2.5">
                 <Search className="size-3.5 shrink-0 text-muted-foreground" />
                 <input
@@ -101,7 +141,7 @@ export function FilterDropdown({
               </div>
             </div>
           )}
-          <div className={cn("overflow-y-auto", searchable ? "max-h-[240px]" : "max-h-[280px]")}>
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="p-1">
               {visibleOptions.length === 0 ? (
                 <div className="px-3 py-5 text-center text-xs text-muted-foreground">
@@ -140,8 +180,8 @@ export function FilterDropdown({
           </div>
           {value && (
             <>
-              <div className="border-t border-border" />
-              <div className="p-1">
+              <div className="flex-none border-t border-border" />
+              <div className="flex-none p-1">
                 <button
                   type="button"
                   onClick={() => { onChange(""); setOpen(false); setSearchQuery("") }}
@@ -179,11 +219,13 @@ export function MultiFilterDropdown({
 }) {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const ref = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverStyle = usePopoverStyle(triggerRef, open)
 
   useEffect(() => {
     function onPointer(e: PointerEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
         setSearchQuery("")
       }
@@ -205,8 +247,9 @@ export function MultiFilterDropdown({
     : options
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={containerRef}>
       <button
+        ref={triggerRef}
         type="button"
         aria-expanded={open}
         aria-haspopup="listbox"
@@ -241,13 +284,11 @@ export function MultiFilterDropdown({
         <div
           role="group"
           aria-label={`Filter by ${label}`}
-          className={cn(
-            "absolute top-full z-20 mt-1.5 min-w-[220px] rounded-xl border border-border bg-background shadow-lg",
-            align === "right" ? "right-0" : "left-0"
-          )}
+          style={popoverStyle}
+          className="flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-lg"
         >
           {searchable && (
-            <div className="p-2 pb-1">
+            <div className="flex-none p-2 pb-1">
               <div className="flex h-8 items-center gap-2 rounded-md border border-input bg-muted/50 px-2.5">
                 <Search className="size-3.5 shrink-0 text-muted-foreground" />
                 <input
@@ -261,7 +302,7 @@ export function MultiFilterDropdown({
               </div>
             </div>
           )}
-          <div className={cn("overflow-y-auto", searchable ? "max-h-[240px]" : "max-h-[280px]")}>
+          <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="p-1">
               {visibleOptions.length === 0 ? (
                 <div className="px-3 py-5 text-center text-xs text-muted-foreground">
@@ -303,8 +344,8 @@ export function MultiFilterDropdown({
           </div>
           {value.length > 0 && (
             <>
-              <div className="border-t border-border" />
-              <div className="p-1">
+              <div className="flex-none border-t border-border" />
+              <div className="flex-none p-1">
                 <button
                   type="button"
                   onClick={() => { onChange([]); setOpen(false); setSearchQuery("") }}
@@ -357,11 +398,13 @@ export function DateRangeFilter({ from, to, onChange }: {
   onChange: (from: string, to: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverStyle = usePopoverStyle(triggerRef, open, 320)
 
   useEffect(() => {
     function handler(e: PointerEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener("pointerdown", handler)
     return () => document.removeEventListener("pointerdown", handler)
@@ -370,8 +413,9 @@ export function DateRangeFilter({ from, to, onChange }: {
   const hasValue = !!(from || to)
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={containerRef}>
       <button
+        ref={triggerRef}
         type="button"
         aria-expanded={open}
         onClick={() => setOpen(v => !v)}
@@ -395,7 +439,10 @@ export function DateRangeFilter({ from, to, onChange }: {
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-20 mt-1.5 w-80 rounded-xl border border-border bg-background shadow-lg">
+        <div
+          style={popoverStyle}
+          className="overflow-hidden rounded-xl border border-border bg-background shadow-lg"
+        >
           <div className="grid grid-cols-2 gap-2 p-3">
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium text-muted-foreground">From</span>
